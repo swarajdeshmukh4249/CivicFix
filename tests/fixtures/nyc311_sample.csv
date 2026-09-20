@@ -1,0 +1,13 @@
+Unique Key,Created Date,Complaint Type,Descriptor,Borough
+1,01/02/2024,Street Condition,Pothole in roadway causing damage to vehicles
+2,01/03/2024,Street Condition,Street badly cracked and caving in near intersection
+3,01/04/2024,Street Condition,Large pothole reported by resident on main road
+4,01/05/2024,Sewer,Sewer backing up onto street surface
+5,01/06/2024,Sewer,Catch basin clogged causing street flooding
+6,01/07/2024,Sewer,Manhole overflowing with wastewater
+7,01/08/2024,Water System,No water supply reported in building
+8,01/09/2024,Water System,Low water pressure complaint from resident
+9,01/10/2024,Street Light Condition,Street light out for several nights
+10,01/11/2024,Street Light Condition,Lamp post not lighting up at night
+11,01/12/2024,Noise - Residential,Loud music complaint from neighbor
+12,01/13/2024,Noise - Residential,Construction noise early in the morning
