@@ -1,0 +1,59 @@
+from app.ingest.location import extract_landmark_phrase, extract_ward_number
+
+
+def test_ward_no_dot_number_no_space():
+    assert extract_ward_number("...at Shivkirti Ghorpadi ward no.20") == 20
+
+
+def test_ward_no_with_space():
+    assert extract_ward_number("Create Waiting Room at Sub.Div.No.3 Office. Ward no 20") == 20
+
+
+def test_ward_number_no_qualifier():
+    assert extract_ward_number("At Ward 9 Establishment of a bus stop at D-Mart, Baner.") == 9
+
+
+def test_road_concreting_ward_dot():
+    assert extract_ward_number("Road Concreting at Ward No.11, Sutardara Kothrud.") == 11
+
+
+def test_does_not_false_positive_on_sub_division_number():
+    assert extract_ward_number("Paud Police Station Computer Dell Inspiron - 4, Sub.Div.No.3") is None
+
+
+def test_out_of_range_ward_number_returns_none():
+    assert extract_ward_number("Ward no 200 renovation") is None
+
+
+def test_no_ward_mention_returns_none():
+    assert extract_ward_number("Construction of a public hall at Mulashi Khurd") is None
+
+
+def test_empty_text_returns_none():
+    assert extract_ward_number("") is None
+    assert extract_ward_number(None) is None
+
+
+def test_extracts_landmark_after_near():
+    assert extract_landmark_phrase("Installation Of Exercise Equipment Near Pashan lake") == "Pashan lake"
+
+
+def test_extracts_landmark_after_at_with_comma():
+    assert extract_landmark_phrase("Construction of a public hall at Mulashi Khurd, Pune District") == "Mulashi Khurd"
+
+
+def test_extracts_landmark_stops_before_ward_mention():
+    assert extract_landmark_phrase("Establishment of a bus stop at Ashish Garden, Kothrud Up") == "Ashish Garden"
+
+
+def test_rejects_short_office_jargon_stopword():
+    assert extract_landmark_phrase("Create Waiting Room at Sub.Div.No.3 Office.") is None
+
+
+def test_no_landmark_marker_returns_none():
+    assert extract_landmark_phrase("Sarve no 15 83 462 496 663 distict Junnar Pune") is None
+
+
+def test_empty_text_returns_none_for_landmark():
+    assert extract_landmark_phrase("") is None
+    assert extract_landmark_phrase(None) is None

@@ -3,8 +3,10 @@ __pycache__/
 *.pyc
 .env
 models/*.pkl
-data/cache/
+data/cache/*
+!data/cache/geocode_cache.json
 web/node_modules/
 web/dist/
 .DS_Store
 *.log
+.claude/
