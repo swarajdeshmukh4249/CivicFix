@@ -1,0 +1,68 @@
+:root {
+  /* Paper-toned neutrals - a civic record, not a SaaS surface */
+  --paper: #f5f3ec;
+  --paper-raised: #fbfaf5;
+  --ink: #201d16;
+  --ink-soft: #4d493c;
+  --ink-faint: #6b6455; /* 5.28:1 on --paper - the original #8a8371 was 3.40:1, under WCAG AA */
+  --line: #d8d2bf;
+  --line-strong: #b5ac93;
+
+  /* One accent, used sparingly for interactive/priority emphasis */
+  --accent: #9c5a26;
+  --accent-soft: #ead9bf;
+  --accent-ink: #f5f3ec;
+
+  /* Severity - muted, not traffic-light-saturated */
+  --critical: #963a2c;
+  --moderate: #9c7226;
+  --cosmetic: #55704f;
+
+  /* Spatial precision */
+  --precise: #2c5f6b;
+  --ward-level: var(--ink-faint);
+
+  /* Civic categories - desaturated, each distinct */
+  --cat-pothole_road: #8a5732;
+  --cat-drainage_sewage: #2c6b63;
+  --cat-water_supply: #2c5680;
+  --cat-streetlight: #9c7226;
+  --cat-garbage_waste: #6b6b2c;
+  --cat-footpath: #67498a;
+  --cat-traffic_signage: #8a3c5f;
+  --cat-other: #8a8371;
+
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --shadow-card: 0 1px 2px rgba(32, 29, 22, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #16150f;
+    --paper-raised: #1d1c14;
+    --ink: #ece7d7;
+    --ink-soft: #c3bda6;
+    --ink-faint: #948d76; /* 5.51:1 on dark --paper - the original #837c67 was 4.39:1, under WCAG AA */
+    --line: #322e1f;
+    --line-strong: #494328;
+    --accent: #d38c4c;
+    --accent-soft: #3b2c17;
+    --accent-ink: #1d1c14;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+}

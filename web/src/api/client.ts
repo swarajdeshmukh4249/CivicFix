@@ -1,0 +1,79 @@
+import type {
+  HealthResponse,
+  IssueDetailResponse,
+  IssueListResponse,
+  MapResponse,
+  MatchSummary,
+  ReportCreateRequest,
+  ReportCreateResponse,
+  StatsResponse,
+  WorkSummary,
+} from "./types";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
+export class ApiError extends Error {
+  status: number;
+  detail: unknown;
+
+  constructor(status: number, detail: unknown) {
+    super(typeof detail === "string" ? detail : `API error (${status})`);
+    this.status = status;
+    this.detail = detail;
+  }
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...init,
+  });
+  if (!res.ok) {
+    let detail: unknown;
+    try {
+      detail = (await res.json()).detail;
+    } catch {
+      detail = res.statusText;
+    }
+    throw new ApiError(res.status, detail);
+  }
+  return res.json() as Promise<T>;
+}
+
+function query(params: object): string {
+  const usp = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== "") {
+      usp.set(key, String(value));
+    }
+  }
+  const qs = usp.toString();
+  return qs ? `?${qs}` : "";
+}
+
+export interface IssueListParams {
+  ward_id?: number;
+  category?: string;
+  status?: string;
+  min_priority?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export const api = {
+  health: () => request<HealthResponse>("/api/health"),
+  stats: () => request<StatsResponse>("/api/stats"),
+  listIssues: (params: IssueListParams = {}) =>
+    request<IssueListResponse>(`/api/issues${query(params)}`),
+  issueDetail: (issueId: number) => request<IssueDetailResponse>(`/api/issues/${issueId}`),
+  listMatches: (params: { limit?: number; offset?: number } = {}) =>
+    request<MatchSummary[]>(`/api/matches${query(params)}`),
+  listWorks: (params: { ward_id?: number; category?: string; limit?: number; offset?: number } = {}) =>
+    request<WorkSummary[]>(`/api/works${query(params)}`),
+  map: () => request<MapResponse>("/api/map"),
+  createReport: (payload: ReportCreateRequest) =>
+    request<ReportCreateResponse>("/api/reports", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+};

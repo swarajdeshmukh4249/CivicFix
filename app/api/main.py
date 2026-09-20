@@ -4,6 +4,7 @@ from typing import Optional
 
 import numpy as np
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from psycopg.rows import dict_row
 from sentence_transformers import SentenceTransformer
 
@@ -38,6 +39,18 @@ from app.nlp.location import resolve_report_location
 from app.nlp.severity import severity
 
 app = FastAPI(title="WardSentry API")
+
+# Local-dev only: lets a Vite dev server (a different origin/port) call
+# this API. Regex, not a fixed port, since Vite auto-increments its port
+# when the default is already taken by another concurrent dev server on
+# this shared machine. No auth exists yet either way - not a production
+# CORS policy.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 _embedding_model = None
 

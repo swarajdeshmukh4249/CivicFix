@@ -1,0 +1,67 @@
+.ward-map {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* Standard OSM tiles are busy/saturated by default - desaturate and lift
+   so the map reads as a quiet instrument, not a tourist map, and so our
+   category-colored markers stay the visual focus. */
+.ward-map__tiles {
+  filter: grayscale(0.55) brightness(1.08) contrast(0.92);
+}
+
+@media (prefers-color-scheme: dark) {
+  .ward-map__tiles {
+    filter: grayscale(0.6) brightness(0.75) contrast(0.9) invert(1) hue-rotate(180deg);
+  }
+}
+
+.map-marker__diamond {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border: 1.5px solid var(--paper-raised);
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.map-marker__ring {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: focus-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes focus-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-marker__ring {
+    animation: none;
+  }
+}
+
+.map-popup {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.map-popup__link {
+  margin-top: var(--space-1);
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
