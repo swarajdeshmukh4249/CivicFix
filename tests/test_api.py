@@ -658,6 +658,12 @@ def test_refresh_match_for_issue_survives_prior_signal_on_its_own_match(real_cli
     from app.core.signals import run_signals
 
     issue_id = _insert_throwaway_issue(real_conn, category="drainage_sewage", ward_id=16)
+    with real_conn.cursor() as cur:
+        # match_issue_to_work needs a real embedding on the issue - borrow
+        # issue #24's (same category/ward, already known to match work #1064).
+        cur.execute("UPDATE issues SET embedding = (SELECT embedding FROM issues WHERE id = 24) WHERE id = %s",
+                    (issue_id,))
+    real_conn.commit()
     try:
         first_match = _refresh_match_for_issue(real_conn, issue_id)
         real_conn.commit()
