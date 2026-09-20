@@ -697,6 +697,18 @@ def _refresh_match_for_issue(conn, issue_id: int) -> Optional[dict]:
 
     match = match_issue_to_work({"id": issue_id, "category": category}, conn)
     with conn.cursor() as cur:
+        # A signal from a PRIOR call to this function can already reference
+        # this issue's current match row (match_id FK) - e.g. any report
+        # that joins or merges into an already-matched issue hits this.
+        # run_signals() (called right after this, in create_report) rebuilds
+        # signals from scratch anyway, so deleting them here first is safe,
+        # not a loss - discovered live: a new report attaching to issue #24
+        # (already matched + signalled) crashed here with a FK violation
+        # before this fix.
+        cur.execute(
+            "DELETE FROM signals WHERE match_id IN (SELECT id FROM matches WHERE issue_id = %s)",
+            (issue_id,),
+        )
         cur.execute("DELETE FROM matches WHERE issue_id = %s", (issue_id,))
         if match:
             cur.execute(

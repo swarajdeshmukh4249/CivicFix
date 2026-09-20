@@ -643,3 +643,36 @@ def test_post_reports_translates_hindi_and_analyzes_uploaded_photo(real_client, 
     uploaded_path = os.path.join("data", "uploads", os.path.basename(photo_url))
     if os.path.exists(uploaded_path):
         os.remove(uploaded_path)
+
+
+def test_refresh_match_for_issue_survives_prior_signal_on_its_own_match(real_client, real_conn):
+    """Regression test: a second live-add to an already-matched, already-
+    signalled issue (e.g. issue #24 in the real data - drainage_sewage,
+    ward 16, matched to work #1064) used to crash with a ForeignKeyViolation
+    inside _refresh_match_for_issue, because it deleted the issue's old
+    match row without first clearing the signal that referenced it via
+    match_id. Reproduces that exact sequence directly rather than via a
+    full report submission (isolates the fix from clustering/geocoding).
+    """
+    from app.api.main import _refresh_match_for_issue
+    from app.core.signals import run_signals
+
+    issue_id = _insert_throwaway_issue(real_conn, category="drainage_sewage", ward_id=16)
+    try:
+        first_match = _refresh_match_for_issue(real_conn, issue_id)
+        real_conn.commit()
+        if first_match is None:
+            pytest.skip("no matchable work for drainage_sewage/ward 16 in the current dataset")
+
+        run_signals(conn=real_conn)
+        real_conn.commit()
+
+        with real_conn.cursor() as cur:
+            cur.execute("SELECT count(*) FROM signals WHERE issue_id = %s AND match_id IS NOT NULL", (issue_id,))
+            assert cur.fetchone()[0] > 0  # precondition: a signal really does reference the match
+
+        second_match = _refresh_match_for_issue(real_conn, issue_id)  # must not raise
+        real_conn.commit()
+        assert second_match is not None
+    finally:
+        _delete_throwaway_issue(real_conn, issue_id)
