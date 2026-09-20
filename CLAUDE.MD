@@ -1,0 +1,98 @@
+# CLAUDE.md — WardSentry
+
+Read `ARCHITECTURE.md` for the build spec, `DEMO.md` for what we are building
+toward, and `BUILD_PLAN.md` for the hour-by-hour plan and who owns what.
+
+## Context
+
+Hackathon PS-18 (civic grievance triage, deduplication and accountability).
+Team of three. **One 12-hour session.** Prototype, not production.
+
+The thing that makes this project different: we hold 60,359 cleaned MPLADS
+public works records, so we can link a recurring civic issue to the public work
+already funded to prevent it. No other team is doing that. Protect it.
+
+## Stack
+
+- Python 3.11 · FastAPI · uvicorn
+- PostgreSQL 16 + PostGIS + pgvector, via docker-compose
+- sentence-transformers `all-MiniLM-L6-v2` · scikit-learn · spaCy `en_core_web_sm`
+- React + Vite + Leaflet
+- pytest
+
+No auth. No deployment. No CI. Local only.
+
+## Hard rules — never violate
+
+1. **Priority is a formula, never a model.** Weights are constants in
+   `app/core/priority.py`, printable, and returned in the breakdown.
+2. **Every signal names its source record ids.** No unexplained output.
+3. **No photo severity model.** Photos are stored and shown as evidence only.
+4. **Nothing hardcoded to make the demo pass.** Seeded data is fine and labelled.
+   Anything presented as computed must be computed at runtime from the database.
+5. **Synthetic complaints are labelled synthetic** in schema and UI.
+6. **Never imply guilt.** Words: anomaly signal, verification priority, evidence,
+   human review. Never: fraud, corrupt, guilty, responsible.
+7. **Every failure degrades gracefully and says so.** Geocode fails → ward
+   centroid at confidence 0.4. Match below threshold → no match. Classification
+   below threshold → manual queue.
+
+## Working style
+
+- **One task per request.** Write the test first, then the code, then run it.
+- **Always run what you write.** Never hand back unexecuted code. If you cannot
+  run it, say so explicitly.
+- **Show real output**, not a description of expected output.
+- **Boring and readable beats clever.** We are debugging this at 3am.
+- **Ask when ambiguous.** We have one day and no time to unpick a wrong guess.
+- **Commit after every working piece**, with a descriptive message.
+- When you learn something the hard way (a column is swapped, a library version
+  is wrong, an API rate-limits), **add it to the Gotchas section below immediately.**
+
+## Build order
+
+Follow `BUILD_PLAN.md`. Do not jump ahead to the UI before the matcher works —
+a beautiful page with nothing behind it loses this hackathon.
+
+The single most important deliverable is: **one real MPLADS work record linked
+to one clustered issue, both visible on screen, with the match reason shown.**
+If we finish with only that, we still have what nobody else has.
+
+## Definition of done
+
+See `DEMO.md`. If a feature does not appear in that script, it does not get
+built today.
+
+---
+
+## Gotchas
+
+*(Append as we discover them. Keep this current — it is what survives a `/clear`.)*
+
+- **No Docker on this machine.** `docker-compose up` isn't available. Substitute: a
+  native Postgres 17 cluster dedicated to this project, isolated from the
+  machine's existing Postgres 15 (which has an unrelated `blueprint_reader` DB —
+  do not touch it). Dedicated cluster: data dir
+  `/opt/homebrew/var/postgresql@17-civicfix`, port **5433**, db `civicfix`,
+  postgis 3.6.4 + pgvector 0.8.6 already `CREATE EXTENSION`'d. Start/stop:
+  `pg_ctl -D /opt/homebrew/var/postgresql@17-civicfix -o "-p 5433" -l /opt/homebrew/var/postgresql@17-civicfix/server.log start|stop`
+  (use `/opt/homebrew/opt/postgresql@17/bin/pg_ctl` if `postgresql@15`'s pg_ctl is
+  first on PATH). Not registered as a LaunchAgent (needs explicit user approval
+  for login-persistence), so it must be started manually each session/reboot.
+  Connect: `postgresql://swarajdeshmukh4249gmail.com@localhost:5433/civicfix`.
+- **Homebrew Python is broken on this Mac for anything touching `pip`/`plistlib`.**
+  `/usr/lib/libexpat.1.dylib` (system lib, macOS 26.2 beta) is missing a symbol
+  Homebrew's Python bottles need (`_XML_SetAllocTrackerActivationThreshold`),
+  which breaks `pyexpat` → `plistlib` → `pip` (surfaces as
+  `ValueError: invalid literal for int() with base 10: ''` deep in pip/packaging).
+  Fix: `brew install expat` then
+  `export DYLD_LIBRARY_PATH=/opt/homebrew/opt/expat/lib`. Already baked into the
+  bottom of `.venv/bin/activate` in this repo — just `source .venv/bin/activate`.
+  Affects every Homebrew Python (3.12 and 3.14 both confirmed broken); not a
+  project bug.
+- **Python 3.11 (per stack) vs what's actually usable here.** Homebrew doesn't
+  have 3.11 readily paired with working ML wheels checked yet; venv is built on
+  Homebrew **Python 3.12** instead (3.14 is installed but too new for some ML
+  package wheels). Re-check if this causes a real incompatibility; nothing hit
+  so far.
+-

@@ -1,0 +1,107 @@
+-- WardSentry schema. Source of truth: ARCHITECTURE.md section 4.
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS vector;
+
+DO $$ BEGIN
+  CREATE TYPE civic_category AS ENUM (
+    'pothole_road', 'drainage_sewage', 'water_supply', 'streetlight',
+    'garbage_waste', 'footpath', 'traffic_signage', 'other'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE severity_band AS ENUM ('cosmetic', 'moderate', 'critical');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS wards (
+  id     serial PRIMARY KEY,
+  name   text NOT NULL,
+  geom   geometry(MultiPolygon,4326),
+  population int,
+  area_sqkm  real
+);
+
+CREATE TABLE IF NOT EXISTS issues (
+  id              bigserial PRIMARY KEY,
+  category        civic_category NOT NULL,
+  geom            geometry(Point,4326),
+  ward_id         int REFERENCES wards(id),
+  first_reported  timestamptz,
+  last_reported   timestamptz,
+  report_count    int NOT NULL DEFAULT 0,
+  status          text NOT NULL DEFAULT 'open',
+  closed_at       timestamptz,
+  recurrence_count int NOT NULL DEFAULT 0,
+  priority_score  real,
+  priority_breakdown jsonb,
+  embedding       vector(384)
+);
+
+CREATE TABLE IF NOT EXISTS reports (
+  id              bigserial PRIMARY KEY,
+  raw_text        text NOT NULL,
+  photo_url       text,
+  reported_at     timestamptz NOT NULL,
+  category        civic_category,
+  category_conf   real,
+  severity        severity_band,
+  location_phrase text,
+  geom            geometry(Point,4326),
+  geom_confidence real,
+  ward_id         int REFERENCES wards(id),
+  embedding       vector(384),
+  issue_id        bigint REFERENCES issues(id),
+  is_synthetic    boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS works (
+  id              bigserial PRIMARY KEY,
+  work_name       text NOT NULL,
+  description     text,
+  cost            numeric,
+  status          text,
+  sanctioned_on   date,
+  completed_on    date,
+  agency          text,
+  constituency    text,
+  category        civic_category,
+  geom            geometry(Point,4326),
+  ward_id         int REFERENCES wards(id),
+  embedding       vector(384)
+);
+
+CREATE TABLE IF NOT EXISTS matches (
+  id              bigserial PRIMARY KEY,
+  issue_id        bigint NOT NULL REFERENCES issues(id),
+  work_id         bigint NOT NULL REFERENCES works(id),
+  semantic_score  real NOT NULL,
+  distance_m      real NOT NULL,
+  days_since_completion int,
+  combined_score  real NOT NULL,
+  match_reason    text NOT NULL,
+  created_at      timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS signals (
+  id              bigserial PRIMARY KEY,
+  issue_id        bigint REFERENCES issues(id),
+  match_id        bigint REFERENCES matches(id),
+  rule_name       text NOT NULL,
+  explanation     text NOT NULL,
+  source_record_ids jsonb NOT NULL,
+  created_at      timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS sensitive_sites (
+  id       bigserial PRIMARY KEY,
+  name     text,
+  kind     text NOT NULL,
+  geom     geometry(Point,4326)
+);
+
+CREATE INDEX IF NOT EXISTS reports_geom_idx ON reports USING GIST (geom);
+CREATE INDEX IF NOT EXISTS issues_geom_idx  ON issues  USING GIST (geom);
+CREATE INDEX IF NOT EXISTS works_geom_idx   ON works   USING GIST (geom);
+CREATE INDEX IF NOT EXISTS sensitive_sites_geom_idx ON sensitive_sites USING GIST (geom);
+CREATE INDEX IF NOT EXISTS reports_embedding_idx ON reports USING ivfflat (embedding vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS works_embedding_idx   ON works   USING ivfflat (embedding vector_cosine_ops);

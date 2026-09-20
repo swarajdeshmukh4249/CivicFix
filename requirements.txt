@@ -1,0 +1,9 @@
+psycopg[binary]
+python-dotenv
+shapely
+sentence-transformers
+scikit-learn
+spacy
+fastapi
+uvicorn[standard]
+pytest
