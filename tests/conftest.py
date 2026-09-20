@@ -8,6 +8,11 @@ from dotenv import load_dotenv
 # an earlier test run's TRUNCATE wiped a real, expensively-geocoded
 # ingestion because tests and dev data shared one database.
 load_dotenv()
+# Saved before the override below, so tests that must deliberately verify
+# against the real seeded dataset (e.g. the API tests) can restore it via
+# monkeypatch.setattr("app.db.DATABASE_URL", REAL_DATABASE_URL) for the
+# duration of just those tests.
+REAL_DATABASE_URL = os.environ["DATABASE_URL"]
 os.environ["DATABASE_URL"] = os.environ["TEST_DATABASE_URL"]
 
 import pytest  # noqa: E402
@@ -21,6 +26,19 @@ WARDS_GEOJSON = "data/wards/pune-2022-wards.geojson"
 @pytest.fixture(scope="session", autouse=True)
 def _ensure_test_wards():
     load_wards(WARDS_GEOJSON)
+
+
+@pytest.fixture(scope="session")
+def real_database_url() -> str:
+    """The real civicfix DATABASE_URL, for tests that must deliberately
+    verify against the real seeded dataset. Exposed as a fixture rather
+    than a plain module constant: `from tests.conftest import X` can make
+    pytest import this module a second time under a different module
+    identity, re-running the override above and clobbering a plain
+    constant's captured value. A fixture is always resolved through
+    pytest's own already-loaded conftest instance, so it can't do that.
+    """
+    return REAL_DATABASE_URL
 
 
 @pytest.fixture
