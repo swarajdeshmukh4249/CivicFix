@@ -73,3 +73,11 @@ def test_skips_leading_determiner_instead_of_returning_none():
 
 def test_strips_trailing_preposition():
     assert extract_landmark_phrase("Footpath work near Dattawadi in the Pune Lok Sabha constituency") == "Dattawadi"
+
+
+def test_stops_at_copula_not_captured_into_phrase():
+    # Regression: found while generating synthetic complaints - templates
+    # like "{landmark} is broken" produced garbage geocode queries like
+    # "Airport Road is broken" because "is"/"are" weren't stop words.
+    assert extract_landmark_phrase("No proper footpath near Airport Road is broken and unusable") == "Airport Road"
+    assert extract_landmark_phrase("Footpath tiles near Dasara Chowk are uneven and cracked") == "Dasara Chowk"

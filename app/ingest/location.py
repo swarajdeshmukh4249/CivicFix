@@ -18,7 +18,7 @@ _CONTINUATION_STOPWORDS = {
     "because", "after", "before", "which", "that", "and", "for", "the",
     "this", "every", "time", "times", "daily", "weekly", "currently",
     "recently", "now", "still", "here", "there", "also", "already",
-    "in", "of", "on",
+    "in", "of", "on", "is", "are", "was", "were", "has", "have", "had",
 }
 _LEADING_DETERMINERS = {"the", "a", "an"}
 
