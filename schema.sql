@@ -94,10 +94,11 @@ CREATE TABLE IF NOT EXISTS signals (
 );
 
 CREATE TABLE IF NOT EXISTS sensitive_sites (
-  id       bigserial PRIMARY KEY,
-  name     text,
-  kind     text NOT NULL,
-  geom     geometry(Point,4326)
+  id        bigserial PRIMARY KEY,
+  name      text,
+  kind      text NOT NULL,
+  geom      geometry(Point,4326),
+  source_id text UNIQUE  -- e.g. "node/123456" - preserves the OSM identifier
 );
 
 CREATE INDEX IF NOT EXISTS reports_geom_idx ON reports USING GIST (geom);
