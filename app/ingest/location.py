@@ -10,6 +10,18 @@ _LANDMARK_PATTERN = re.compile(
 )
 _LANDMARK_STOPWORDS = {"sub", "ward", "dist", "tal", "no", "office"}
 
+# Words that mean the landmark phrase has run into the next clause rather
+# than continuing the place name (only matters when the sentence has no
+# punctuation to stop at, e.g. "near Pashan Lake causing accidents").
+_CONTINUATION_STOPWORDS = {
+    "causing", "again", "today", "please", "urgently", "reported", "since",
+    "because", "after", "before", "which", "that", "and", "for", "the",
+    "this", "every", "time", "times", "daily", "weekly", "currently",
+    "recently", "now", "still", "here", "there", "also", "already",
+    "in", "of", "on",
+}
+_LEADING_DETERMINERS = {"the", "a", "an"}
+
 
 def extract_ward_number(text: str, max_ward_id: int = 58) -> int | None:
     """Pulls an explicit ward number out of free text, e.g. "Ward no.20",
@@ -39,7 +51,19 @@ def extract_landmark_phrase(text: str) -> str | None:
     match = _LANDMARK_PATTERN.search(text)
     if not match:
         return None
-    phrase = match.group(1).strip().strip(".")
+    raw = match.group(1).strip().strip(".")
+
+    remaining = raw.split()
+    while remaining and remaining[0].lower() in _LEADING_DETERMINERS:
+        remaining.pop(0)
+
+    words = []
+    for word in remaining:
+        if word.lower().strip(".,") in _CONTINUATION_STOPWORDS:
+            break
+        words.append(word)
+    phrase = " ".join(words)
+
     if len(phrase) < 4 or phrase.lower() in _LANDMARK_STOPWORDS:
         return None
     return phrase

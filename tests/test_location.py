@@ -57,3 +57,19 @@ def test_no_landmark_marker_returns_none():
 def test_empty_text_returns_none_for_landmark():
     assert extract_landmark_phrase("") is None
     assert extract_landmark_phrase(None) is None
+
+
+def test_stops_at_continuation_word_when_no_punctuation():
+    # Regression: without punctuation to stop at, the old regex swallowed
+    # the rest of the sentence ("Pashan Lake causing accidents").
+    assert extract_landmark_phrase("Pothole near Pashan Lake causing accidents") == "Pashan Lake"
+
+
+def test_skips_leading_determiner_instead_of_returning_none():
+    # Regression: a leading "the" used to be treated as an instant stopword
+    # hit, discarding the whole phrase instead of just skipping "the".
+    assert extract_landmark_phrase("Toilet built at the water tank at NCC Headquarters") == "water tank at NCC Headquarters"
+
+
+def test_strips_trailing_preposition():
+    assert extract_landmark_phrase("Footpath work near Dattawadi in the Pune Lok Sabha constituency") == "Dattawadi"
