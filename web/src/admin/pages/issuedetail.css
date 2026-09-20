@@ -48,6 +48,12 @@
   cursor: default;
 }
 
+.issue-detail__actions .issue-detail__route-button {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+}
+
 .issue-detail__close-error {
   color: var(--danger, #b3261e);
   font-size: 13px;
@@ -127,14 +133,69 @@
   color: var(--ink-faint);
 }
 
-.report-timeline__photo {
+.report-timeline__translation {
+  margin: var(--space-1) 0 0;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.report-timeline__photo-block {
   margin-top: var(--space-2);
+}
+
+.report-timeline__photo {
   max-width: 200px;
   max-height: 200px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   object-fit: cover;
   display: block;
+}
+
+.report-timeline__photo-severity {
+  margin: var(--space-1) 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.feedback-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.feedback-card {
+  padding: var(--space-4);
+  border-left: 3px solid var(--line-strong);
+}
+
+.feedback-card--confirmed {
+  border-left-color: var(--cosmetic);
+}
+
+.feedback-card--disputed {
+  border-left-color: var(--critical);
+}
+
+.feedback-card__verdict {
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+  font-size: 14px;
+}
+
+.feedback-card__comment {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0 0 var(--space-2);
+}
+
+.feedback-card__meta {
+  font-size: 11px;
+  color: var(--ink-faint);
 }
 
 .work-connection {

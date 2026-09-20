@@ -12,11 +12,15 @@ from psycopg.rows import dict_row
 from sentence_transformers import SentenceTransformer
 
 from app.api.schemas import (
+    FeedbackCreateRequest,
+    FeedbackCreateResponse,
+    FeedbackSummary,
     GeoPoint,
     HealthResponse,
     IssueCloseResponse,
     IssueDetailResponse,
     IssueListResponse,
+    IssueRouteResponse,
     IssueSummary,
     MapIssuePoint,
     MapResponse,
@@ -38,13 +42,18 @@ from app.core.matcher import match_issue_to_work
 from app.core.metrics import compute_metrics
 from app.core.priority import compute_priority
 from app.core.recurrence import run_recurrence_check
+from app.core.routing import route_issue
 from app.core.signals import run_signals
 from app.db import get_connection
 from app.ingest.location import extract_ward_number
 from app.nlp.classify import classify
 from app.nlp.language import detect_language
 from app.nlp.location import resolve_report_location
+from app.nlp.photo_severity import estimate_photo_severity
 from app.nlp.severity import severity
+from app.nlp.translate import translate_to_english
+
+SEVERITY_BAND_ORDER = ("cosmetic", "moderate", "critical")
 
 UPLOAD_DIR = Path("data/uploads")
 ALLOWED_PHOTO_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
@@ -141,6 +150,7 @@ def _issue_summary_from_row(r: dict, is_synthetic: Optional[bool]) -> IssueSumma
         location=GeoPoint(lat=r["lat"], lon=r["lon"]) if r["lat"] is not None else None,
         location_precision=_location_precision_from_breakdown(r["priority_breakdown"]),
         is_synthetic=is_synthetic if is_synthetic is not None else True,
+        routed_agency=r.get("routed_agency"), routed_at=r.get("routed_at"),
     )
 
 
@@ -248,6 +258,100 @@ def close_issue(issue_id: int, db=Depends(get_db)):
     return IssueCloseResponse(issue_id=issue_id, status=status, closed_at=closed_at)
 
 
+@app.post("/api/issues/{issue_id}/route", response_model=IssueRouteResponse)
+def route_issue_endpoint(issue_id: int, db=Depends(get_db)):
+    """Deterministic work-order routing: looks up the issue's category in
+    app.core.routing's fixed table (never invented per-issue) and records
+    a signal citing exactly which rule fired, matching every other
+    verification signal's source-record convention."""
+    with db.cursor() as cur:
+        cur.execute("SELECT category, routed_agency FROM issues WHERE id = %s", (issue_id,))
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"issue {issue_id} not found")
+    category, existing_agency = row
+    if existing_agency is not None:
+        raise HTTPException(status_code=400, detail=f"issue {issue_id} is already routed to {existing_agency}")
+
+    agency = route_issue(category)
+    with db.cursor() as cur:
+        cur.execute(
+            "UPDATE issues SET routed_agency = %s, routed_at = now() WHERE id = %s "
+            "RETURNING routed_agency, routed_at",
+            (agency, issue_id),
+        )
+        routed_agency, routed_at = cur.fetchone()
+        cur.execute(
+            "INSERT INTO signals (issue_id, rule_name, explanation, source_record_ids) "
+            "VALUES (%s, 'ROUTED_TO_AGENCY', %s, %s::jsonb)",
+            (
+                issue_id,
+                f"Issue #{issue_id} (category: {category}) routed to {routed_agency} per the fixed "
+                f"category-to-agency table.",
+                json.dumps({"issue_id": issue_id, "category": category}),
+            ),
+        )
+    db.commit()
+    return IssueRouteResponse(issue_id=issue_id, routed_agency=routed_agency, routed_at=routed_at)
+
+
+@app.post("/api/issues/{issue_id}/feedback", response_model=FeedbackCreateResponse, status_code=201)
+def submit_feedback(issue_id: int, payload: FeedbackCreateRequest, db=Depends(get_db)):
+    """Closes the loop after resolution: a citizen confirms the fix or
+    disputes it. A dispute reopens the issue directly (status -> reopened,
+    recurrence_count + 1) - simpler and more precise than routing through
+    run_recurrence_check's category/ward/proximity matching, since we
+    already know exactly which issue this feedback is about.
+    """
+    with db.cursor() as cur:
+        cur.execute("SELECT status FROM issues WHERE id = %s", (issue_id,))
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"issue {issue_id} not found")
+    if row[0] != "closed":
+        raise HTTPException(
+            status_code=400,
+            detail=f"issue {issue_id} is not closed (status: {row[0]}) - feedback only applies after closure",
+        )
+
+    with db.cursor() as cur:
+        cur.execute(
+            "INSERT INTO feedback (issue_id, resolved_confirmed, comment, submitted_at, is_synthetic) "
+            "VALUES (%s, %s, %s, now(), true) "
+            "RETURNING id, issue_id, resolved_confirmed, comment, submitted_at, is_synthetic",
+            (issue_id, payload.resolved_confirmed, payload.comment),
+        )
+        fb_id, fb_issue_id, resolved_confirmed, comment, submitted_at, is_synthetic = cur.fetchone()
+
+        if payload.resolved_confirmed:
+            issue_status = "closed"
+        else:
+            cur.execute(
+                "UPDATE issues SET status = 'reopened', recurrence_count = recurrence_count + 1, "
+                "closed_at = NULL WHERE id = %s RETURNING status",
+                (issue_id,),
+            )
+            issue_status = cur.fetchone()[0]
+            cur.execute(
+                "INSERT INTO signals (issue_id, rule_name, explanation, source_record_ids) "
+                "VALUES (%s, 'CITIZEN_DISPUTED_RESOLUTION', %s, %s::jsonb)",
+                (
+                    issue_id,
+                    f"A citizen reported issue #{issue_id} is not actually resolved (feedback #{fb_id}); "
+                    f"reopened for review.",
+                    json.dumps({"issue_id": issue_id, "feedback_id": fb_id}),
+                ),
+            )
+    db.commit()
+    return FeedbackCreateResponse(
+        feedback=FeedbackSummary(
+            feedback_id=fb_id, issue_id=fb_issue_id, resolved_confirmed=resolved_confirmed,
+            comment=comment, submitted_at=submitted_at, is_synthetic=is_synthetic,
+        ),
+        issue_status=issue_status,
+    )
+
+
 @app.get("/api/issues", response_model=IssueListResponse)
 def list_issues(
     ward_id: Optional[int] = None,
@@ -285,7 +389,8 @@ def list_issues(
         cur.execute(
             f"""
             SELECT id, category, ward_id, report_count, first_reported, last_reported, status,
-                   recurrence_count, priority_score, priority_breakdown, ST_Y(geom) AS lat, ST_X(geom) AS lon
+                   recurrence_count, priority_score, priority_breakdown, ST_Y(geom) AS lat, ST_X(geom) AS lon,
+                   routed_agency, routed_at
             FROM issues {where_sql}
             ORDER BY {order_sql}
             LIMIT %(limit)s OFFSET %(offset)s
@@ -304,7 +409,8 @@ def issue_detail(issue_id: int, db=Depends(get_db)):
     with db.cursor(row_factory=dict_row) as cur:
         cur.execute(
             "SELECT id, category, ward_id, status, report_count, first_reported, last_reported, "
-            "recurrence_count, priority_score, priority_breakdown, ST_Y(geom) AS lat, ST_X(geom) AS lon "
+            "recurrence_count, priority_score, priority_breakdown, ST_Y(geom) AS lat, ST_X(geom) AS lon, "
+            "routed_agency, routed_at "
             "FROM issues WHERE id = %s",
             (issue_id,),
         )
@@ -315,7 +421,8 @@ def issue_detail(issue_id: int, db=Depends(get_db)):
     with db.cursor(row_factory=dict_row) as cur:
         cur.execute(
             "SELECT id, raw_text, reported_at, category, category_conf, severity, location_phrase, "
-            "geom_confidence, ward_id, is_synthetic, photo_url, language "
+            "geom_confidence, ward_id, is_synthetic, photo_url, language, translated_text, "
+            "photo_severity_score, photo_severity_band "
             "FROM reports WHERE issue_id = %s ORDER BY reported_at",
             (issue_id,),
         )
@@ -330,6 +437,13 @@ def issue_detail(issue_id: int, db=Depends(get_db)):
             (issue_id,),
         )
         signal_rows = cur.fetchall()
+
+        cur.execute(
+            "SELECT id, issue_id, resolved_confirmed, comment, submitted_at, is_synthetic "
+            "FROM feedback WHERE issue_id = %s ORDER BY submitted_at",
+            (issue_id,),
+        )
+        feedback_rows = cur.fetchall()
 
     is_synthetic = all(r["is_synthetic"] for r in report_rows) if report_rows else True
     location_precision = _location_precision_from_breakdown(issue_row["priority_breakdown"])
@@ -351,6 +465,12 @@ def issue_detail(issue_id: int, db=Depends(get_db)):
                            source_record_ids=r["source_record_ids"])
             for r in signal_rows
         ],
+        feedback=[
+            FeedbackSummary(feedback_id=r["id"], issue_id=r["issue_id"], resolved_confirmed=r["resolved_confirmed"],
+                             comment=r["comment"], submitted_at=r["submitted_at"], is_synthetic=r["is_synthetic"])
+            for r in feedback_rows
+        ],
+        routed_agency=issue_row["routed_agency"], routed_at=issue_row["routed_at"],
     )
 
 
@@ -621,13 +741,34 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
             if cur.fetchone() is None:
                 raise HTTPException(status_code=400, detail=f"ward_id {payload.ward_id} does not exist")
 
-    category, category_conf = classify(payload.raw_text)
-    severity_band = severity(payload.raw_text, category)
-    lat, lon, geom_conf, ward_id, location_phrase = resolve_report_location(payload.raw_text, conn=db)
-    # Detection only - the classifier/geocoder above still ran on the raw
-    # text as-is (no translation exists). A non-English/undetectable result
-    # just means their output should be treated as unreliable by a reviewer.
+    # Non-English text is translated before running the (English-only)
+    # pipeline, so a Hindi/Marathi complaint gets a real category instead of
+    # falling into "other" - see app/nlp/translate.py. Translation failure
+    # (unsupported language, or the free translation service being down)
+    # degrades to running the pipeline on the original text, same as before.
     language = detect_language(payload.raw_text)
+    translated_text = translate_to_english(payload.raw_text, language) if language and language != "en" else None
+    pipeline_text = translated_text or payload.raw_text
+
+    category, category_conf = classify(pipeline_text)
+    severity_band = severity(pipeline_text, category)
+    lat, lon, geom_conf, ward_id, location_phrase = resolve_report_location(pipeline_text, conn=db)
+
+    # Photo severity: a real, deterministic formula over the uploaded
+    # image's actual pixels (see app/nlp/photo_severity.py), combined with
+    # the text-derived band by taking the more severe of the two - the same
+    # max(...) pattern app/nlp/severity.py already uses to combine the
+    # category prior with the text band.
+    photo_severity_score = None
+    photo_severity_band = None
+    if payload.photo_url:
+        try:
+            photo_path = UPLOAD_DIR / Path(payload.photo_url).name
+            result = estimate_photo_severity(photo_path.read_bytes())
+            photo_severity_score, photo_severity_band = result["score"], result["band"]
+            severity_band = max(severity_band, photo_severity_band, key=SEVERITY_BAND_ORDER.index)
+        except (ValueError, OSError):
+            pass  # undecodable/missing photo - text-derived severity stands alone
 
     # Only fills in a location the pipeline itself couldn't find - never
     # overrides a pipeline result, and never turns a ward selection into a
@@ -644,7 +785,7 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
             geom_conf = 0.4
             ward_id = payload.ward_id
 
-    embedding = _get_embedding_model().encode([payload.raw_text], show_progress_bar=False)[0]
+    embedding = _get_embedding_model().encode([pipeline_text], show_progress_bar=False)[0]
     embedding_literal = "[" + ",".join(str(float(v)) for v in embedding) + "]"
     # timestamptz columns round-trip as timezone-aware datetimes; datetime.now()
     # alone is naive and can't be subtracted from them (_time_ok does exactly
@@ -657,10 +798,11 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
             f"""
             INSERT INTO reports (raw_text, reported_at, category, category_conf, severity,
                                   location_phrase, geom, geom_confidence, ward_id, embedding, is_synthetic,
-                                  photo_url, language)
+                                  photo_url, language, translated_text, photo_severity_score, photo_severity_band)
             VALUES (%(raw_text)s, %(reported_at)s, %(category)s, %(category_conf)s, %(severity)s,
                     %(location_phrase)s, {geom_expr}, %(geom_conf)s, %(ward_id)s, %(embedding)s::vector, true,
-                    %(photo_url)s, %(language)s)
+                    %(photo_url)s, %(language)s, %(translated_text)s, %(photo_severity_score)s,
+                    %(photo_severity_band)s)
             RETURNING id
             """,
             {
@@ -668,6 +810,8 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
                 "category_conf": category_conf, "severity": severity_band, "location_phrase": location_phrase,
                 "lat": lat, "lon": lon, "geom_conf": geom_conf, "ward_id": ward_id,
                 "embedding": embedding_literal, "photo_url": payload.photo_url, "language": language,
+                "translated_text": translated_text, "photo_severity_score": photo_severity_score,
+                "photo_severity_band": photo_severity_band,
             },
         )
         report_id = cur.fetchone()[0]
@@ -737,7 +881,8 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
             id=report_id, raw_text=payload.raw_text, reported_at=reported_at, category=category,
             category_conf=category_conf, severity=severity_band, location_phrase=location_phrase,
             geom_confidence=geom_conf, ward_id=ward_id, is_synthetic=True,
-            photo_url=payload.photo_url, language=language,
+            photo_url=payload.photo_url, language=language, translated_text=translated_text,
+            photo_severity_score=photo_severity_score, photo_severity_band=photo_severity_band,
         ),
         issue_id=issue_id, joined_existing_issue=joined_existing, category=category,
         category_confidence=category_conf, severity=severity_band,

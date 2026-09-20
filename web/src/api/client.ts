@@ -1,8 +1,11 @@
 import type {
+  FeedbackCreateRequest,
+  FeedbackCreateResponse,
   HealthResponse,
   IssueCloseResponse,
   IssueDetailResponse,
   IssueListResponse,
+  IssueRouteResponse,
   MapResponse,
   MatchSummary,
   MetricsResponse,
@@ -89,6 +92,13 @@ export const api = {
   metrics: () => request<MetricsResponse>("/api/metrics"),
   closeIssue: (issueId: number) =>
     request<IssueCloseResponse>(`/api/issues/${issueId}/close`, { method: "POST" }),
+  routeIssue: (issueId: number) =>
+    request<IssueRouteResponse>(`/api/issues/${issueId}/route`, { method: "POST" }),
+  submitFeedback: (issueId: number, payload: FeedbackCreateRequest) =>
+    request<FeedbackCreateResponse>(`/api/issues/${issueId}/feedback`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   uploadPhoto: async (file: File): Promise<PhotoUploadResponse> => {
     const form = new FormData();
     form.append("file", file);

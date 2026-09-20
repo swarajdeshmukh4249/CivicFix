@@ -2,11 +2,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api, ApiError, mediaUrl } from "../../api/client";
 import { useApi } from "../../hooks/useApi";
+import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
 import { CATEGORY_LABELS } from "../../api/types";
 import type { ReportCreateResponse } from "../../api/types";
 import { LanguageTag } from "../../components/Badges";
 import { hasDistinctDescription } from "../../lib/work";
 import "./reportissue.css";
+
+const VOICE_LANGUAGES = [
+  { code: "en-IN", label: "English" },
+  { code: "hi-IN", label: "हिंदी (Hindi)" },
+  { code: "mr-IN", label: "मराठी (Marathi)" },
+];
 
 function severityMessage(severity: string): string {
   if (severity === "critical") return "This looks serious and has been flagged for prompt attention.";
@@ -23,6 +30,10 @@ export function ReportIssue() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ReportCreateResponse | null>(null);
+  const [voiceLang, setVoiceLang] = useState(VOICE_LANGUAGES[0].code);
+  const speech = useSpeechRecognition(voiceLang, (finalText) => {
+    setText((prev) => (prev.trim() ? `${prev.trim()} ${finalText.trim()}` : finalText.trim()));
+  });
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
@@ -76,6 +87,33 @@ export function ReportIssue() {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
+          {speech.supported && (
+            <div className="report-form__voice">
+              <select
+                value={voiceLang}
+                onChange={(e) => setVoiceLang(e.target.value)}
+                disabled={speech.listening}
+                aria-label="Spoken language"
+              >
+                {VOICE_LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className={`button button--ghost report-form__voice-button${speech.listening ? " is-listening" : ""}`}
+                onClick={speech.listening ? speech.stop : speech.start}
+              >
+                {speech.listening ? "⏹ Stop recording" : "🎤 Speak instead"}
+              </button>
+              {speech.listening && (
+                <span className="report-form__voice-interim">{speech.interimTranscript || "Listening…"}</span>
+              )}
+              {speech.error && <span className="report-form__voice-error">{speech.error}</span>}
+            </div>
+          )}
         </div>
         <div className="field">
           <label htmlFor="ward">Ward (optional)</label>
@@ -125,13 +163,26 @@ function ReportResult({ result, onReportAnother }: { result: ReportCreateRespons
       <p className="report-result__intro">Here's what happened with it, step by step:</p>
 
       {result.report.language && result.report.language !== "en" && (
-        <p className="report-result__language">
+        <div className="report-result__language">
           <LanguageTag language={result.report.language} />
-        </p>
+          {result.report.translated_text && (
+            <p className="report-result__translation">
+              Translated for processing: <em>&ldquo;{result.report.translated_text}&rdquo;</em>
+            </p>
+          )}
+        </div>
       )}
 
       {result.report.photo_url && (
-        <img src={mediaUrl(result.report.photo_url)} alt="" className="report-form__photo-preview" />
+        <div className="report-result__photo">
+          <img src={mediaUrl(result.report.photo_url)} alt="" className="report-form__photo-preview" />
+          {result.report.photo_severity_band && (
+            <p className="report-result__photo-severity">
+              Photo analysis: <strong>{result.report.photo_severity_band}</strong>
+              {result.report.photo_severity_score != null && ` (score ${result.report.photo_severity_score.toFixed(2)})`}
+            </p>
+          )}
+        </div>
       )}
 
       <ol className="report-result__steps">

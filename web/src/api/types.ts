@@ -116,6 +116,8 @@ export interface IssueSummary {
   location: GeoPoint | null;
   location_precision: LocationPrecision;
   is_synthetic: boolean;
+  routed_agency: string | null;
+  routed_at: string | null;
 }
 
 export interface IssueListResponse {
@@ -138,10 +140,38 @@ export interface ReportInIssue {
   is_synthetic: boolean;
   photo_url: string | null;
   language: string | null;
+  translated_text: string | null;
+  photo_severity_score: number | null;
+  photo_severity_band: string | null;
 }
 
 export interface PhotoUploadResponse {
   photo_url: string;
+}
+
+export interface IssueRouteResponse {
+  issue_id: number;
+  routed_agency: string;
+  routed_at: string;
+}
+
+export interface FeedbackSummary {
+  feedback_id: number;
+  issue_id: number;
+  resolved_confirmed: boolean;
+  comment: string | null;
+  submitted_at: string;
+  is_synthetic: boolean;
+}
+
+export interface FeedbackCreateRequest {
+  resolved_confirmed: boolean;
+  comment?: string | null;
+}
+
+export interface FeedbackCreateResponse {
+  feedback: FeedbackSummary;
+  issue_status: string;
 }
 
 export interface WorkSummary {
@@ -198,6 +228,9 @@ export interface IssueDetailResponse {
   reports: ReportInIssue[];
   matches: MatchSummary[];
   signals: SignalSummary[];
+  feedback: FeedbackSummary[];
+  routed_agency: string | null;
+  routed_at: string | null;
 }
 
 export interface MapIssuePoint {

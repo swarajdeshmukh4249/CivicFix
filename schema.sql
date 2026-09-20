@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS issues (
   recurrence_count int NOT NULL DEFAULT 0,
   priority_score  real,
   priority_breakdown jsonb,
-  embedding       vector(384)
+  embedding       vector(384),
+  routed_agency   text,        -- deterministic category -> agency lookup, see app/core/routing.py
+  routed_at       timestamptz
 );
 
 CREATE TABLE IF NOT EXISTS reports (
@@ -52,7 +54,10 @@ CREATE TABLE IF NOT EXISTS reports (
   embedding       vector(384),
   issue_id        bigint REFERENCES issues(id),
   is_synthetic    boolean NOT NULL DEFAULT false,
-  language        text  -- ISO 639-1 code from langdetect, NULL if undetectable; never assumed "en"
+  language        text,  -- ISO 639-1 code from langdetect, NULL if undetectable; never assumed "en"
+  translated_text text,  -- English translation used for classify/severity/location when language != "en"
+  photo_severity_score real,       -- see app/nlp/photo_severity.py
+  photo_severity_band  severity_band
 );
 
 CREATE TABLE IF NOT EXISTS works (
@@ -92,6 +97,15 @@ CREATE TABLE IF NOT EXISTS signals (
   explanation     text NOT NULL,
   source_record_ids jsonb NOT NULL,
   created_at      timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS feedback (
+  id                 bigserial PRIMARY KEY,
+  issue_id           bigint NOT NULL REFERENCES issues(id),
+  resolved_confirmed boolean NOT NULL,
+  comment            text,
+  submitted_at       timestamptz NOT NULL DEFAULT now(),
+  is_synthetic       boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS sensitive_sites (

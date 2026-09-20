@@ -447,3 +447,199 @@ def test_close_then_recurrence_reopens_via_live_reports(real_client, real_conn):
         assert cur.fetchone()[0] == reports_before
         cur.execute("SELECT count(*) FROM issues")
         assert cur.fetchone()[0] == issues_before
+
+
+def _insert_throwaway_issue(conn, category="pothole_road", ward_id=1, status="open"):
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO issues (category, ward_id, status, report_count, first_reported, last_reported) "
+            "VALUES (%s, %s, %s, 1, now(), now()) RETURNING id",
+            (category, ward_id, status),
+        )
+        issue_id = cur.fetchone()[0]
+    conn.commit()
+    return issue_id
+
+
+def _delete_throwaway_issue(conn, issue_id):
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM feedback WHERE issue_id = %s", (issue_id,))
+        cur.execute("DELETE FROM signals WHERE issue_id = %s", (issue_id,))
+        cur.execute("DELETE FROM matches WHERE issue_id = %s", (issue_id,))
+        cur.execute("DELETE FROM reports WHERE issue_id = %s", (issue_id,))
+        cur.execute("DELETE FROM issues WHERE id = %s", (issue_id,))
+    conn.commit()
+
+
+def test_route_issue_rejects_unknown_id(real_client):
+    resp = real_client.post("/api/issues/99999999/route")
+    assert resp.status_code == 404
+
+
+def test_route_issue_assigns_deterministic_agency_and_signal(real_client, real_conn):
+    issue_id = _insert_throwaway_issue(real_conn, category="drainage_sewage")
+    try:
+        resp = real_client.post(f"/api/issues/{issue_id}/route")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["routed_agency"] == "PMC Sewage & Drainage Department"
+        assert body["routed_at"] is not None
+
+        again = real_client.post(f"/api/issues/{issue_id}/route")
+        assert again.status_code == 400
+
+        with real_conn.cursor() as cur:
+            cur.execute(
+                "SELECT rule_name FROM signals WHERE issue_id = %s AND rule_name = 'ROUTED_TO_AGENCY'",
+                (issue_id,),
+            )
+            assert cur.fetchone() is not None
+    finally:
+        _delete_throwaway_issue(real_conn, issue_id)
+
+
+def test_feedback_rejects_unknown_id(real_client):
+    resp = real_client.post("/api/issues/99999999/feedback", json={"resolved_confirmed": True})
+    assert resp.status_code == 404
+
+
+def test_feedback_rejects_non_closed_issue(real_client, real_conn):
+    issue_id = _insert_throwaway_issue(real_conn, status="open")
+    try:
+        resp = real_client.post(f"/api/issues/{issue_id}/feedback", json={"resolved_confirmed": True})
+        assert resp.status_code == 400
+    finally:
+        _delete_throwaway_issue(real_conn, issue_id)
+
+
+def test_feedback_confirming_resolution_keeps_issue_closed(real_client, real_conn):
+    issue_id = _insert_throwaway_issue(real_conn, status="closed")
+    try:
+        resp = real_client.post(
+            f"/api/issues/{issue_id}/feedback",
+            json={"resolved_confirmed": True, "comment": "Fixed, thanks!"},
+        )
+        assert resp.status_code == 201
+        body = resp.json()
+        assert body["issue_status"] == "closed"
+        assert body["feedback"]["resolved_confirmed"] is True
+        assert body["feedback"]["comment"] == "Fixed, thanks!"
+
+        with real_conn.cursor() as cur:
+            cur.execute("SELECT status FROM issues WHERE id = %s", (issue_id,))
+            assert cur.fetchone()[0] == "closed"
+    finally:
+        _delete_throwaway_issue(real_conn, issue_id)
+
+
+def test_feedback_disputing_resolution_reopens_issue(real_client, real_conn):
+    issue_id = _insert_throwaway_issue(real_conn, status="closed")
+    try:
+        resp = real_client.post(
+            f"/api/issues/{issue_id}/feedback",
+            json={"resolved_confirmed": False, "comment": "Still broken"},
+        )
+        assert resp.status_code == 201
+        body = resp.json()
+        assert body["issue_status"] == "reopened"
+
+        with real_conn.cursor() as cur:
+            cur.execute("SELECT status, recurrence_count, closed_at FROM issues WHERE id = %s", (issue_id,))
+            status, recurrence_count, closed_at = cur.fetchone()
+            assert status == "reopened"
+            assert recurrence_count == 1
+            assert closed_at is None
+
+            cur.execute(
+                "SELECT rule_name FROM signals WHERE issue_id = %s AND rule_name = 'CITIZEN_DISPUTED_RESOLUTION'",
+                (issue_id,),
+            )
+            assert cur.fetchone() is not None
+    finally:
+        _delete_throwaway_issue(real_conn, issue_id)
+
+
+def test_issue_detail_includes_feedback_and_routing_fields(real_client, real_conn):
+    issue_id = _insert_throwaway_issue(real_conn, category="streetlight", status="closed")
+    try:
+        real_client.post(f"/api/issues/{issue_id}/feedback", json={"resolved_confirmed": True})
+        body = real_client.get(f"/api/issues/{issue_id}").json()
+        assert len(body["feedback"]) == 1
+        assert body["feedback"][0]["resolved_confirmed"] is True
+        assert body["routed_agency"] is None
+    finally:
+        _delete_throwaway_issue(real_conn, issue_id)
+
+
+def test_post_reports_translates_hindi_and_analyzes_uploaded_photo(real_client, real_conn):
+    """End-to-end: a Hindi report with a photo attached should be
+    translated (so the English-only classifier actually works instead of
+    landing in "other"), and the photo should produce a real, deterministic
+    severity signal that can only raise (never lower) the final severity.
+    """
+    import io
+
+    from PIL import Image, ImageDraw
+
+    img = Image.new("RGB", (200, 200), color=(20, 20, 20))
+    draw = ImageDraw.Draw(img)
+    for i in range(0, 200, 6):
+        draw.line([(i, 0), (200 - i, 200)], fill=(200, 30, 30), width=2)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+
+    upload_resp = real_client.post(
+        "/api/uploads/photo", files={"file": ("test.jpg", buf, "image/jpeg")}
+    )
+    assert upload_resp.status_code == 201
+    photo_url = upload_resp.json()["photo_url"]
+
+    # No English "zzqx" marker here (unlike other tests in this file): a
+    # short Hindi sentence with a long Latin-script suffix confuses
+    # langdetect into guessing "en". Ward 1's guaranteed emptiness (see
+    # test_close_then_recurrence_reopens_via_live_reports) is isolation
+    # enough on its own.
+    hindi_text = "सड़क पर बहुत बड़ा और खतरनाक गड्ढा है, कृपया जल्द से जल्द ठीक करें"
+    resp = real_client.post(
+        "/api/reports",
+        json={"raw_text": hindi_text, "ward_id": 1, "photo_url": photo_url},
+    )
+    assert resp.status_code == 201
+    body = resp.json()
+    report = body["report"]
+
+    try:
+        # Ward 1 is kept empty by convention in this file (see
+        # test_close_then_recurrence_reopens_via_live_reports) specifically
+        # so a fresh report here is guaranteed to create its own issue.
+        assert body["joined_existing_issue"] is False
+        assert report["language"] == "hi"
+        if report["translated_text"] is not None:  # translation service may be briefly unreachable
+            assert "hole" in report["translated_text"].lower() or "pothole" in report["translated_text"].lower()
+            assert body["category"] == "pothole_road"
+
+        assert report["photo_url"] == photo_url
+        assert report["photo_severity_score"] is not None
+        assert report["photo_severity_band"] in ("cosmetic", "moderate", "critical")
+        assert 0.0 <= report["photo_severity_score"] <= 1.0
+    finally:
+        issue_id = body["issue_id"]
+        with real_conn.cursor() as cur:
+            cur.execute("DELETE FROM reports WHERE id = %s", (report["id"],))
+        real_conn.commit()
+        with real_conn.cursor() as cur:
+            cur.execute("SELECT id FROM reports WHERE issue_id = %s", (issue_id,))
+            remaining = cur.fetchall()
+        if not remaining:
+            with real_conn.cursor() as cur:
+                cur.execute("DELETE FROM signals WHERE issue_id = %s", (issue_id,))
+                cur.execute("DELETE FROM matches WHERE issue_id = %s", (issue_id,))
+                cur.execute("DELETE FROM issues WHERE id = %s", (issue_id,))
+            real_conn.commit()
+
+    import os
+
+    uploaded_path = os.path.join("data", "uploads", os.path.basename(photo_url))
+    if os.path.exists(uploaded_path):
+        os.remove(uploaded_path)

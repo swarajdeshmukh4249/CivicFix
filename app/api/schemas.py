@@ -26,6 +26,31 @@ class IssueCloseResponse(BaseModel):
     closed_at: Optional[datetime]
 
 
+class IssueRouteResponse(BaseModel):
+    issue_id: int
+    routed_agency: str
+    routed_at: datetime
+
+
+class FeedbackCreateRequest(BaseModel):
+    resolved_confirmed: bool
+    comment: Optional[str] = None
+
+
+class FeedbackSummary(BaseModel):
+    feedback_id: int
+    issue_id: int
+    resolved_confirmed: bool
+    comment: Optional[str]
+    submitted_at: datetime
+    is_synthetic: bool
+
+
+class FeedbackCreateResponse(BaseModel):
+    feedback: FeedbackSummary
+    issue_status: str
+
+
 class ClassifierMetrics(BaseModel):
     model_macro_f1: Optional[float]
     baseline_macro_f1: Optional[float]
@@ -85,6 +110,8 @@ class IssueSummary(BaseModel):
     location: Optional[GeoPoint]
     location_precision: str  # "precise" | "ward_level" | "unknown"
     is_synthetic: bool
+    routed_agency: Optional[str] = None
+    routed_at: Optional[datetime] = None
 
 
 class IssueListResponse(BaseModel):
@@ -107,6 +134,9 @@ class ReportInIssue(BaseModel):
     is_synthetic: bool
     photo_url: Optional[str] = None
     language: Optional[str] = None
+    translated_text: Optional[str] = None
+    photo_severity_score: Optional[float] = None
+    photo_severity_band: Optional[str] = None
 
 
 class WorkSummary(BaseModel):
@@ -163,6 +193,9 @@ class IssueDetailResponse(BaseModel):
     reports: list[ReportInIssue]
     matches: list[MatchSummary]
     signals: list[SignalSummary]
+    feedback: list[FeedbackSummary] = []
+    routed_agency: Optional[str] = None
+    routed_at: Optional[datetime] = None
 
 
 class MapIssuePoint(BaseModel):

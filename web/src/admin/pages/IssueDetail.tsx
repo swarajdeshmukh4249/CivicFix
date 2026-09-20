@@ -16,6 +16,8 @@ export function IssueDetail() {
   const { data: issue, loading, error, reload } = useApi(() => api.issueDetail(Number(issueId)), [issueId]);
   const [closing, setClosing] = useState(false);
   const [closeError, setCloseError] = useState<string | null>(null);
+  const [routing, setRouting] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
 
   if (loading) return <LoadingState label="Loading evidence dossier…" />;
   if (error) return <ErrorState message={error} onRetry={reload} />;
@@ -35,6 +37,20 @@ export function IssueDetail() {
       setCloseError(e instanceof ApiError ? e.message : "Failed to close issue.");
     } finally {
       setClosing(false);
+    }
+  }
+
+  async function handleRoute() {
+    if (!issue) return;
+    setRouting(true);
+    setRouteError(null);
+    try {
+      await api.routeIssue(issue.issue_id);
+      await reload();
+    } catch (e) {
+      setRouteError(e instanceof ApiError ? e.message : "Failed to route issue.");
+    } finally {
+      setRouting(false);
     }
   }
 
@@ -99,15 +115,29 @@ export function IssueDetail() {
             <dt>Recurrence count</dt>
             <dd>{issue.recurrence_count}</dd>
           </div>
+          <div>
+            <dt>Routed to</dt>
+            <dd>
+              {issue.routed_agency
+                ? `${issue.routed_agency}${issue.routed_at ? ` (${new Date(issue.routed_at).toLocaleDateString()})` : ""}`
+                : "Not yet routed"}
+            </dd>
+          </div>
         </dl>
-        {canClose && (
-          <div className="issue-detail__actions">
+        <div className="issue-detail__actions">
+          {canClose && (
             <button type="button" onClick={handleClose} disabled={closing}>
               {closing ? "Marking resolved…" : "Mark as resolved"}
             </button>
-            {closeError && <span className="issue-detail__close-error">{closeError}</span>}
-          </div>
-        )}
+          )}
+          {!issue.routed_agency && (
+            <button type="button" className="issue-detail__route-button" onClick={handleRoute} disabled={routing}>
+              {routing ? "Routing…" : "Route to agency"}
+            </button>
+          )}
+          {closeError && <span className="issue-detail__close-error">{closeError}</span>}
+          {routeError && <span className="issue-detail__close-error">{routeError}</span>}
+        </div>
       </header>
 
       <section className="issue-detail__section">
@@ -123,11 +153,24 @@ export function IssueDetail() {
                 {report.language && report.language !== "en" && <LanguageTag language={report.language} />}
               </div>
               <p className="report-timeline__text">{report.raw_text}</p>
+              {report.translated_text && (
+                <p className="report-timeline__translation">
+                  Translated: <em>&ldquo;{report.translated_text}&rdquo;</em>
+                </p>
+              )}
               {report.location_phrase && (
                 <p className="report-timeline__location">Location cue: "{report.location_phrase}"</p>
               )}
               {report.photo_url && (
-                <img src={mediaUrl(report.photo_url)} alt="" className="report-timeline__photo" />
+                <div className="report-timeline__photo-block">
+                  <img src={mediaUrl(report.photo_url)} alt="" className="report-timeline__photo" />
+                  {report.photo_severity_band && (
+                    <p className="report-timeline__photo-severity">
+                      Photo analysis: <strong>{report.photo_severity_band}</strong>
+                      {report.photo_severity_score != null && ` (${report.photo_severity_score.toFixed(2)})`}
+                    </p>
+                  )}
+                </div>
               )}
             </li>
           ))}
@@ -238,6 +281,23 @@ export function IssueDetail() {
           </ul>
         )}
       </section>
+
+      {issue.feedback.length > 0 && (
+        <section className="issue-detail__section">
+          <h2>Citizen feedback</h2>
+          <ul className="feedback-list">
+            {issue.feedback.map((fb) => (
+              <li key={fb.feedback_id} className={`feedback-card card${fb.resolved_confirmed ? " feedback-card--confirmed" : " feedback-card--disputed"}`}>
+                <p className="feedback-card__verdict">
+                  {fb.resolved_confirmed ? "✓ Citizen confirmed this was resolved" : "✗ Citizen said this is not actually resolved"}
+                </p>
+                {fb.comment && <p className="feedback-card__comment">"{fb.comment}"</p>}
+                <p className="feedback-card__meta mono">{new Date(fb.submitted_at).toLocaleString()}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="issue-detail__section">
         <h2>Evidence relationship</h2>
