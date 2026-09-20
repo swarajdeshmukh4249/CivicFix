@@ -1,10 +1,13 @@
 import json
+import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from psycopg.rows import dict_row
 from sentence_transformers import SentenceTransformer
 
@@ -22,6 +25,7 @@ from app.api.schemas import (
     MapWorkPoint,
     MatchSummary,
     MetricsResponse,
+    PhotoUploadResponse,
     ReportCreateRequest,
     ReportCreateResponse,
     ReportInIssue,
@@ -38,8 +42,13 @@ from app.core.signals import run_signals
 from app.db import get_connection
 from app.ingest.location import extract_ward_number
 from app.nlp.classify import classify
+from app.nlp.language import detect_language
 from app.nlp.location import resolve_report_location
 from app.nlp.severity import severity
+
+UPLOAD_DIR = Path("data/uploads")
+ALLOWED_PHOTO_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
 
 app = FastAPI(title="WardSentry API")
 
@@ -54,6 +63,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Evidence photos only - never scored (hard rule: no photo severity model).
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 _embedding_model = None
 
@@ -241,10 +254,15 @@ def list_issues(
     category: Optional[str] = None,
     status: Optional[str] = None,
     min_priority: Optional[float] = None,
+    sort: str = Query("priority", pattern="^(priority|recent)$"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db=Depends(get_db),
 ):
+    order_sql = (
+        "last_reported DESC NULLS LAST, id DESC" if sort == "recent"
+        else "priority_score DESC NULLS LAST, id"
+    )
     where, params = [], {}
     if ward_id is not None:
         where.append("ward_id = %(ward_id)s")
@@ -269,7 +287,7 @@ def list_issues(
             SELECT id, category, ward_id, report_count, first_reported, last_reported, status,
                    recurrence_count, priority_score, priority_breakdown, ST_Y(geom) AS lat, ST_X(geom) AS lon
             FROM issues {where_sql}
-            ORDER BY priority_score DESC NULLS LAST, id
+            ORDER BY {order_sql}
             LIMIT %(limit)s OFFSET %(offset)s
             """,
             {**params, "limit": limit, "offset": offset},
@@ -297,7 +315,8 @@ def issue_detail(issue_id: int, db=Depends(get_db)):
     with db.cursor(row_factory=dict_row) as cur:
         cur.execute(
             "SELECT id, raw_text, reported_at, category, category_conf, severity, location_phrase, "
-            "geom_confidence, ward_id, is_synthetic FROM reports WHERE issue_id = %s ORDER BY reported_at",
+            "geom_confidence, ward_id, is_synthetic, photo_url, language "
+            "FROM reports WHERE issue_id = %s ORDER BY reported_at",
             (issue_id,),
         )
         report_rows = cur.fetchall()
@@ -570,6 +589,24 @@ def _refresh_match_for_issue(conn, issue_id: int) -> Optional[dict]:
     return match
 
 
+@app.post("/api/uploads/photo", response_model=PhotoUploadResponse, status_code=201)
+async def upload_photo(file: UploadFile = File(...)):
+    """Evidence storage only - no photo severity model (hard rule 3). Returns
+    a photo_url to attach to a report via POST /api/reports; never analyzed
+    or scored here or anywhere else in the pipeline."""
+    ext = ALLOWED_PHOTO_TYPES.get(file.content_type)
+    if ext is None:
+        raise HTTPException(status_code=400, detail=f"unsupported content type: {file.content_type}")
+
+    body = await file.read()
+    if len(body) > MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=400, detail=f"photo exceeds {MAX_PHOTO_BYTES // (1024 * 1024)}MB limit")
+
+    filename = f"{uuid.uuid4().hex}{ext}"
+    (UPLOAD_DIR / filename).write_bytes(body)
+    return PhotoUploadResponse(photo_url=f"/uploads/{filename}")
+
+
 @app.post("/api/reports", response_model=ReportCreateResponse, status_code=201)
 def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
     """Live citizen-complaint flow: classify -> location -> severity ->
@@ -587,6 +624,10 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
     category, category_conf = classify(payload.raw_text)
     severity_band = severity(payload.raw_text, category)
     lat, lon, geom_conf, ward_id, location_phrase = resolve_report_location(payload.raw_text, conn=db)
+    # Detection only - the classifier/geocoder above still ran on the raw
+    # text as-is (no translation exists). A non-English/undetectable result
+    # just means their output should be treated as unreliable by a reviewer.
+    language = detect_language(payload.raw_text)
 
     # Only fills in a location the pipeline itself couldn't find - never
     # overrides a pipeline result, and never turns a ward selection into a
@@ -615,16 +656,18 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
         cur.execute(
             f"""
             INSERT INTO reports (raw_text, reported_at, category, category_conf, severity,
-                                  location_phrase, geom, geom_confidence, ward_id, embedding, is_synthetic)
+                                  location_phrase, geom, geom_confidence, ward_id, embedding, is_synthetic,
+                                  photo_url, language)
             VALUES (%(raw_text)s, %(reported_at)s, %(category)s, %(category_conf)s, %(severity)s,
-                    %(location_phrase)s, {geom_expr}, %(geom_conf)s, %(ward_id)s, %(embedding)s::vector, true)
+                    %(location_phrase)s, {geom_expr}, %(geom_conf)s, %(ward_id)s, %(embedding)s::vector, true,
+                    %(photo_url)s, %(language)s)
             RETURNING id
             """,
             {
                 "raw_text": payload.raw_text, "reported_at": reported_at, "category": category,
                 "category_conf": category_conf, "severity": severity_band, "location_phrase": location_phrase,
                 "lat": lat, "lon": lon, "geom_conf": geom_conf, "ward_id": ward_id,
-                "embedding": embedding_literal,
+                "embedding": embedding_literal, "photo_url": payload.photo_url, "language": language,
             },
         )
         report_id = cur.fetchone()[0]
@@ -694,6 +737,7 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
             id=report_id, raw_text=payload.raw_text, reported_at=reported_at, category=category,
             category_conf=category_conf, severity=severity_band, location_phrase=location_phrase,
             geom_confidence=geom_conf, ward_id=ward_id, is_synthetic=True,
+            photo_url=payload.photo_url, language=language,
         ),
         issue_id=issue_id, joined_existing_issue=joined_existing, category=category,
         category_confidence=category_conf, severity=severity_band,

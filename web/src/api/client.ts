@@ -6,13 +6,20 @@ import type {
   MapResponse,
   MatchSummary,
   MetricsResponse,
+  PhotoUploadResponse,
   ReportCreateRequest,
   ReportCreateResponse,
   StatsResponse,
   WorkSummary,
 } from "./types";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
+// photo_url values from the API are paths like "/uploads/xxx.jpg", served by
+// the backend, not the Vite dev server - this resolves them to a real <img src>.
+export function mediaUrl(path: string): string {
+  return `${BASE_URL}${path}`;
+}
 
 export class ApiError extends Error {
   status: number;
@@ -58,6 +65,7 @@ export interface IssueListParams {
   category?: string;
   status?: string;
   min_priority?: number;
+  sort?: "priority" | "recent";
   limit?: number;
   offset?: number;
 }
@@ -81,4 +89,19 @@ export const api = {
   metrics: () => request<MetricsResponse>("/api/metrics"),
   closeIssue: (issueId: number) =>
     request<IssueCloseResponse>(`/api/issues/${issueId}/close`, { method: "POST" }),
+  uploadPhoto: async (file: File): Promise<PhotoUploadResponse> => {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${BASE_URL}/api/uploads/photo`, { method: "POST", body: form });
+    if (!res.ok) {
+      let detail: unknown;
+      try {
+        detail = (await res.json()).detail;
+      } catch {
+        detail = res.statusText;
+      }
+      throw new ApiError(res.status, detail);
+    }
+    return res.json() as Promise<PhotoUploadResponse>;
+  },
 };

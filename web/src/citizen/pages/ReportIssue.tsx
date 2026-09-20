@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError, mediaUrl } from "../../api/client";
 import { useApi } from "../../hooks/useApi";
 import { CATEGORY_LABELS } from "../../api/types";
 import type { ReportCreateResponse } from "../../api/types";
+import { LanguageTag } from "../../components/Badges";
+import { hasDistinctDescription } from "../../lib/work";
 import "./reportissue.css";
 
 function severityMessage(severity: string): string {
@@ -16,9 +18,17 @@ export function ReportIssue() {
   const { data: mapData } = useApi(() => api.map(), []);
   const [text, setText] = useState("");
   const [wardId, setWardId] = useState<string>("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ReportCreateResponse | null>(null);
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setPhoto(file);
+    setPhotoPreview(file ? URL.createObjectURL(file) : null);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,9 +36,14 @@ export function ReportIssue() {
     setSubmitting(true);
     setError(null);
     try {
+      let photo_url: string | null = null;
+      if (photo) {
+        photo_url = (await api.uploadPhoto(photo)).photo_url;
+      }
       const response = await api.createReport({
         raw_text: text.trim(),
         ward_id: wardId ? Number(wardId) : null,
+        photo_url,
       });
       setResult(response);
     } catch (err) {
@@ -76,6 +91,12 @@ export function ReportIssue() {
             Only used if we can't place your report from the description itself.
           </span>
         </div>
+        <div className="field">
+          <label htmlFor="photo">Photo (optional)</label>
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} />
+          <span className="field__hint">Stored as evidence for human review — never used to score severity.</span>
+          {photoPreview && <img src={photoPreview} alt="" className="report-form__photo-preview" />}
+        </div>
         {error && (
           <p className="report-form__error" role="alert">
             {error}
@@ -102,6 +123,16 @@ function ReportResult({ result, onReportAnother }: { result: ReportCreateRespons
     <div className="report-result">
       <h1>Thank you — your report is in.</h1>
       <p className="report-result__intro">Here's what happened with it, step by step:</p>
+
+      {result.report.language && result.report.language !== "en" && (
+        <p className="report-result__language">
+          <LanguageTag language={result.report.language} />
+        </p>
+      )}
+
+      {result.report.photo_url && (
+        <img src={mediaUrl(result.report.photo_url)} alt="" className="report-form__photo-preview" />
+      )}
 
       <ol className="report-result__steps">
         <li>
@@ -131,6 +162,12 @@ function ReportResult({ result, onReportAnother }: { result: ReportCreateRespons
         <div className="report-result__work card">
           <p className="report-result__work-label">Related public work</p>
           <p className="report-result__work-name">{result.matched_work.work?.work_name}</p>
+          {result.matched_work.work && hasDistinctDescription(result.matched_work.work.work_name, result.matched_work.work.description) && (
+            <p className="report-result__work-description">{result.matched_work.work.description}</p>
+          )}
+          {result.matched_work.match_reason && (
+            <p className="report-result__work-meta">{result.matched_work.match_reason}</p>
+          )}
           {result.matched_work.work?.completed_on && (
             <p className="report-result__work-meta">Completed {result.matched_work.work.completed_on}</p>
           )}

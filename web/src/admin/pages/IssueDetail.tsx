@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError, mediaUrl } from "../../api/client";
 import { useApi } from "../../hooks/useApi";
-import { CategoryTag, StatusTag, SyntheticTag, PrecisionTag } from "../../components/Badges";
+import { CategoryTag, StatusTag, SyntheticTag, PrecisionTag, LanguageTag } from "../../components/Badges";
 import { LoadingState, ErrorState } from "../../components/States";
 import { PriorityBreakdownView } from "../../components/PriorityBreakdown";
 import { EvidenceChain, type EvidenceChainNode } from "../../components/EvidenceChain";
 import { WardMap } from "../../components/WardMap";
 import { CATEGORY_LABELS } from "../../api/types";
+import { hasDistinctDescription } from "../../lib/work";
 import "./issuedetail.css";
 
 export function IssueDetail() {
@@ -119,10 +120,14 @@ export function IssueDetail() {
                 <span>{new Date(report.reported_at).toLocaleString()}</span>
                 {report.severity && <span>{report.severity}</span>}
                 {report.is_synthetic && <SyntheticTag />}
+                {report.language && report.language !== "en" && <LanguageTag language={report.language} />}
               </div>
               <p className="report-timeline__text">{report.raw_text}</p>
               {report.location_phrase && (
                 <p className="report-timeline__location">Location cue: "{report.location_phrase}"</p>
+              )}
+              {report.photo_url && (
+                <img src={mediaUrl(report.photo_url)} alt="" className="report-timeline__photo" />
               )}
             </li>
           ))}
@@ -161,7 +166,9 @@ export function IssueDetail() {
               {match.work && (
                 <>
                   <h3>{match.work.work_name}</h3>
-                  <p className="work-connection__description">{match.work.description}</p>
+                  {hasDistinctDescription(match.work.work_name, match.work.description) && (
+                    <p className="work-connection__description">{match.work.description}</p>
+                  )}
                   <dl className="work-connection__facts">
                     <div>
                       <dt>Work ID</dt>

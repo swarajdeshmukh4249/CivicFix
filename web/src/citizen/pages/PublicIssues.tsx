@@ -13,7 +13,7 @@ export function PublicIssues() {
   const [category, setCategory] = useState("");
   const { data: mapData, loading: mapLoading } = useApi(() => api.map(), []);
   const { data: issueList, loading, error, reload } = useApi(
-    () => api.listIssues({ category: category || undefined, limit: 50 }),
+    () => api.listIssues({ category: category || undefined, sort: "recent", limit: 50 }),
     [category]
   );
 

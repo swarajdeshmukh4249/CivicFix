@@ -4,6 +4,7 @@ import { useApi } from "../../hooks/useApi";
 import { CategoryTag, StatusTag, SyntheticTag } from "../../components/Badges";
 import { LoadingState, ErrorState } from "../../components/States";
 import { CATEGORY_LABELS } from "../../api/types";
+import { hasDistinctDescription } from "../../lib/work";
 import "./publicissuedetail.css";
 
 export function PublicIssueDetail() {
@@ -37,7 +38,20 @@ export function PublicIssueDetail() {
       <section className="public-issue-detail__section">
         <h2>Public records check</h2>
         {hasWork ? (
-          <p>A related public work was found in this area. Administrators are reviewing the connection.</p>
+          <>
+            <p>A related public work was found in this area. Administrators are reviewing the connection.</p>
+            {issue.matches.map((match) => (
+              <div key={match.match_id} className="public-issue-detail__work card">
+                <p className="public-issue-detail__work-name">{match.work?.work_name}</p>
+                {match.work && hasDistinctDescription(match.work.work_name, match.work.description) && (
+                  <p className="public-issue-detail__work-description">{match.work.description}</p>
+                )}
+                {match.match_reason && (
+                  <p className="public-issue-detail__work-reason">{match.match_reason}</p>
+                )}
+              </div>
+            ))}
+          </>
         ) : (
           <p>No related public work has been found for this issue yet.</p>
         )}

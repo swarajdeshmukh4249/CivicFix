@@ -15,6 +15,7 @@ export function IssueExplorer() {
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("");
   const [minPriority, setMinPriority] = useState(0);
+  const [sort, setSort] = useState<"recent" | "priority">("recent");
   const [offset, setOffset] = useState(0);
 
   const { data: mapData } = useApi(() => api.map(), []);
@@ -25,10 +26,11 @@ export function IssueExplorer() {
         category: category || undefined,
         status: status || undefined,
         min_priority: minPriority > 0 ? minPriority : undefined,
+        sort,
         limit: PAGE_SIZE,
         offset,
       }),
-    [ward, category, status, minPriority, offset]
+    [ward, category, status, minPriority, sort, offset]
   );
 
   // /api/issues carries no per-issue match indicator - cross-referenced
@@ -82,6 +84,14 @@ export function IssueExplorer() {
           />
           <span className="mono">{minPriority.toFixed(2)}</span>
         </label>
+        <select
+          value={sort}
+          onChange={(e) => resetAndSet(setSort)(e.target.value as "recent" | "priority")}
+          aria-label="Sort by"
+        >
+          <option value="recent">Most recent</option>
+          <option value="priority">Highest priority</option>
+        </select>
       </div>
 
       {loading && <LoadingState label="Loading issues…" />}

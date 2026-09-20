@@ -4,6 +4,7 @@ import { useApi } from "../../hooks/useApi";
 import { CategoryTag, PrecisionTag } from "../../components/Badges";
 import { LoadingState, ErrorState, EmptyState } from "../../components/States";
 import { CATEGORY_LABELS } from "../../api/types";
+import { hasDistinctDescription } from "../../lib/work";
 import "./publicworks.css";
 
 const PAGE_SIZE = 30;
@@ -72,7 +73,9 @@ export function PublicWorks() {
                   {w.location_precision && <PrecisionTag precision={w.location_precision} />}
                 </div>
                 <h3>{w.work_name}</h3>
-                {w.description && <p className="work-card__description">{w.description}</p>}
+                {hasDistinctDescription(w.work_name, w.description) && (
+                  <p className="work-card__description">{w.description}</p>
+                )}
                 <dl className="work-card__facts">
                   <div>
                     <dt>Status</dt>

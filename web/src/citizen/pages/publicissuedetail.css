@@ -42,6 +42,29 @@
   line-height: 1.6;
 }
 
+.public-issue-detail__work {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+}
+
+.public-issue-detail__work-name {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.public-issue-detail__work-description {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.public-issue-detail__work-reason {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
 .public-issue-detail__id {
   margin-top: var(--space-6);
   font-size: 12px;
