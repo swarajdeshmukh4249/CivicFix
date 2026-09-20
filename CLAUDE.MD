@@ -95,4 +95,15 @@ built today.
   Homebrew **Python 3.12** instead (3.14 is installed but too new for some ML
   package wheels). Re-check if this causes a real incompatibility; nothing hit
   so far.
+- **Tests and dev data used to share one database — this destroyed real data
+  once.** Running `pytest` after a real MPLADS ingestion truncated `works` via
+  the `clean_works` fixture and replaced it with 3 fixture rows; a later test
+  run truncated it again down to 0. Fixed: tests now run against a separate
+  `civicfix_test` database (`TEST_DATABASE_URL` in `.env`), which
+  `tests/conftest.py` swaps in for `DATABASE_URL` before `app.db` is imported.
+  Never point `TEST_DATABASE_URL` at `civicfix` or a `clean_*` fixture will
+  wipe real ingested data again. Recovery, if it ever recurs: MPLADS
+  re-ingestion is fast (~15s) as long as `data/cache/geocode_cache.json`
+  (committed) still has the resolved queries cached — only slow the first
+  time because Nominatim throttles bulk unauthenticated requests hard.
 -

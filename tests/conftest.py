@@ -1,6 +1,26 @@
-import pytest
+import os
 
-from app.db import get_connection
+from dotenv import load_dotenv
+
+# Tests must never touch the real `civicfix` database - point every app.db
+# connection at the isolated `civicfix_test` database instead, before
+# app.db (or anything importing it) gets imported below. See git history:
+# an earlier test run's TRUNCATE wiped a real, expensively-geocoded
+# ingestion because tests and dev data shared one database.
+load_dotenv()
+os.environ["DATABASE_URL"] = os.environ["TEST_DATABASE_URL"]
+
+import pytest  # noqa: E402
+
+from app.db import get_connection  # noqa: E402
+from app.ingest.wards import load_wards  # noqa: E402
+
+WARDS_GEOJSON = "data/wards/pune-2022-wards.geojson"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _ensure_test_wards():
+    load_wards(WARDS_GEOJSON)
 
 
 @pytest.fixture
@@ -19,11 +39,20 @@ def clean_wards(db_conn):
         cur.execute("TRUNCATE wards CASCADE")
     db_conn.commit()
     yield db_conn
+    load_wards(WARDS_GEOJSON)
 
 
 @pytest.fixture
 def clean_works(db_conn):
     with db_conn.cursor() as cur:
         cur.execute("TRUNCATE works CASCADE")
+    db_conn.commit()
+    yield db_conn
+
+
+@pytest.fixture
+def clean_reports(db_conn):
+    with db_conn.cursor() as cur:
+        cur.execute("TRUNCATE reports CASCADE")
     db_conn.commit()
     yield db_conn
