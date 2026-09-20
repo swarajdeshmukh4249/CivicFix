@@ -1,0 +1,17 @@
+{
+  "model_macro_f1": 0.9290871981087165,
+  "baseline_macro_f1": 0.3847279657647652,
+  "n_train": 11627,
+  "n_test": 2907,
+  "n_total": 14534,
+  "categories": [
+    "drainage_sewage",
+    "footpath",
+    "garbage_waste",
+    "other",
+    "pothole_road",
+    "streetlight",
+    "traffic_signage",
+    "water_supply"
+  ]
+}

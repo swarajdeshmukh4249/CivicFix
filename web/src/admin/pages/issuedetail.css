@@ -26,6 +26,33 @@
   margin-bottom: var(--space-4);
 }
 
+.issue-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.issue-detail__actions button {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.issue-detail__actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.issue-detail__close-error {
+  color: var(--danger, #b3261e);
+  font-size: 13px;
+}
+
 .issue-detail__facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

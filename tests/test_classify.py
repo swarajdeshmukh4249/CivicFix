@@ -2,7 +2,13 @@ import csv
 from pathlib import Path
 
 from app.categories import CIVIC_CATEGORIES
-from app.nlp.classify import CONFIDENCE_THRESHOLD, classify, classify_keywords, train_classifier
+from app.nlp.classify import (
+    CONFIDENCE_THRESHOLD,
+    classify,
+    classify_keywords,
+    evaluate_classifier,
+    train_classifier,
+)
 
 NYC311_FIXTURE = "tests/fixtures/nyc311_sample.csv"
 
@@ -76,3 +82,16 @@ def test_classify_uses_trained_model_when_present(tmp_path, monkeypatch):
     category, conf = classify("There is a large pothole on my street")
     assert category in CIVIC_CATEGORIES
     assert 0.0 <= conf <= 1.0
+
+
+def test_evaluate_classifier_smoke_test_with_fixture(tmp_path):
+    """Only proves the held-out-split + macro-F1 code path runs on the tiny
+    fixture and saves a production model - the fixture is too small for the
+    resulting numbers to mean anything about real accuracy.
+    """
+    model_path = tmp_path / "classifier.pkl"
+    result = evaluate_classifier(NYC311_FIXTURE, model_path=str(model_path), test_size=0.5, seed=1)
+    assert 0.0 <= result["model_macro_f1"] <= 1.0
+    assert 0.0 <= result["baseline_macro_f1"] <= 1.0
+    assert result["n_train"] + result["n_test"] == result["n_total"]
+    assert model_path.exists()

@@ -17,6 +17,52 @@ export interface StatsResponse {
   verification_signals: number;
 }
 
+export interface IssueCloseResponse {
+  issue_id: number;
+  status: string;
+  closed_at: string | null;
+}
+
+export interface ClassifierMetrics {
+  model_macro_f1: number | null;
+  baseline_macro_f1: number | null;
+  n_train: number | null;
+  n_test: number | null;
+  trained: boolean;
+  deployed: boolean;
+}
+
+export interface ClusteringMetrics {
+  total_issues: number;
+  singleton_issues: number;
+  multi_report_issues: number;
+  largest_cluster_size: number;
+}
+
+export interface LocationMetrics {
+  total_reports: number;
+  precise_resolved: number;
+  ward_level_resolved: number;
+  unresolved: number;
+  resolution_rate: number;
+}
+
+export interface MatcherMetrics {
+  total_issues_eligible: number;
+  matched_issues: number;
+  match_rate: number;
+  labeled_cases: number;
+  labeled_correct: number;
+  labeled_accuracy: number | null;
+}
+
+export interface MetricsResponse {
+  classification: ClassifierMetrics;
+  clustering: ClusteringMetrics;
+  location: LocationMetrics;
+  matcher: MatcherMetrics;
+}
+
 export interface GeoPoint {
   lat: number;
   lon: number;

@@ -11,6 +11,7 @@ from sentence_transformers import SentenceTransformer
 from app.api.schemas import (
     GeoPoint,
     HealthResponse,
+    IssueCloseResponse,
     IssueDetailResponse,
     IssueListResponse,
     IssueSummary,
@@ -20,6 +21,7 @@ from app.api.schemas import (
     MapWard,
     MapWorkPoint,
     MatchSummary,
+    MetricsResponse,
     ReportCreateRequest,
     ReportCreateResponse,
     ReportInIssue,
@@ -29,6 +31,7 @@ from app.api.schemas import (
 )
 from app.core.clustering import COSINE_THRESHOLD, spatial_ok
 from app.core.matcher import match_issue_to_work
+from app.core.metrics import compute_metrics
 from app.core.priority import compute_priority
 from app.core.recurrence import run_recurrence_check
 from app.core.signals import run_signals
@@ -192,6 +195,44 @@ def stats(db=Depends(get_db)):
             cur.execute(f"SELECT count(*) FROM {table}")
             counts[key] = cur.fetchone()[0]
     return StatsResponse(**counts)
+
+
+@app.get("/api/metrics", response_model=MetricsResponse)
+def metrics(db=Depends(get_db)):
+    """Real evaluation numbers per ARCHITECTURE.md section 6 - computed
+    from the actual database plus a persisted offline classifier
+    evaluation, never asserted. See app/core/metrics.py for the two
+    honest simplifications (no dedup ground truth exists; location
+    reports the real pipeline's outcome, not a separate baseline run).
+    """
+    return MetricsResponse(**compute_metrics(conn=db))
+
+
+@app.post("/api/issues/{issue_id}/close", response_model=IssueCloseResponse)
+def close_issue(issue_id: int, db=Depends(get_db)):
+    """Administrator action: marks an issue resolved. This is what makes
+    recurrence.py's precondition (a prior CLOSED issue) reachable at all -
+    nothing else in this system ever closes an issue. If a new report
+    later matches this issue's ward+category+timing, run_recurrence_check
+    (called from POST /api/reports) will reopen it automatically.
+    """
+    with db.cursor() as cur:
+        cur.execute("SELECT status FROM issues WHERE id = %s", (issue_id,))
+        row = cur.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"issue {issue_id} not found")
+    if row[0] == "closed":
+        raise HTTPException(status_code=400, detail=f"issue {issue_id} is already closed")
+
+    with db.cursor() as cur:
+        cur.execute(
+            "UPDATE issues SET status = 'closed', closed_at = now() WHERE id = %s "
+            "RETURNING status, closed_at",
+            (issue_id,),
+        )
+        status, closed_at = cur.fetchone()
+    db.commit()
+    return IssueCloseResponse(issue_id=issue_id, status=status, closed_at=closed_at)
 
 
 @app.get("/api/issues", response_model=IssueListResponse)

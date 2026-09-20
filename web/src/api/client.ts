@@ -1,9 +1,11 @@
 import type {
   HealthResponse,
+  IssueCloseResponse,
   IssueDetailResponse,
   IssueListResponse,
   MapResponse,
   MatchSummary,
+  MetricsResponse,
   ReportCreateRequest,
   ReportCreateResponse,
   StatsResponse,
@@ -76,4 +78,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  metrics: () => request<MetricsResponse>("/api/metrics"),
+  closeIssue: (issueId: number) =>
+    request<IssueCloseResponse>(`/api/issues/${issueId}/close`, { method: "POST" }),
 };

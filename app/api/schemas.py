@@ -20,6 +20,52 @@ class StatsResponse(BaseModel):
     verification_signals: int
 
 
+class IssueCloseResponse(BaseModel):
+    issue_id: int
+    status: str
+    closed_at: Optional[datetime]
+
+
+class ClassifierMetrics(BaseModel):
+    model_macro_f1: Optional[float]
+    baseline_macro_f1: Optional[float]
+    n_train: Optional[int]
+    n_test: Optional[int]
+    trained: bool
+    deployed: bool
+
+
+class ClusteringMetrics(BaseModel):
+    total_issues: int
+    singleton_issues: int
+    multi_report_issues: int
+    largest_cluster_size: int
+
+
+class LocationMetrics(BaseModel):
+    total_reports: int
+    precise_resolved: int
+    ward_level_resolved: int
+    unresolved: int
+    resolution_rate: float
+
+
+class MatcherMetrics(BaseModel):
+    total_issues_eligible: int
+    matched_issues: int
+    match_rate: float
+    labeled_cases: int
+    labeled_correct: int
+    labeled_accuracy: Optional[float]
+
+
+class MetricsResponse(BaseModel):
+    classification: ClassifierMetrics
+    clustering: ClusteringMetrics
+    location: LocationMetrics
+    matcher: MatcherMetrics
+
+
 class GeoPoint(BaseModel):
     lat: float
     lon: float

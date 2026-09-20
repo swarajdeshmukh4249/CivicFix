@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api } from "../../api/client";
+import { api, ApiError } from "../../api/client";
 import { useApi } from "../../hooks/useApi";
 import { CategoryTag, StatusTag, SyntheticTag, PrecisionTag } from "../../components/Badges";
 import { LoadingState, ErrorState } from "../../components/States";
@@ -12,12 +13,29 @@ import "./issuedetail.css";
 export function IssueDetail() {
   const { issueId } = useParams();
   const { data: issue, loading, error, reload } = useApi(() => api.issueDetail(Number(issueId)), [issueId]);
+  const [closing, setClosing] = useState(false);
+  const [closeError, setCloseError] = useState<string | null>(null);
 
   if (loading) return <LoadingState label="Loading evidence dossier…" />;
   if (error) return <ErrorState message={error} onRetry={reload} />;
   if (!issue) return null;
 
   const topMatch = issue.matches[0] ?? null;
+  const canClose = issue.status === "open" || issue.status === "reopened";
+
+  async function handleClose() {
+    if (!issue) return;
+    setClosing(true);
+    setCloseError(null);
+    try {
+      await api.closeIssue(issue.issue_id);
+      await reload();
+    } catch (e) {
+      setCloseError(e instanceof ApiError ? e.message : "Failed to close issue.");
+    } finally {
+      setClosing(false);
+    }
+  }
 
   const chainNodes: EvidenceChainNode[] = [
     {
@@ -81,6 +99,14 @@ export function IssueDetail() {
             <dd>{issue.recurrence_count}</dd>
           </div>
         </dl>
+        {canClose && (
+          <div className="issue-detail__actions">
+            <button type="button" onClick={handleClose} disabled={closing}>
+              {closing ? "Marking resolved…" : "Mark as resolved"}
+            </button>
+            {closeError && <span className="issue-detail__close-error">{closeError}</span>}
+          </div>
+        )}
       </header>
 
       <section className="issue-detail__section">

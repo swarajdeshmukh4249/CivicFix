@@ -15,6 +15,7 @@ import "./verification.css";
  * A dedicated GET /api/signals endpoint would be the right fix.
  */
 export function Verification() {
+  const { data: metrics } = useApi(() => api.metrics(), []);
   const { data: matches } = useApi(() => api.listMatches({ limit: 500 }), []);
   const [signals, setSignals] = useState<SignalSummary[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,58 @@ export function Verification() {
         Deterministic evidence for human review. These describe documented spatial/category relationships
         and recurrence patterns — never a finding of fraud, corruption, guilt or wrongdoing.
       </p>
+
+      {metrics && (
+        <section className="metrics-panel">
+          <h2>Evaluation numbers</h2>
+          <div className="metrics-panel__grid">
+            <div className="metrics-panel__card">
+              <p className="metrics-panel__label">Classifier (macro-F1)</p>
+              {metrics.classification.trained ? (
+                <>
+                  <p className="metrics-panel__value">
+                    {metrics.classification.model_macro_f1?.toFixed(3)} vs {metrics.classification.baseline_macro_f1?.toFixed(3)} baseline
+                  </p>
+                  <p className="metrics-panel__note">
+                    Trained on {metrics.classification.n_train}/{metrics.classification.n_test} NYC 311 train/test rows.{" "}
+                    {metrics.classification.deployed
+                      ? "Deployed as the live classifier."
+                      : "Not deployed — it failed to generalize to our complaint phrasing (domain shift), so the keyword baseline stays live."}
+                  </p>
+                </>
+              ) : (
+                <p className="metrics-panel__note">No evaluation run persisted yet.</p>
+              )}
+            </div>
+            <div className="metrics-panel__card">
+              <p className="metrics-panel__label">Clustering</p>
+              <p className="metrics-panel__value">
+                {metrics.clustering.multi_report_issues} / {metrics.clustering.total_issues} issues have 2+ reports
+              </p>
+              <p className="metrics-panel__note">Largest cluster: {metrics.clustering.largest_cluster_size} reports.</p>
+            </div>
+            <div className="metrics-panel__card">
+              <p className="metrics-panel__label">Location resolution</p>
+              <p className="metrics-panel__value">{(metrics.location.resolution_rate * 100).toFixed(1)}%</p>
+              <p className="metrics-panel__note">
+                {metrics.location.precise_resolved} precise, {metrics.location.ward_level_resolved} ward-level, {metrics.location.unresolved} unresolved
+                of {metrics.location.total_reports} reports.
+              </p>
+            </div>
+            <div className="metrics-panel__card">
+              <p className="metrics-panel__label">Public-work matcher</p>
+              <p className="metrics-panel__value">
+                {metrics.matcher.matched_issues} / {metrics.matcher.total_issues_eligible} eligible issues matched
+              </p>
+              <p className="metrics-panel__note">
+                {metrics.matcher.labeled_accuracy != null
+                  ? `${(metrics.matcher.labeled_accuracy * 100).toFixed(0)}% accuracy on ${metrics.matcher.labeled_cases} hand-labeled anchor cases.`
+                  : "No hand-labeled cases available yet."}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {loading && <LoadingState label="Loading verification signals…" />}
       {error && <ErrorState message={error} />}
