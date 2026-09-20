@@ -1,36 +1,38 @@
 :root {
-  /* Paper-toned neutrals - a civic record, not a SaaS surface */
-  --paper: #f5f3ec;
-  --paper-raised: #fbfaf5;
-  --ink: #201d16;
-  --ink-soft: #4d493c;
-  --ink-faint: #6b6455; /* 5.28:1 on --paper - the original #8a8371 was 3.40:1, under WCAG AA */
-  --line: #d8d2bf;
-  --line-strong: #b5ac93;
+  /* Bright civic-tech palette - white surfaces, blue accent. Light only:
+     no dark-mode variant, so the site never flips dark on an OS/browser
+     dark-mode preference. */
+  --paper: #ffffff;
+  --paper-raised: #f8fafc;
+  --ink: #0f172a;
+  --ink-soft: #475569; /* ~7.6:1 on --paper */
+  --ink-faint: #64748b; /* ~4.76:1 on --paper - meets WCAG AA for body text */
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
 
   /* One accent, used sparingly for interactive/priority emphasis */
-  --accent: #9c5a26;
-  --accent-soft: #ead9bf;
-  --accent-ink: #f5f3ec;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --accent-ink: #ffffff; /* ~5.2:1 on --accent */
 
-  /* Severity - muted, not traffic-light-saturated */
-  --critical: #963a2c;
-  --moderate: #9c7226;
-  --cosmetic: #55704f;
+  /* Severity - clear but not alarmist */
+  --critical: #dc2626;
+  --moderate: #d97706;
+  --cosmetic: #16a34a;
 
   /* Spatial precision */
-  --precise: #2c5f6b;
+  --precise: #0369a1;
   --ward-level: var(--ink-faint);
 
-  /* Civic categories - desaturated, each distinct */
-  --cat-pothole_road: #8a5732;
-  --cat-drainage_sewage: #2c6b63;
-  --cat-water_supply: #2c5680;
-  --cat-streetlight: #9c7226;
-  --cat-garbage_waste: #6b6b2c;
-  --cat-footpath: #67498a;
-  --cat-traffic_signage: #8a3c5f;
-  --cat-other: #8a8371;
+  /* Civic categories - distinct, still legible on white */
+  --cat-pothole_road: #b45309;
+  --cat-drainage_sewage: #0f766e;
+  --cat-water_supply: #1d4ed8;
+  --cat-streetlight: #ca8a04;
+  --cat-garbage_waste: #4d7c0f;
+  --cat-footpath: #7e22ce;
+  --cat-traffic_signage: #be185d;
+  --cat-other: #64748b;
 
   --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -48,21 +50,5 @@
   --space-7: 48px;
   --space-8: 64px;
 
-  --shadow-card: 0 1px 2px rgba(32, 29, 22, 0.06);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #16150f;
-    --paper-raised: #1d1c14;
-    --ink: #ece7d7;
-    --ink-soft: #c3bda6;
-    --ink-faint: #948d76; /* 5.51:1 on dark --paper - the original #837c67 was 4.39:1, under WCAG AA */
-    --line: #322e1f;
-    --line-strong: #494328;
-    --accent: #d38c4c;
-    --accent-soft: #3b2c17;
-    --accent-ink: #1d1c14;
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.08);
 }

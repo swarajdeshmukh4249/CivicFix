@@ -6,6 +6,7 @@ models/*.pkl
 data/cache/*
 !data/cache/geocode_cache.json
 !data/cache/osm_sensitive_sites.json
+data/uploads/
 web/node_modules/
 web/dist/
 .DS_Store

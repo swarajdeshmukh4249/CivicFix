@@ -53,6 +53,16 @@ def apply_recurrence(new_issue_id: int, prior_issue_id: int, conn) -> None:
     """A recurrence means the prior closure was wrong, not that a second,
     distinct issue exists - merges the new issue's reports into the
     reopened prior issue and removes the now-redundant new issue row.
+
+    run_recurrence_check scans *every* open issue, not just one freshly
+    created by the current report - so new_issue_id can be a long-standing
+    issue that already has its own matches/signals (discovered for real: two
+    separately-clustered synthetic issues at the same MPLADS anchor point,
+    one later closed, triggered this on an unrelated open issue miles away
+    in cluster-order terms). Those rows must be cleared before the DELETE
+    below or it FK-violates on matches.issue_id / signals.issue_id -
+    correctly, since the caller recomputes matches/signals for the
+    surviving (prior) issue right after this returns.
     """
     with conn.cursor() as cur:
         cur.execute(
@@ -72,6 +82,12 @@ def apply_recurrence(new_issue_id: int, prior_issue_id: int, conn) -> None:
             """,
             {"prior_id": prior_issue_id, "new_id": new_issue_id},
         )
+        cur.execute(
+            "DELETE FROM signals WHERE issue_id = %(new_id)s "
+            "OR match_id IN (SELECT id FROM matches WHERE issue_id = %(new_id)s)",
+            {"new_id": new_issue_id},
+        )
+        cur.execute("DELETE FROM matches WHERE issue_id = %s", (new_issue_id,))
         cur.execute("DELETE FROM issues WHERE id = %s", (new_issue_id,))
 
 

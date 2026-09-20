@@ -127,6 +127,16 @@
   color: var(--ink-faint);
 }
 
+.report-timeline__photo {
+  margin-top: var(--space-2);
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  object-fit: cover;
+  display: block;
+}
+
 .work-connection {
   padding: var(--space-5);
   margin-bottom: var(--space-3);

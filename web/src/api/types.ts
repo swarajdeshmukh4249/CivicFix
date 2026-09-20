@@ -136,6 +136,12 @@ export interface ReportInIssue {
   geom_confidence: number | null;
   ward_id: number | null;
   is_synthetic: boolean;
+  photo_url: string | null;
+  language: string | null;
+}
+
+export interface PhotoUploadResponse {
+  photo_url: string;
 }
 
 export interface WorkSummary {
@@ -232,6 +238,7 @@ export interface MapResponse {
 export interface ReportCreateRequest {
   raw_text: string;
   ward_id?: number | null;
+  photo_url?: string | null;
 }
 
 export interface ReportCreateResponse {

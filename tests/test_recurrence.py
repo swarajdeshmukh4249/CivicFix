@@ -87,6 +87,48 @@ def test_apply_recurrence_reopens_prior_and_merges_reports(db_conn):
         assert cur.fetchone()[0] == prior_id
 
 
+def test_apply_recurrence_merges_away_issue_with_existing_matches_and_signals(db_conn):
+    """Regression test: run_recurrence_check scans *every* open issue, not
+    just the one from the current report - so "new_issue_id" can be a
+    long-standing, real issue that already has its own matches/signals (this
+    is exactly what happened closing a real demo issue whose location
+    coincided with another open issue: the FK on matches/signals blocked the
+    DELETE and crashed every subsequent POST /api/reports). apply_recurrence
+    must clear the merged-away issue's matches/signals before deleting it.
+    """
+    prior_id = _insert_issue(db_conn, "drainage_sewage", 11, "closed", report_count=1)
+    new_id = _insert_issue(db_conn, "drainage_sewage", 11, "open", report_count=1)
+
+    with db_conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO works (work_name, category, geom) "
+            "VALUES ('test work', 'drainage_sewage', ST_SetSRID(ST_MakePoint(73.85, 18.55), 4326)) "
+            "RETURNING id"
+        )
+        work_id = cur.fetchone()[0]
+        cur.execute(
+            "INSERT INTO matches (issue_id, work_id, semantic_score, combined_score, match_reason) "
+            "VALUES (%s, %s, 0.9, 0.9, 'test match') RETURNING id",
+            (new_id, work_id),
+        )
+        match_id = cur.fetchone()[0]
+        cur.execute(
+            "INSERT INTO signals (issue_id, match_id, rule_name, explanation, source_record_ids) "
+            "VALUES (%s, %s, 'TEST_SIGNAL', 'test', '{}'::jsonb)",
+            (new_id, match_id),
+        )
+
+    apply_recurrence(new_id, prior_id, db_conn)  # must not raise ForeignKeyViolation
+
+    with db_conn.cursor() as cur:
+        cur.execute("SELECT id FROM issues WHERE id = %s", (new_id,))
+        assert cur.fetchone() is None
+        cur.execute("SELECT id FROM matches WHERE issue_id = %s", (new_id,))
+        assert cur.fetchone() is None
+        cur.execute("SELECT id FROM signals WHERE issue_id = %s", (new_id,))
+        assert cur.fetchone() is None
+
+
 def test_run_recurrence_check_processes_all_open_issues(clean_reports, clean_works):
     with clean_reports.cursor() as cur:
         cur.execute("DELETE FROM issues")

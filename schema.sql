@@ -51,7 +51,8 @@ CREATE TABLE IF NOT EXISTS reports (
   ward_id         int REFERENCES wards(id),
   embedding       vector(384),
   issue_id        bigint REFERENCES issues(id),
-  is_synthetic    boolean NOT NULL DEFAULT false
+  is_synthetic    boolean NOT NULL DEFAULT false,
+  language        text  -- ISO 639-1 code from langdetect, NULL if undetectable; never assumed "en"
 );
 
 CREATE TABLE IF NOT EXISTS works (

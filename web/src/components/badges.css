@@ -28,3 +28,8 @@
 .tag--status {
   color: var(--ink-soft);
 }
+
+.tag--language {
+  border-color: var(--moderate);
+  color: var(--moderate);
+}

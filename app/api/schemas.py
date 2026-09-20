@@ -105,6 +105,8 @@ class ReportInIssue(BaseModel):
     geom_confidence: Optional[float]
     ward_id: Optional[int]
     is_synthetic: bool
+    photo_url: Optional[str] = None
+    language: Optional[str] = None
 
 
 class WorkSummary(BaseModel):
@@ -201,6 +203,11 @@ class MapResponse(BaseModel):
 class ReportCreateRequest(BaseModel):
     raw_text: str
     ward_id: Optional[int] = None
+    photo_url: Optional[str] = None
+
+
+class PhotoUploadResponse(BaseModel):
+    photo_url: str
 
 
 class ReportCreateResponse(BaseModel):

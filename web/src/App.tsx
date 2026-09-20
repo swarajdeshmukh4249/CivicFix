@@ -1,4 +1,5 @@
 import { Navigate, Route, BrowserRouter, Routes } from "react-router-dom";
+import { Landing } from "./pages/Landing";
 import { CitizenLayout } from "./citizen/CitizenLayout";
 import { Home } from "./citizen/pages/Home";
 import { ReportIssue } from "./citizen/pages/ReportIssue";
@@ -16,7 +17,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/citizen" replace />} />
+        <Route path="/" element={<Landing />} />
 
         {/* Citizen portal: separate layout/route boundary, not CSS-hidden
             admin content. Prototype only - no auth exists on either side. */}

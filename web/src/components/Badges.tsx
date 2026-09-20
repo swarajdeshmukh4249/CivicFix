@@ -49,3 +49,17 @@ export function SyntheticTag() {
 export function StatusTag({ status }: { status: string }) {
   return <span className="tag tag--status">{status}</span>;
 }
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  hi: "Hindi", mr: "Marathi", ur: "Urdu", ta: "Tamil", te: "Telugu",
+  bn: "Bengali", gu: "Gujarati", kn: "Kannada", ml: "Malayalam", pa: "Punjabi",
+};
+
+export function LanguageTag({ language }: { language: string }) {
+  const label = LANGUAGE_LABELS[language] ?? language.toUpperCase();
+  return (
+    <span className="tag tag--language" title="Detected automatically - flagged for manual review since the pipeline is English-only">
+      {label} detected - manual review
+    </span>
+  );
+}

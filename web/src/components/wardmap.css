@@ -12,12 +12,6 @@
   filter: grayscale(0.55) brightness(1.08) contrast(0.92);
 }
 
-@media (prefers-color-scheme: dark) {
-  .ward-map__tiles {
-    filter: grayscale(0.6) brightness(0.75) contrast(0.9) invert(1) hue-rotate(180deg);
-  }
-}
-
 .map-marker__diamond {
   display: block;
   width: 10px;
