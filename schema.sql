@@ -75,7 +75,8 @@ CREATE TABLE IF NOT EXISTS matches (
   issue_id        bigint NOT NULL REFERENCES issues(id),
   work_id         bigint NOT NULL REFERENCES works(id),
   semantic_score  real NOT NULL,
-  distance_m      real NOT NULL,
+  distance_m      real,             -- NULL when the match relies on ward-level
+                                     -- spatial compatibility, not a real distance
   days_since_completion int,
   combined_score  real NOT NULL,
   match_reason    text NOT NULL,
