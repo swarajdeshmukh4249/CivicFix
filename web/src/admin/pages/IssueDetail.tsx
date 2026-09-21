@@ -9,7 +9,19 @@ import { EvidenceChain, type EvidenceChainNode } from "../../components/Evidence
 import { WardMap } from "../../components/WardMap";
 import { CATEGORY_LABELS } from "../../api/types";
 import { hasDistinctDescription } from "../../lib/work";
-import "./issuedetail.css";
+import { GlowingCard } from "../../components/ui/GlowingCard";
+import { 
+  ArrowLeft, 
+  CheckCircle2, 
+  Send, 
+  MapPin, 
+  Building2, 
+  ShieldAlert, 
+  FileText, 
+  GitBranch, 
+  MessageSquare,
+  Sparkles
+} from "lucide-react";
 
 export function IssueDetail() {
   const { issueId } = useParams();
@@ -79,114 +91,181 @@ export function IssueDetail() {
   ];
 
   return (
-    <div className="issue-detail">
-      <Link to="/admin/issues" className="issue-detail__back">
-        ← Issue Explorer
+    <div className="max-w-5xl mx-auto space-y-8">
+      <Link
+        to="/admin/issues"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:text-foreground transition-colors group"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        Back to Issue Explorer
       </Link>
 
-      <header className="issue-detail__header">
-        <div className="issue-detail__tags">
-          <CategoryTag category={issue.category} />
-          <StatusTag status={issue.status} />
-          <PrecisionTag precision={issue.location_precision} />
-          {issue.is_synthetic && <SyntheticTag />}
+      {/* Main Dossier Header in GlowingCard */}
+      <GlowingCard className="border-border">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div className="flex gap-2 flex-wrap items-center">
+            <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+              Dossier #{issue.issue_id}
+            </span>
+            <CategoryTag category={issue.category} />
+            <StatusTag status={issue.status} />
+            <PrecisionTag precision={issue.location_precision} />
+            {issue.is_synthetic && <SyntheticTag />}
+          </div>
+          <div className="text-xs font-mono text-secondary flex items-center gap-1">
+            <MapPin className="w-3.5 h-3.5 text-primary" />
+            Ward {issue.ward_id ?? "—"}
+          </div>
         </div>
-        <h1>
-          Issue #{issue.issue_id} — {CATEGORY_LABELS[issue.category] ?? issue.category}
+
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-6">
+          {CATEGORY_LABELS[issue.category] ?? issue.category}
         </h1>
-        <dl className="issue-detail__facts">
+
+        <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 p-4 bg-muted/40 rounded-xl border border-border/80 text-xs mb-6">
           <div>
-            <dt>Ward</dt>
-            <dd>{issue.ward_id ?? "—"}</dd>
+            <dt className="text-secondary font-mono uppercase mb-1">Ward</dt>
+            <dd className="font-bold text-foreground text-sm">{issue.ward_id ?? "—"}</dd>
           </div>
           <div>
-            <dt>Reports</dt>
-            <dd>{issue.report_count}</dd>
+            <dt className="text-secondary font-mono uppercase mb-1">Reports</dt>
+            <dd className="font-bold text-foreground text-sm">{issue.report_count}</dd>
           </div>
           <div>
-            <dt>First reported</dt>
-            <dd>{issue.first_reported ? new Date(issue.first_reported).toLocaleDateString() : "—"}</dd>
+            <dt className="text-secondary font-mono uppercase mb-1">First Reported</dt>
+            <dd className="font-bold text-foreground text-sm">
+              {issue.first_reported ? new Date(issue.first_reported).toLocaleDateString() : "—"}
+            </dd>
           </div>
           <div>
-            <dt>Last reported</dt>
-            <dd>{issue.last_reported ? new Date(issue.last_reported).toLocaleDateString() : "—"}</dd>
+            <dt className="text-secondary font-mono uppercase mb-1">Last Reported</dt>
+            <dd className="font-bold text-foreground text-sm">
+              {issue.last_reported ? new Date(issue.last_reported).toLocaleDateString() : "—"}
+            </dd>
           </div>
           <div>
-            <dt>Recurrence count</dt>
-            <dd>{issue.recurrence_count}</dd>
+            <dt className="text-secondary font-mono uppercase mb-1">Recurrence</dt>
+            <dd className="font-bold text-foreground text-sm">{issue.recurrence_count}</dd>
           </div>
           <div>
-            <dt>Routed to</dt>
-            <dd>
-              {issue.routed_agency
-                ? `${issue.routed_agency}${issue.routed_at ? ` (${new Date(issue.routed_at).toLocaleDateString()})` : ""}`
-                : "Not yet routed"}
+            <dt className="text-secondary font-mono uppercase mb-1">Routed Agency</dt>
+            <dd className="font-bold text-primary text-sm truncate" title={issue.routed_agency ?? "Not yet routed"}>
+              {issue.routed_agency ?? "Unrouted"}
             </dd>
           </div>
         </dl>
-        <div className="issue-detail__actions">
-          {canClose && (
-            <button type="button" onClick={handleClose} disabled={closing}>
-              {closing ? "Marking resolved…" : "Mark as resolved"}
-            </button>
-          )}
-          {!issue.routed_agency && (
-            <button type="button" className="issue-detail__route-button" onClick={handleRoute} disabled={routing}>
-              {routing ? "Routing…" : "Route to agency"}
-            </button>
-          )}
-          {closeError && <span className="issue-detail__close-error">{closeError}</span>}
-          {routeError && <span className="issue-detail__close-error">{routeError}</span>}
-        </div>
-      </header>
 
-      <section className="issue-detail__section">
-        <h2>Citizen evidence</h2>
-        <ol className="report-timeline">
+        {/* Admin action buttons */}
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          {canClose && (
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={closing}
+              className="btn btn-black text-xs font-semibold py-2 px-4 rounded-lg flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              {closing ? "Marking resolved…" : "Mark as Resolved"}
+            </button>
+          )}
+
+          {!issue.routed_agency && (
+            <button
+              type="button"
+              onClick={handleRoute}
+              disabled={routing}
+              className="btn py-2 px-4 rounded-lg border border-border text-xs font-semibold hover:bg-muted text-foreground flex items-center gap-1.5 disabled:opacity-50 transition-colors"
+            >
+              <Send className="w-3.5 h-3.5 text-primary" />
+              {routing ? "Routing…" : "Route to PMC Department"}
+            </button>
+          )}
+
+          {closeError && <span className="text-red-600 text-xs font-medium">{closeError}</span>}
+          {routeError && <span className="text-red-600 text-xs font-medium">{routeError}</span>}
+        </div>
+      </GlowingCard>
+
+      {/* Citizen Evidence Reports in GlowingCard */}
+      <GlowingCard className="border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-primary" />
+          <span>Corroborating Citizen Reports ({issue.reports.length})</span>
+        </h2>
+
+        <div className="space-y-4">
           {issue.reports.map((report) => (
-            <li key={report.id} className="report-timeline__item">
-              <div className="report-timeline__meta">
-                <span className="mono">#{report.id}</span>
+            <div
+              key={report.id}
+              className="p-4 bg-muted/40 rounded-xl border border-border/80 space-y-2.5"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-secondary">
+                <span className="font-bold text-primary">Report #{report.id}</span>
                 <span>{new Date(report.reported_at).toLocaleString()}</span>
-                {report.severity && <span>{report.severity}</span>}
+                {report.severity && (
+                  <span className="px-2 py-0.5 rounded bg-background border border-border font-semibold">
+                    {report.severity}
+                  </span>
+                )}
                 {report.is_synthetic && <SyntheticTag />}
                 {report.language && report.language !== "en" && <LanguageTag language={report.language} />}
               </div>
-              <p className="report-timeline__text">{report.raw_text}</p>
+
+              <p className="text-foreground text-sm font-sans leading-relaxed">
+                {report.raw_text}
+              </p>
+
               {report.translated_text && (
-                <p className="report-timeline__translation">
-                  Translated: <em>&ldquo;{report.translated_text}&rdquo;</em>
+                <p className="text-xs text-secondary italic bg-background p-2 rounded-lg border border-border/60">
+                  Translated: &ldquo;{report.translated_text}&rdquo;
                 </p>
               )}
+
               {report.location_phrase && (
-                <p className="report-timeline__location">Location cue: "{report.location_phrase}"</p>
+                <div className="flex items-center gap-1 text-xs text-secondary">
+                  <MapPin className="w-3.5 h-3.5 text-primary" />
+                  <span>Detected landmark: &ldquo;{report.location_phrase}&rdquo;</span>
+                </div>
               )}
+
               {report.photo_url && (
-                <div className="report-timeline__photo-block">
-                  <img src={mediaUrl(report.photo_url)} alt="" className="report-timeline__photo" />
+                <div className="mt-3 p-2 bg-background rounded-lg border border-border inline-block max-w-sm">
+                  <img
+                    src={mediaUrl(report.photo_url)}
+                    alt="Reported evidence"
+                    className="max-h-48 rounded object-cover"
+                  />
                   {report.photo_severity_band && (
-                    <p className="report-timeline__photo-severity">
+                    <p className="text-[11px] text-secondary mt-1 font-mono">
                       Photo analysis: <strong>{report.photo_severity_band}</strong>
-                      {report.photo_severity_score != null && ` (${report.photo_severity_score.toFixed(2)})`}
+                      {report.photo_severity_score != null && ` (score ${report.photo_severity_score.toFixed(2)})`}
                     </p>
                   )}
                 </div>
               )}
-            </li>
+            </div>
           ))}
-        </ol>
-      </section>
+        </div>
+      </GlowingCard>
 
+      {/* Priority Breakdown in GlowingCard */}
       {issue.priority_breakdown && (
-        <section className="issue-detail__section">
-          <h2>Why this issue has this priority</h2>
+        <GlowingCard className="border-border">
+          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-600" />
+            <span>Priority Score Mathematical Formula</span>
+          </h2>
           <PriorityBreakdownView breakdown={issue.priority_breakdown} />
-        </section>
+        </GlowingCard>
       )}
 
+      {/* Spatial Context Map in GlowingCard */}
       {issue.location && (
-        <section className="issue-detail__section">
-          <h2>Spatial context</h2>
+        <div className="rounded-2xl border border-border p-2 bg-white/80 shadow-xs space-y-2">
+          <div className="px-4 py-2 flex items-center gap-2 text-foreground font-bold text-sm">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span>Spatial Geographic Context</span>
+          </div>
           <WardMap
             audience="admin"
             focusMarker={{ lat: issue.location.lat, lon: issue.location.lon, label: `Issue #${issue.issue_id}` }}
@@ -195,114 +274,152 @@ export function IssueDetail() {
             zoom={topMatch?.distance_m != null ? 16 : 13}
             height="360px"
           />
-        </section>
+        </div>
       )}
 
-      <section className="issue-detail__section">
-        <h2>Public work connection</h2>
+      {/* Public Work Connection in GlowingCard */}
+      <GlowingCard className="border-border">
+        <h2 className="text-xl font-bold text-foreground mb-3 flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-indigo-600" />
+          <span>MPLADS Public Works Record Links</span>
+        </h2>
+
         {issue.matches.length === 0 ? (
-          <p className="issue-detail__no-match">No qualifying public-work match found.</p>
+          <p className="text-sm text-secondary">No qualifying public-works records match this issue's coordinates or category.</p>
         ) : (
-          issue.matches.map((match) => (
-            <div key={match.match_id} className="work-connection card">
-              <p className="work-connection__label">Computed public-record relationship</p>
-              {match.work && (
-                <>
-                  <h3>{match.work.work_name}</h3>
-                  {hasDistinctDescription(match.work.work_name, match.work.description) && (
-                    <p className="work-connection__description">{match.work.description}</p>
+          <div className="space-y-4">
+            <p className="text-sm text-secondary">
+              Surfaced {issue.matches.length} government public-works record{issue.matches.length === 1 ? "" : "s"} relevant to this site.
+            </p>
+            {issue.matches.map((match) => (
+              <div
+                key={match.match_id}
+                className="p-4 bg-muted/40 rounded-xl border border-border/80 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-foreground text-sm">
+                    {match.work?.work_name}
+                  </span>
+                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                    MPLADS #{match.work_id}
+                  </span>
+                </div>
+
+                {match.work && hasDistinctDescription(match.work.work_name, match.work.description) && (
+                  <p className="text-xs text-secondary leading-relaxed">{match.work.description}</p>
+                )}
+
+                {match.match_reason && (
+                  <p className="text-xs text-secondary italic bg-background p-2 rounded-lg border border-border/60">
+                    Match reason: {match.match_reason}
+                  </p>
+                )}
+
+                <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono pt-2 border-t border-border/60">
+                  <div>
+                    <dt className="text-secondary">Semantic Score</dt>
+                    <dd className="font-bold text-foreground">{match.semantic_score.toFixed(2)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-secondary">Combined Score</dt>
+                    <dd className="font-bold text-primary">{match.combined_score.toFixed(2)}</dd>
+                  </div>
+                  {match.distance_m != null && (
+                    <div>
+                      <dt className="text-secondary">Distance</dt>
+                      <dd className="font-bold text-foreground">{match.distance_m.toFixed(0)}m</dd>
+                    </div>
                   )}
-                  <dl className="work-connection__facts">
+                  {match.days_since_completion != null && (
                     <div>
-                      <dt>Work ID</dt>
-                      <dd className="mono">#{match.work_id}</dd>
+                      <dt className="text-secondary">Days Since Finish</dt>
+                      <dd className="font-bold text-foreground">{match.days_since_completion} days</dd>
                     </div>
-                    <div>
-                      <dt>Category</dt>
-                      <dd>{CATEGORY_LABELS[match.work.category ?? ""] ?? match.work.category ?? "—"}</dd>
-                    </div>
-                    <div>
-                      <dt>Status</dt>
-                      <dd>{match.work.status ?? "—"}</dd>
-                    </div>
-                    <div>
-                      <dt>Completed</dt>
-                      <dd>{match.work.completed_on ?? "—"}</dd>
-                    </div>
-                    <div>
-                      <dt>Agency</dt>
-                      <dd>{match.work.agency ?? "—"}</dd>
-                    </div>
-                    <div>
-                      <dt>Semantic score</dt>
-                      <dd className="mono">{match.semantic_score.toFixed(2)}</dd>
-                    </div>
-                    <div>
-                      <dt>Combined score</dt>
-                      <dd className="mono">{match.combined_score.toFixed(2)}</dd>
-                    </div>
-                    <div>
-                      <dt>Spatial precision</dt>
-                      <dd>
-                        <PrecisionTag precision={match.issue_location_precision} />
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Distance</dt>
-                      <dd>{match.distance_m != null ? `${match.distance_m.toFixed(0)}m` : "Not measured (ward-level)"}</dd>
-                    </div>
-                  </dl>
-                </>
-              )}
-              <p className="work-connection__reason">{match.match_reason}</p>
-              <p className="work-connection__disclaimer">
-                This is a computed record relationship, not a claim of causation.
-              </p>
-            </div>
-          ))
+                  )}
+                </dl>
+              </div>
+            ))}
+          </div>
         )}
-      </section>
+      </GlowingCard>
 
-      <section className="issue-detail__section">
-        <h2>Verification signals</h2>
-        {issue.signals.length === 0 ? (
-          <p className="issue-detail__no-match">No verification signals for this issue.</p>
-        ) : (
-          <ul className="signal-list">
+      {/* Evidence Chain in GlowingCard */}
+      <GlowingCard className="border-border">
+        <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+          <GitBranch className="w-5 h-5 text-primary" />
+          <span>Deterministic Evidence Chain</span>
+        </h2>
+        <EvidenceChain nodes={chainNodes} />
+      </GlowingCard>
+
+      {/* Verification Signals in GlowingCard */}
+      {issue.signals.length > 0 && (
+        <GlowingCard className="border-border">
+          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-amber-600" />
+            <span>Verification Signals ({issue.signals.length})</span>
+          </h2>
+          <ul className="space-y-3">
             {issue.signals.map((signal) => (
-              <li key={signal.signal_id} className="signal-card card">
-                <p className="signal-card__rule mono">{signal.rule_name}</p>
-                <p className="signal-card__explanation">{signal.explanation}</p>
-                <p className="signal-card__ids mono">
-                  Source records: {JSON.stringify(signal.source_record_ids)}
+              <li
+                key={signal.signal_id}
+                className="p-4 bg-muted/40 rounded-xl border border-border/80 space-y-2"
+              >
+                <div className="font-mono text-xs font-bold text-primary">
+                  {signal.rule_name}
+                </div>
+                <p className="text-xs sm:text-sm text-foreground leading-relaxed">
+                  {signal.explanation}
                 </p>
+                <details className="text-xs pt-1">
+                  <summary className="cursor-pointer text-secondary hover:text-foreground font-mono">
+                    Show source records
+                  </summary>
+                  <pre className="mt-2 p-2.5 bg-background rounded-lg text-[11px] font-mono overflow-auto border border-border">
+                    {JSON.stringify(signal.source_record_ids, null, 2)}
+                  </pre>
+                </details>
               </li>
             ))}
           </ul>
-        )}
-      </section>
-
-      {issue.feedback.length > 0 && (
-        <section className="issue-detail__section">
-          <h2>Citizen feedback</h2>
-          <ul className="feedback-list">
-            {issue.feedback.map((fb) => (
-              <li key={fb.feedback_id} className={`feedback-card card${fb.resolved_confirmed ? " feedback-card--confirmed" : " feedback-card--disputed"}`}>
-                <p className="feedback-card__verdict">
-                  {fb.resolved_confirmed ? "✓ Citizen confirmed this was resolved" : "✗ Citizen said this is not actually resolved"}
-                </p>
-                {fb.comment && <p className="feedback-card__comment">"{fb.comment}"</p>}
-                <p className="feedback-card__meta mono">{new Date(fb.submitted_at).toLocaleString()}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
+        </GlowingCard>
       )}
 
-      <section className="issue-detail__section">
-        <h2>Evidence relationship</h2>
-        <EvidenceChain nodes={chainNodes} />
-      </section>
+      {/* Resident Feedback Loop in GlowingCard */}
+      {issue.feedback.length > 0 && (
+        <GlowingCard className="border-border">
+          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-emerald-600" />
+            <span>Citizen Verification Feedback</span>
+          </h2>
+          <ul className="space-y-3">
+            {issue.feedback.map((fb) => (
+              <li
+                key={fb.feedback_id}
+                className="p-3.5 bg-muted/40 rounded-xl border border-border/70 flex items-start gap-3 text-sm"
+              >
+                {fb.resolved_confirmed ? (
+                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                ) : (
+                  <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                )}
+                <div>
+                  <span className="font-semibold text-foreground">
+                    {fb.resolved_confirmed ? "Confirmed Resolved by Citizen" : "Disputed — Citizen reports issue still active"}
+                  </span>
+                  {fb.comment && <p className="text-xs text-secondary mt-1">&ldquo;{fb.comment}&rdquo;</p>}
+                  {fb.is_synthetic && (
+                    <span className="inline-block mt-1">
+                      <SyntheticTag />
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </GlowingCard>
+      )}
     </div>
   );
 }
+export default IssueDetail;

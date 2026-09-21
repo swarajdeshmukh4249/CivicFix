@@ -59,7 +59,7 @@ UPLOAD_DIR = Path("data/uploads")
 ALLOWED_PHOTO_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 MAX_PHOTO_BYTES = 5 * 1024 * 1024
 
-app = FastAPI(title="WardSentry API")
+app = FastAPI(title="CivicFix API")
 
 # Local-dev only: lets a Vite dev server (a different origin/port) call
 # this API. Regex, not a fixed port, since Vite auto-increments its port
