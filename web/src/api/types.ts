@@ -118,6 +118,11 @@ export interface IssueSummary {
   is_synthetic: boolean;
   routed_agency: string | null;
   routed_at: string | null;
+  location_phrase?: string | null;
+  evidence_accuracy_m?: number | null;
+  pending_evidence?: number;
+  has_resolution_evidence?: boolean;
+  assigned_worker_id?: number | null;
 }
 
 export interface IssueListResponse {
@@ -144,6 +149,204 @@ export interface ReportInIssue {
   photo_severity_score: number | null;
   photo_severity_band: string | null;
   photo_checks?: PhotoChecks | null;
+  triage?: Record<string, unknown> | null; // LLM triage verdict/reason, staff only
+  evidence_status: EvidenceStatus | null;
+  evidence_due_at: string | null;
+}
+
+// A report without a photo is "pending" or "not_provided" - never false.
+export type EvidenceStatus =
+  | "submitted"
+  | "alternative_confirmed"
+  | "alternative_in_progress"
+  | "pending"
+  | "not_provided";
+
+export interface EvidenceItem {
+  evidence_id: number;
+  issue_id: number;
+  report_id: number | null;
+  submitted_by: number;
+  actor_type: "citizen" | "worker";
+  evidence_type: "initial_report" | "resolution";
+  capture_method: "camera";
+  file_url: string;
+  mime_type: string;
+  byte_size: number;
+  sha256: string;
+  location: GeoPoint;
+  accuracy_m: number;
+  captured_at: string | null;
+  location_captured_at: string | null;
+  submitted_at: string;
+  distance_from_issue_m: number | null;
+  issue_location_precision: LocationPrecision;
+  review_status: "pending_review" | "verified" | "review_required";
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  review_note: string | null;
+}
+
+export interface AlternativeVerification {
+  id: number;
+  report_id: number;
+  channel: "phone" | "whatsapp" | "in_person" | "other";
+  status: "initiated" | "confirmed" | "not_confirmed" | "unreachable";
+  initiated_by: number;
+  initiated_at: string;
+  completed_by: number | null;
+  completed_at: string | null;
+  notes: string | null;
+}
+
+export interface FieldWorker {
+  id: number;
+  display_name: string | null;
+}
+
+export interface MeResponse {
+  id: number;
+  role: string;
+  display_name: string | null;
+  email: string | null;
+  /** Effective prabhags: direct + via ward office + via zone. */
+  ward_ids: number[];
+  departments: string[];
+  ward_office_ids: number[];
+  zone_ids: number[];
+}
+
+// --- RBAC administration (app/api/admin.py) ---------------------------------
+
+export interface OrgWard { id: number; name: string; verified: boolean }
+export interface OrgWardOffice { id: number; name: string; wards: OrgWard[] }
+export interface OrgZone { id: number; name: string; ward_offices: OrgWardOffice[] }
+/** GET /api/admin/org: PMC zones -> ward offices -> prabhags. */
+export interface OrgResponse {
+  zones: OrgZone[];
+  unmapped_wards: OrgWard[];
+  roles: string[];
+  departments: string[];
+}
+
+export interface StaffUser {
+  id: number;
+  external_auth_id: string;
+  email: string | null;
+  display_name: string | null;
+  role: string;
+  is_active: boolean;
+  ward_ids: number[];
+  ward_office_ids: number[];
+  zone_ids: number[];
+  departments: string[];
+  effective_ward_count: number;
+}
+
+export interface UserScope {
+  ward_ids: number[];
+  ward_office_ids: number[];
+  zone_ids: number[];
+  departments: string[];
+}
+
+export interface AuditEntry {
+  id: number;
+  at: string;
+  actor_user_id: number | null;
+  actor_name: string | null;
+  action: string;
+  target_type: string;
+  target_id: string;
+  details: Record<string, unknown>;
+}
+
+export interface DashboardWardRow {
+  ward_id: number | null;
+  ward_name: string | null;
+  ward_office_id: number | null;
+  ward_office: string | null;
+  zone_id: number | null;
+  zone: string | null;
+  open: number;
+  closed: number;
+  unrouted: number;
+  avg_open_age_days: number | null;
+}
+
+export interface DashboardIssue {
+  issue_id: number;
+  category: string;
+  ward_id: number | null;
+  ward_name: string | null;
+  priority_score: number | null;
+  report_count: number;
+  first_reported: string | null;
+  routed_agency: string | null;
+}
+
+/** GET /api/dashboard: the caller's scope only. */
+export interface DashboardResponse {
+  role: string;
+  scope_label: string;
+  by_ward: DashboardWardRow[];
+  by_category: Record<string, number>;
+  top_open_issues: DashboardIssue[];
+}
+
+/** GET /api/held-reports: a report LLM triage held as likely spam, waiting for a human. */
+export interface HeldReport {
+  report_id: number;
+  issue_id: number;
+  raw_text: string;
+  translated_text: string | null;
+  reported_at: string;
+  ward_id: number | null;
+  triage: { verdict: string; category: string; reason: string; model: string | null; prompt_version: number };
+}
+
+export interface MyReport {
+  report_id: number;
+  raw_text: string;
+  reported_at: string;
+  category: string | null;
+  ward_id: number | null;
+  photo_url: string | null;
+  language: string | null;
+  translated_text: string | null;
+  issue_id: number | null;
+  issue_status: string | null;
+  is_synthetic: boolean;
+  evidence_status: EvidenceStatus | null;
+  evidence_due_at: string | null;
+  issue_reverification_due_at: string | null;
+}
+
+/** Public projection of an issue: no report text, no priority, location rounded to ~100 m. */
+export interface PublicIssue {
+  issue_id: number;
+  category: string;
+  ward_id: number | null;
+  ward_name: string | null;
+  status: string;
+  report_count: number;
+  first_reported: string | null;
+  last_reported: string | null;
+  closed_at: string | null;
+  location: GeoPoint | null;
+  location_precision: "approximate" | "ward_level" | "unknown";
+}
+
+export interface PublicIssueListResponse {
+  total: number;
+  limit: number;
+  offset: number;
+  items: PublicIssue[];
+}
+
+export interface PublicMapResponse {
+  issues: PublicIssue[];
+  wards: MapWard[];
 }
 
 export interface PhotoChecks {
@@ -241,6 +444,12 @@ export interface IssueDetailResponse {
   feedback: FeedbackSummary[];
   routed_agency: string | null;
   routed_at: string | null;
+  evidence: EvidenceItem[];
+  alternative_verifications: AlternativeVerification[];
+  assigned_worker_id: number | null;
+  assigned_at: string | null;
+  closed_at: string | null;
+  reverification_due_at: string | null;
 }
 
 export interface MapIssuePoint {
@@ -250,6 +459,8 @@ export interface MapIssuePoint {
   priority_score: number | null;
   location: GeoPoint;
   location_precision: LocationPrecision;
+  ward_id: number | null;
+  first_reported: string | null;
 }
 
 export interface MapWorkPoint {
@@ -269,6 +480,7 @@ export interface MapSitePoint {
 export interface MapWard {
   ward_id: number;
   name: string;
+  geometry: GeoJSON.Geometry | null;
 }
 
 export interface MapResponse {
@@ -289,14 +501,15 @@ export interface ReportCreateResponse {
   issue_id: number;
   joined_existing_issue: boolean;
   category: string;
-  category_confidence: number;
-  severity: string;
+  category_confidence: number | null; // null for citizens (internal)
+  severity: string | null;
   location_precision: LocationPrecision;
   priority_score: number | null;
   priority_breakdown: PriorityBreakdown | null;
   matched_work: MatchSummary | null;
   signals: SignalSummary[];
   is_synthetic: boolean;
+  held_for_review: boolean;
 }
 
 export const CIVIC_CATEGORIES = [
@@ -320,3 +533,73 @@ export const CATEGORY_LABELS: Record<string, string> = {
   traffic_signage: "Traffic signage",
   other: "Other",
 };
+
+// --- CivicFix Assistant (POST /api/chat/turn; app/chat/schemas.py) -----------
+
+export type ChatLang = "en" | "hi" | "mr" | "hinglish";
+
+export interface ChatDraft {
+  text: string;
+  category: string | null;
+  landmark: string | null;
+  since: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  location_label: string | null;
+  location_done: boolean;
+  photo_url: string | null;
+  photo_done: boolean;
+}
+
+/** Held by the client and sent back every turn; the server keeps none. */
+export interface ChatState {
+  conversation_id: string;
+  step: string;
+  lang: ChatLang;
+  lang_locked: boolean;
+  draft: ChatDraft;
+  issue_id: number | null;
+}
+
+export interface ChatAction {
+  kind: "reply" | "location" | "pin" | "photo" | "link" | "sign_in";
+  label: string;
+  action: string | null;
+  value: string | null;
+  href: string | null;
+}
+
+export interface ChatCard {
+  type: "issue" | "priority" | "work" | "outcome" | "summary" | "briefing" | "verification" | "history" | "list";
+  title: string;
+  subtitle: string | null;
+  badge: string | null;
+  tone: "high" | "med" | "low" | "neutral" | "warn" | null;
+  rows: { label: string; value: string }[];
+  factors: { label: string; points: number | null }[];
+  steps: { label: string; value: string }[];
+  items: { title: string; meta: string; action: string | null; value: string | null }[];
+  evidence: { label: string; detail: string }[];
+  note: string | null;
+  href: string | null;
+  href_label: string | null;
+}
+
+export interface ChatTurnRequest {
+  message?: string;
+  action?: string;
+  value?: string | null;
+  latitude?: number;
+  longitude?: number;
+  photo_url?: string;
+  surface: "citizen" | "admin";
+  state?: ChatState;
+}
+
+export interface ChatTurnResponse {
+  reply: string;
+  cards: ChatCard[];
+  actions: ChatAction[];
+  state: ChatState;
+  intent: string;
+}
