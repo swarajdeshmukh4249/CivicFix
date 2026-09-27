@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import uuid
 from datetime import datetime
@@ -77,6 +78,12 @@ app.add_middleware(
 )
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+if not os.environ.get("PHOTO_ENCRYPTION_KEY"):
+    print(
+        "WARNING: PHOTO_ENCRYPTION_KEY is not set - uploaded evidence photos "
+        "will be stored UNENCRYPTED on disk (each upload's photo_checks still "
+        "records stored_encrypted=false, but nothing here will remind you again)."
+    )
 
 
 
@@ -715,15 +722,22 @@ def _refresh_match_for_issue(conn, issue_id: int) -> Optional[dict]:
 
 
 @app.post("/api/uploads/photo", response_model=PhotoUploadResponse, status_code=201)
-async def upload_photo(file: UploadFile = File(...), db=Depends(get_db)):
+def upload_photo(file: UploadFile = File(...), db=Depends(get_db)):
     """Evidence intake. Signals are read from the original bytes, then only a
     re-encoded, metadata-free, upright JPEG is written (encrypted when
     PHOTO_ENCRYPTION_KEY is set). Suspicious signals never reject the
-    upload; they are stored and shown to the human reviewer."""
+    upload; they are stored and shown to the human reviewer.
+
+    A plain `def`, not `async def`: image re-encoding, disk I/O and the
+    psycopg calls below are all synchronous and would otherwise block the
+    event loop for every other in-flight request. FastAPI runs a sync path
+    function in its worker thread pool, so this keeps the same concurrency
+    without needing to await anything.
+    """
     if file.content_type not in ALLOWED_PHOTO_TYPES:
         raise HTTPException(status_code=400, detail=f"unsupported content type: {file.content_type}")
 
-    body = await file.read()
+    body = file.file.read()
     if len(body) > MAX_PHOTO_BYTES:
         raise HTTPException(status_code=400, detail=f"photo exceeds {MAX_PHOTO_BYTES // (1024 * 1024)}MB limit")
 
@@ -734,13 +748,22 @@ async def upload_photo(file: UploadFile = File(...), db=Depends(get_db)):
     del body
 
     filename = f"{uuid.uuid4().hex}.jpg"
-    checks["stored_encrypted"] = write_photo(UPLOAD_DIR / filename, clean)
-    with db.cursor() as cur:
-        cur.execute(
-            "INSERT INTO photo_uploads (filename, checks) VALUES (%s, %s::jsonb)",
-            (filename, json.dumps(checks)),
-        )
-    db.commit()
+    photo_path = UPLOAD_DIR / filename
+    checks["stored_encrypted"] = write_photo(photo_path, clean)
+    try:
+        with db.cursor() as cur:
+            cur.execute(
+                "INSERT INTO photo_uploads (filename, checks) VALUES (%s, %s::jsonb)",
+                (filename, json.dumps(checks)),
+            )
+        db.commit()
+    except Exception:
+        # Insert or commit failed - don't leave the file behind with no
+        # record of it (it would never be servable anyway, since serve_photo
+        # requires a photo_uploads/reports row, but there's no reason to
+        # keep an unreferenced file on disk).
+        photo_path.unlink(missing_ok=True)
+        raise
     return PhotoUploadResponse(photo_url=f"/api/photos/{filename}", photo_checks=checks)
 
 
@@ -787,6 +810,29 @@ def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
             cur.execute("SELECT 1 FROM wards WHERE id = %s", (payload.ward_id,))
             if cur.fetchone() is None:
                 raise HTTPException(status_code=400, detail=f"ward_id {payload.ward_id} does not exist")
+
+    if payload.photo_url:
+        # There's no auth to check "who uploaded this," but without any
+        # check at all, a client could attach an arbitrary filename it
+        # never uploaded - including one another client uploaded and never
+        # used - and serve_photo would then expose it, since it only
+        # requires SOME report to reference it. Two checks close that:
+        # the filename must be a real upload, and it must not already be
+        # attached to a different report (one photo, one report).
+        photo_filename = Path(payload.photo_url).name
+        with db.cursor() as cur:
+            cur.execute("SELECT 1 FROM photo_uploads WHERE filename = %s", (photo_filename,))
+            if cur.fetchone() is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail="photo_url does not reference an uploaded photo (POST /api/uploads/photo first)",
+                )
+            cur.execute(
+                "SELECT 1 FROM reports WHERE photo_url IN (%s, %s)",
+                (f"/api/photos/{photo_filename}", f"/uploads/{photo_filename}"),
+            )
+            if cur.fetchone() is not None:
+                raise HTTPException(status_code=400, detail="photo_url is already attached to another report")
 
     # Non-English text is translated before running the (English-only)
     # pipeline, so a Hindi/Marathi complaint gets a real category instead of
