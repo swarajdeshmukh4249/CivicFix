@@ -4,7 +4,7 @@ import re
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 from fastapi import Depends, FastAPI, File, HTTPException, Query, Response, UploadFile
@@ -89,6 +89,9 @@ ALLOWED_PHOTO_TYPES = {"image/jpeg", "image/png", "image/webp"}
 MAX_PHOTO_BYTES = 20 * 1024 * 1024
 
 app = FastAPI(title="CivicFix API")
+app.include_router(admin_router)
+app.include_router(chat_router)
+app.include_router(evidence_router)
 # The map payloads are several hundred KB of JSON; gzip cuts them ~5x for phones.
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
@@ -231,8 +234,8 @@ def stats(db=Depends(get_db)):
     return StatsResponse(**counts)
 
 
-@app.get("/api/metrics", response_model=MetricsResponse)
-def metrics(db=Depends(get_db), user: CurrentUser = Depends(require_staff)):
+@app.get("/api/metrics", response_model=MetricsResponse, dependencies=[Depends(require_staff)])
+def metrics(db=Depends(get_db)):
     """Real evaluation numbers per ARCHITECTURE.md section 6 - computed
     from the actual database plus a persisted offline classifier
     evaluation, never asserted. See app/core/metrics.py for the two
@@ -616,14 +619,13 @@ def list_matches(
     ]
 
 
-@app.get("/api/works", response_model=list[WorkSummary])
+@app.get("/api/works", response_model=list[WorkSummary], dependencies=[Depends(require_staff)])
 def list_works(
     ward_id: Optional[int] = None,
     category: Optional[str] = None,
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
     db=Depends(get_db),
-    user: CurrentUser = Depends(require_staff),
 ):
     # Not ward-scoped: works are published MPLADS records, and an officer
     # needs neighbouring wards' works to judge a match.
@@ -938,20 +940,14 @@ def serve_photo(filename: str, db=Depends(get_db)):
     return Response(content=content, media_type=PHOTO_MEDIA_TYPES[match.group(1)])
 
 
-@app.post("/api/reports", response_model=ReportCreateResponse, status_code=201)
-def create_report(payload: ReportCreateRequest, db=Depends(get_db)):
-    """Live citizen-complaint flow: classify -> location -> severity ->
-    attach-or-create issue -> recurrence check -> matcher -> priority ->
-    signals, using the existing, unmodified pipeline functions throughout.
-    Marked is_synthetic=true since this is the prototype's demo endpoint,
-    not a production citizen-facing intake.
-    """
-    if payload.ward_id is not None:
-        with db.cursor() as cur:
-            cur.execute("SELECT 1 FROM wards WHERE id = %s", (payload.ward_id,))
-            if cur.fetchone() is None:
-                raise HTTPException(status_code=400, detail=f"ward_id {payload.ward_id} does not exist")
-
+def analyse_report(
+    db,
+    raw_text: str,
+    ward_id: Optional[int],
+    latitude: Optional[float],
+    longitude: Optional[float],
+) -> dict[str, Any]:
+    """Classify and geolocate a report before it is persisted."""
     # Non-English text is translated before running the (English-only)
     # pipeline, so a Hindi/Marathi complaint gets a real category instead of
     # falling into "other" - see app/nlp/translate.py. Translation failure
