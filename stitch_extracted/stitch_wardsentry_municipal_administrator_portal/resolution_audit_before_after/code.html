@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;700;800;900&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;font-family:'Noto Sans',sans-serif;}h1,h2,h3,h4,h5,h6,.font-headline{font-family:'Chivo',sans-serif;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.chamfer-tr{clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,0 100%);}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#4A1525",
+          "primary-container": "#541F2D",
+          "wine-deep": "#4A1525",
+          "wine-base": "#611E29",
+          "rust-terracotta": "#C74724",
+          "rust-burnt": "#BA3D1D",
+          "gold-bright": "#F2A900",
+          "gold-ochre": "#EAAA0F",
+          "surface-cream": "#FAF8F5",
+          "surface-warm-tint": "#F5F1EB",
+          "charcoal-dark": "#1B1B1B",
+          "charcoal-body": "#333333",
+          "surface": "#FAF8F5",
+          "surface-card": "#FFFFFF",
+          "surface-canvas": "#F5F1EB",
+          "surface-subtle": "#ECE6DE",
+          "surface-container": "#E8E2D8",
+          "border-subtle": "#E2DACF",
+          "border-strong": "#C5B8A8",
+          "status-critical": "#BA3D1D",
+          "status-warning": "#EAAA0F",
+          "status-verified": "#2D6A4F",
+          "status-standard": "#541F2D",
+          "on-primary": "#ffffff",
+          "on-surface": "#1B1B1B",
+          "text-primary": "#1B1B1B",
+          "text-secondary": "#4E423E",
+          "text-muted": "#7A6C66"
+        },
+        "fontFamily": {
+          "headline-xl": ["Chivo", "sans-serif"],
+          "headline-lg": ["Chivo", "sans-serif"],
+          "headline-md": ["Chivo", "sans-serif"],
+          "headline-sm": ["Chivo", "sans-serif"],
+          "label-lg": ["Chivo", "sans-serif"],
+          "label-md": ["Noto Sans", "sans-serif"],
+          "label-sm": ["Noto Sans", "sans-serif"],
+          "body-lg": ["Noto Sans", "sans-serif"],
+          "body-md": ["Noto Sans", "sans-serif"],
+          "body-sm": ["Noto Sans", "sans-serif"]
+        }
+      }
+    }
+  }
+</script></head><body class="bg-surface-canvas font-body-md text-charcoal-dark antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border-subtle shadow-xs"><div class="h-14 px-6 flex items-center justify-between gap-4 bg-white border-b border-border-subtle/80"><div class="flex items-center gap-4"><!-- BetterWork Geometric Diamond Logo + WardSentry Identity --><div class="flex items-center gap-2.5"><div class="relative w-7 h-7 flex items-center justify-center shrink-0"><div class="absolute w-3.5 h-3.5 bg-rust-terracotta rotate-45 -translate-x-1.5 -translate-y-1.5 rounded-xs"></div><div class="absolute w-3.5 h-3.5 bg-gold-bright rotate-45 translate-x-1.5 -translate-y-1.5 rounded-xs"></div><div class="absolute w-3.5 h-3.5 bg-wine-deep rotate-45 -translate-x-1.5 translate-y-1.5 rounded-xs"></div><div class="absolute w-3.5 h-3.5 bg-gold-ochre rotate-45 translate-x-1.5 translate-y-1.5 rounded-xs"></div></div><div class="flex items-baseline gap-1.5"><span class="font-headline font-black text-[20px] tracking-tight text-charcoal-dark">Ward<span class="text-rust-terracotta">Sentry</span></span><span class="text-[11px] font-bold uppercase tracking-wider text-wine-deep bg-surface-warm-tint px-2 py-0.5 rounded-sm border border-border-subtle">PMC Operations Admin</span></div></div><div class="h-4 w-[1px] bg-border-strong/40 hidden md:block"></div><div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-cream border border-border-subtle"><span class="w-2 h-2 rounded-full bg-status-verified animate-pulse"></span><span class="text-[11px] font-bold tracking-wider text-status-verified uppercase font-headline">Live Sync • PMC Grid</span></div></div><div class="hidden lg:flex items-center flex-1 max-w-lg mx-4 px-3 py-1.5 bg-surface-cream rounded border border-border-subtle shadow-xs"><span class="text-rust-terracotta text-[11px] font-bold mr-1.5">▶</span><span class="text-[11px] font-bold text-wine-deep uppercase tracking-wider mr-2 font-headline">Incident Feed:</span><span class="text-xs text-charcoal-body truncate">Ward 14: Water main pressure anomaly logged at Paud Road • Crew #04 Dispatched</span></div><div class="flex items-center gap-3"><div class="relative flex items-center"><label class="sr-only" for="ward-select">Active Ward Selection</label><select class="appearance-none bg-surface-cream text-charcoal-dark text-xs font-semibold pl-3 pr-7 py-1.5 rounded border border-border-strong/60 hover:border-rust-terracotta focus:outline-none focus:ring-1 focus:ring-rust-terracotta cursor-pointer transition-colors" id="ward-select"><option value="all">All Wards (1-41)</option><option value="14">Ward 14 - Kothrud</option><option value="21">Ward 21 - Shivajinagar</option><option value="08">Ward 08 - Aundh-Baner</option><option value="12">Ward 12 - Kasba Peth</option></select><span class="material-symbols-outlined pointer-events-none absolute right-1.5 text-text-muted text-[18px]">expand_more</span></div><div class="hidden sm:flex items-center bg-surface-cream border border-border-strong/60 rounded px-2.5 py-1 text-text-secondary"><span class="material-symbols-outlined text-[16px] mr-1.5 text-rust-terracotta">search</span><span class="text-xs text-charcoal-body mr-2">Spatial Query</span><kbd class="text-[10px] font-bold bg-white px-1.5 py-0.5 rounded text-charcoal-dark border border-border-strong/40">Ctrl+K</kbd></div><button aria-label="Notifications" class="relative p-1.5 text-charcoal-body hover:text-rust-terracotta rounded hover:bg-surface-warm-tint transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rust-terracotta"></span></button><!-- Authentic Better Work Signature Action Button --><button class="hidden sm:flex items-center gap-1 px-3.5 py-1.5 bg-rust-terracotta hover:bg-rust-burnt text-white font-headline text-xs font-bold uppercase tracking-wider rounded shadow-xs transition-colors"><span>Contact US</span><span class="text-[13px] font-black leading-none">›</span></button><div class="w-8 h-8 rounded-full bg-wine-deep flex items-center justify-center text-white font-bold text-xs"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></div><!-- Sub-Navigation Bar with Better Work Active Bar Style --><div class="h-11 px-6 bg-surface-cream flex items-center justify-between border-b border-border-subtle overflow-x-auto"><nav class="flex items-center gap-1"><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="command-center" href="#"><span class="text-gold-bright text-[10px]">▶</span> 1. Command Center (Spatial Map)</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="issues-workspace" href="#">2. Issues Workspace (List &amp; Spatial)</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="evidence-verification" href="#">3. Evidence Verification</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="workforce-deployment" href="#">4. Workforce &amp; Deployment</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="resolution-audit" href="#">5. Resolution Audit (Before/After)</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="ward-analytics" href="#">6. Ward Analytics &amp; Boundary Status</a></nav><div class="hidden xl:flex items-center gap-2 border-l border-border-subtle pl-4"><span class="text-[10px] uppercase font-bold text-text-muted font-headline tracking-wider">Zone Coordinate:</span><span class="text-xs font-mono font-bold text-charcoal-dark">18.5204° N, 73.8567° E</span></div></div></header><aside class="fixed left-0 top-[100px] bottom-0 w-72 bg-surface-cream border-r border-border-subtle z-40 flex flex-col justify-between overflow-y-auto"><div class="p-4 flex flex-col gap-4"><div class="flex items-center justify-between pb-2 border-b border-border-subtle"><div class="flex items-center gap-1.5"><span class="text-rust-terracotta text-[11px] font-black">▶</span><span class="text-xs uppercase font-headline font-bold text-wine-deep tracking-wider">Spatial Telemetry</span></div><span class="text-[11px] font-bold text-gold-ochre bg-wine-deep px-2 py-0.5 rounded font-headline">ZONE-A ACTIVE</span></div><div class="flex flex-col gap-1.5"><span class="text-xs font-bold uppercase tracking-wider text-text-muted font-headline">Vector Layer Stack</span><div class="space-y-1"><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input checked="" class="accent-rust-terracotta rounded" type="checkbox"/> Ward Boundaries (PMC)</span><span class="text-[10px] font-mono text-text-muted">KML/GeoJSON</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input checked="" class="accent-rust-terracotta rounded" type="checkbox"/> Solid Waste Hotspots</span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rust-terracotta text-white font-headline">38 Hot</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input checked="" class="accent-rust-terracotta rounded" type="checkbox"/> Water Pipeline Corridors</span><span class="text-[11px] text-status-verified font-bold">Normal</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input class="accent-rust-terracotta rounded" type="checkbox"/> Road Works &amp; Encroachments</span><span class="text-[11px] text-gold-ochre font-bold">14 Pending</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input class="accent-rust-terracotta rounded" type="checkbox"/> PMC Sanitation Fleet (GPS)</span><span class="text-[11px] text-text-muted">92 Units</span></label></div></div><div class="flex flex-col gap-1.5 pt-2 border-t border-border-subtle"><span class="text-xs font-bold uppercase tracking-wider text-text-muted font-headline">Spatial Filters</span><div class="flex flex-wrap gap-1.5"><button class="px-2.5 py-1 rounded border border-border-strong text-xs font-bold font-headline bg-white text-charcoal-dark hover:bg-surface-subtle shadow-2xs" type="button">All Priority</button><button class="px-2.5 py-1 rounded border border-rust-terracotta text-xs font-bold font-headline bg-rust-terracotta text-white shadow-2xs" type="button">High / Critical (23)</button><button class="px-2.5 py-1 rounded border border-border-strong text-xs font-semibold text-text-secondary bg-white hover:bg-surface-subtle shadow-2xs" type="button">SLAs &lt; 4h</button></div></div></div><div class="p-3.5 border-t border-border-subtle bg-surface-subtle/70 flex flex-col gap-1"><div class="flex items-center justify-between"><div class="flex items-center gap-1"><span class="text-rust-terracotta text-[10px]">▶</span><span class="text-[11px] uppercase font-bold text-wine-deep font-headline">Central Dispatch Node</span></div><span class="text-[10px] font-bold text-status-verified bg-white px-1.5 py-0.5 rounded border border-border-subtle">OPERATIONAL</span></div><div class="text-[11px] text-text-secondary">PMC Municipal Data Center 02 • Latency: 18ms</div></div></aside><div class="pl-72"><main class="relative pt-[100px] w-full px-0 bg-surface-canvas min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Case Audit Header Context -->
+<div class="w-full bg-surface-container-lowest px-8 py-6 shadow-sm">
+<div class="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+<div class="flex flex-col gap-2">
+<div class="flex flex-wrap items-center gap-3">
+<span class="bg-wine-deep text-on-primary font-headline-sm text-label-sm uppercase px-2.5 py-1 tracking-wider">
+            CASE #PMC-2024-8812
+          </span>
+<span class="bg-gold-ochre text-charcoal-dark font-headline-sm text-label-sm uppercase px-2.5 py-1 tracking-wider">
+            Pending Admin Audit &amp; Sign-off
+          </span>
+<span class="text-charcoal-body font-body-sm flex items-center gap-1.5 bg-surface-container px-2.5 py-0.5">
+<span class="material-symbols-outlined text-[16px] text-rust-terracotta">location_on</span>
+            Ward 08 • Aundh-Baner Corridor (Paud-Baner Link Rd)
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-charcoal-dark tracking-tight">
+          Underground Storm Drain Clearance &amp; Grate Re-seating
+        </h1>
+</div>
+<!-- Quick Metrics Strip -->
+<div class="flex flex-wrap items-center gap-4 bg-surface-cream p-3 px-5 shadow-sm">
+<div class="flex flex-col pr-4">
+<span class="font-headline-sm text-label-sm text-charcoal-body uppercase tracking-wider">Deployment Crew</span>
+<span class="font-headline-sm text-headline-sm text-wine-deep">Unit B-2</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Lead: S. Pawar (ID 409)</span>
+</div>
+<div class="w-px h-10 bg-surface-variant"></div>
+<div class="flex flex-col pr-4">
+<span class="font-headline-sm text-label-sm text-charcoal-body uppercase tracking-wider">Turnaround SLA</span>
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-sm text-headline-sm text-charcoal-dark">3h 18m</span>
+<span class="text-rust-burnt font-headline-sm text-label-sm uppercase font-bold">&lt; 4h Target</span>
+</div>
+<span class="font-body-sm text-label-sm text-charcoal-body">Logged 07:15 • Cleared 10:33</span>
+</div>
+<div class="w-px h-10 bg-surface-variant"></div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-label-sm text-charcoal-body uppercase tracking-wider">Audit Confidence</span>
+<span class="font-headline-sm text-headline-sm text-wine-base">99.4%</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Dual GeoTag Lock</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary Workspace Content -->
+<div class="max-w-7xl mx-auto w-full px-8 py-8 flex flex-col gap-8">
+<!-- Subheader Bar with Case Switcher -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 bg-rust-terracotta rotate-45"></span>
+<h2 class="font-headline-md text-headline-md text-wine-deep tracking-tight">
+          Visual Spatial Verification
+        </h2>
+<span class="text-charcoal-body font-body-sm ml-2">Compare citizen complaint intake against mobile field resolution</span>
+</div>
+<!-- Interactive Mode & Case Navigation -->
+<div class="flex items-center gap-2">
+<button class="bg-surface-container hover:bg-surface-variant text-charcoal-dark px-3 py-1.5 font-headline-sm text-label-sm uppercase tracking-wider flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span> Prev Ticket
+        </button>
+<span class="font-body-sm text-label-sm text-charcoal-body px-2">Ticket 4 of 19</span>
+<button class="bg-surface-container hover:bg-surface-variant text-charcoal-dark px-3 py-1.5 font-headline-sm text-label-sm uppercase tracking-wider flex items-center gap-1 transition-colors">
+          Next Ticket <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- 12-Column Layout: Visual Comparison (Col 8) + Sidebar Verification Dossier (Col 4) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left 7-8 Cols: Dual Side-by-Side Photo Cards -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1: BEFORE Evidence -->
+<div class="flex flex-col bg-surface-container-lowest shadow-sm overflow-hidden group">
+<div class="bg-wine-deep text-on-primary px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-rust-terracotta"></span>
+<span class="font-headline-sm text-label-lg tracking-wider uppercase">1. Citizen Ground Evidence</span>
+</div>
+<span class="bg-rust-burnt text-on-primary font-headline-sm text-label-sm px-2 py-0.5 uppercase tracking-wide">BEFORE</span>
+</div>
+<!-- Image Container -->
+<div class="relative w-full h-80 bg-surface-container overflow-hidden">
+<img alt="Severe blocked drain with debris and overflow" class="w-full h-full object-cover" data-alt="Editorial close-up documentary photo of a severely clogged municipal storm drain on an urban street in Pune with dirty flood water ponding, plastic debris, twigs, and mud completely obstructing the iron grates during daytime monsoon morning overcast light, high realistic documentary photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5NbZhAnkonS7TZuN_lTydLmpifvFcGvsebAuml4UjKLhZ0T6C9kN9q-88ADfv_jvFbS1rw9XPXN7IyUIjkFxrzqZp3QHULCOs2hy_y8_KOJVobA1ANo0nfcjNHpQ65bdpukCVxUzSt5tsBnZLgqIOWfn96871QjoqlFmnJcIphKp9UiM0pkjJYEpp_TMLK7TQXy1OD1Qgz9ERi5Wn-UBRuaLeTwnwCtG8qpZrV0ny9OhWLnYECVlI"/>
+<div class="absolute bottom-3 left-3 bg-charcoal-dark/90 text-on-primary text-label-sm font-headline-sm px-2.5 py-1 tracking-wider backdrop-blur-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-gold-ochre text-[14px]">schedule</span> 07:15 AM IST • 14 Oct 2024
+              </div>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/95 text-charcoal-dark text-label-sm font-headline-sm px-2 py-1 shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-rust-terracotta text-[14px]">warning</span> 85% Blockage
+              </div>
+</div>
+<!-- Meta Narrative Block -->
+<div class="p-5 bg-surface-container-lowest flex flex-col gap-3">
+<div class="flex items-center justify-between text-body-sm">
+<span class="text-charcoal-body font-body-sm">Source:</span>
+<span class="font-headline-sm text-label-sm text-charcoal-dark uppercase">Citizen Mobile (Verified Resident)</span>
+</div>
+<div class="flex items-center justify-between text-body-sm">
+<span class="text-charcoal-body font-body-sm">Spatial Tag:</span>
+<span class="font-body-sm text-label-sm text-wine-deep font-bold">18.5582° N, 73.7937° E</span>
+</div>
+<!-- AI Diagnostic Callout -->
+<div class="mt-2 p-3 bg-surface-warm-tint flex flex-col gap-1.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-rust-terracotta text-[18px]">psychology</span>
+<span class="font-headline-sm text-label-sm text-wine-deep uppercase tracking-wider">AI Computer Vision Telemetry</span>
+</div>
+<p class="font-body-sm text-charcoal-body leading-relaxed">
+                  Identified severe solid obstruction: non-biodegradable silt accumulation, dislodged concrete casing, acute standing runoff threat to adjacent pedestrian walkway.
+                </p>
+</div>
+</div>
+</div>
+<!-- Card 2: AFTER Evidence -->
+<div class="flex flex-col bg-surface-container-lowest shadow-sm overflow-hidden group">
+<div class="bg-wine-base text-on-primary px-4 py-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-gold-ochre"></span>
+<span class="font-headline-sm text-label-lg tracking-wider uppercase">2. Worker Resolution Proof</span>
+</div>
+<span class="bg-gold-ochre text-charcoal-dark font-headline-sm text-label-sm px-2 py-0.5 uppercase tracking-wide font-bold">RESOLVED</span>
+</div>
+<!-- Image Container -->
+<div class="relative w-full h-80 bg-surface-container overflow-hidden">
+<img alt="Cleared drain with clean iron grate reinstalled" class="w-full h-full object-cover" data-alt="Editorial municipal maintenance photography of a newly cleared, pristine heavy-duty iron storm grate cleanly installed flush into freshly laid dry dark asphalt on an Indian urban street, warm daylight, water completely drained away, spotless curb side with no debris remaining." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAlDGbYJY_Nbzkg-Q4-OBEzK41ADLi7TB8oGKAOXwbTpeNr60mjTgrB2yHoBZWCGePUv4Qjeo_i6IceB9kc6YYr70diJ9peqn0Pfee-52Vvguqiwa8CG3zioc12u6br8hWqV5qn_08WNrJTX4HrYtpZUCO-ORRV9mqCCoYWSuJuiItuHN5PKraVo8Bpi0vKwrHNDsEPYr0z6-cGQxJLWot741gQzb-DJmkxjXNeCnY7DjfqUb-tvz7"/>
+<div class="absolute bottom-3 left-3 bg-charcoal-dark/90 text-on-primary text-label-sm font-headline-sm px-2.5 py-1 tracking-wider backdrop-blur-xs flex items-center gap-1.5">
+<span class="material-symbols-outlined text-gold-ochre text-[14px]">schedule</span> 10:33 AM IST • 14 Oct 2024
+              </div>
+<div class="absolute top-3 right-3 bg-wine-deep text-on-primary text-label-sm font-headline-sm px-2 py-1 shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-gold-ochre text-[14px]">verified</span> GPS Verified: 1.2m
+              </div>
+</div>
+<!-- Meta Narrative Block -->
+<div class="p-5 bg-surface-container-lowest flex flex-col gap-3">
+<div class="flex items-center justify-between text-body-sm">
+<span class="text-charcoal-body font-body-sm">Field App Upload:</span>
+<span class="font-headline-sm text-label-sm text-charcoal-dark uppercase">Crew B-2 PWA Secure Node</span>
+</div>
+<div class="flex items-center justify-between text-body-sm">
+<span class="text-charcoal-body font-body-sm">Spatial Telemetry:</span>
+<span class="font-body-sm text-label-sm text-wine-deep font-bold">18.5583° N, 73.7938° E (Exact)</span>
+</div>
+<!-- Materials & Work Log -->
+<div class="mt-2 p-3 bg-surface-warm-tint flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-label-sm text-wine-deep uppercase tracking-wider">Logistics &amp; Material Consumption</span>
+<span class="text-label-sm font-body-sm text-rust-burnt uppercase font-bold">Inventory Sync</span>
+</div>
+<div class="flex flex-wrap gap-2 pt-1">
+<span class="bg-surface-container-lowest px-2.5 py-1 font-body-sm text-label-sm text-charcoal-dark shadow-xs">
+                    1x Cast Iron Heavy Grate (800x400)
+                  </span>
+<span class="bg-surface-container-lowest px-2.5 py-1 font-body-sm text-label-sm text-charcoal-dark shadow-xs">
+                    20kg Rapid Cold Asphalt Patch
+                  </span>
+<span class="bg-surface-container-lowest px-2.5 py-1 font-body-sm text-label-sm text-charcoal-dark shadow-xs">
+                    Suction Sludge Pump #04
+                  </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Citizen Feedback & Acceptance Status Banner -->
+<div class="w-full bg-surface-container-lowest p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 bg-gold-ochre/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-[28px]">mark_chat_read</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-charcoal-dark tracking-tight">Citizen Verification Pulse</span>
+<span class="bg-gold-ochre text-charcoal-dark font-headline-sm text-label-sm uppercase px-2 py-0.5 tracking-wider">SMS / WhatsApp Automated</span>
+</div>
+<p class="font-body-sm text-charcoal-body italic">
+                “Satisfied - road completely cleared, water draining freely. Thank you PMC team for the quick turnaround.”
+              </p>
+<div class="flex items-center gap-4 text-label-sm text-charcoal-body pt-1">
+<span>Received: 10:48 AM IST</span>
+<span>•</span>
+<span>Mobile: +91 98*** **312</span>
+<span>•</span>
+<span class="font-headline-sm text-wine-deep uppercase">Audit Hash: #CL-8812-OK</span>
+</div>
+</div>
+</div>
+<!-- Citizen Rating Box -->
+<div class="bg-surface-cream px-6 py-4 flex flex-col items-center shrink-0 shadow-xs">
+<div class="flex items-center text-gold-ochre gap-1">
+<span class="material-symbols-outlined text-[20px]">star</span>
+<span class="material-symbols-outlined text-[20px]">star</span>
+<span class="material-symbols-outlined text-[20px]">star</span>
+<span class="material-symbols-outlined text-[20px]">star</span>
+<span class="material-symbols-outlined text-[20px]">star</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-charcoal-dark mt-1">5.0 / 5.0</span>
+<span class="font-headline-sm text-label-sm text-rust-terracotta uppercase tracking-wider">Citizen Accepted</span>
+</div>
+</div>
+<!-- Comparative Geo Map Section with data-location -->
+<div class="w-full bg-surface-container-lowest p-6 shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-rust-terracotta">share_location</span>
+<h3 class="font-headline-sm text-headline-sm text-charcoal-dark">Spatial Pinpoint Validation</h3>
+</div>
+<span class="font-headline-sm text-label-sm text-wine-deep uppercase bg-surface-warm-tint px-2 py-1">
+              Delta Variance: 1.2 Meters (Tolerance &lt; 5m)
+            </span>
+</div>
+<div class="w-full h-56 bg-cover bg-center relative shadow-inner overflow-hidden" data-location="Baner Road, Pune, Maharashtra, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUvlGZCaehOLAiZOXfm-oyCRKtYmWTkOTBKYDH3DN2KSLggEEIaDHI1TuCJY4dfm00ZaztU0GIkMRA8fQrsFTusYZjBrQYoRDgdoVr9hJ7C22UmZs0DjiMt_z7qH0ENsc_kVWqZUBdcs7lvDP2ZM78WZ9mj3kkFCDNOepQE701NQ0Bm2nDLzZWzdWz6E7HozuGMijOENS4kwOkkTVZJrAk-WUiEPgJBIvzA3RPYVTEOlC8TJWJ4eV2')">
+<!-- Map overlay HUD -->
+<div class="absolute inset-0 bg-charcoal-dark/20 pointer-events-none"></div>
+<div class="absolute top-4 left-4 bg-surface-container-lowest/95 p-3 shadow-md flex flex-col gap-1 max-w-xs">
+<span class="font-headline-sm text-label-sm text-wine-deep uppercase tracking-wider">PMC Municipal GIS Overlay</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Ward 08 Sub-catchment Basin #12 • Underground Conduit 600mm Reinforced Concrete</span>
+</div>
+<div class="absolute bottom-4 right-4 bg-charcoal-dark text-on-primary px-3 py-1.5 font-headline-sm text-label-sm tracking-wider uppercase flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-gold-ochre animate-ping"></span>
+              Live Geofence Matched
+            </div>
+</div>
+</div>
+</div>
+<!-- Right 4-5 Cols: Auditor Review Panel & Sign-Off Checklist -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Checklist Form Card -->
+<div class="bg-surface-container-lowest p-6 shadow-sm flex flex-col gap-6">
+<div class="flex items-center justify-between pb-3 border-b-2 border-wine-deep">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-wine-deep">checklist</span>
+<h3 class="font-headline-sm text-headline-sm text-wine-deep uppercase tracking-wide">
+                Audit Checklist
+              </h3>
+</div>
+<span class="font-headline-sm text-label-sm bg-surface-container px-2 py-0.5 text-charcoal-dark uppercase">3/3 Checks</span>
+</div>
+<p class="font-body-sm text-charcoal-body">
+            Verify municipal standard compliance before committing closure to the Pune Municipal Corporation public ledger.
+          </p>
+<!-- Checkboxes List -->
+<div class="flex flex-col gap-4">
+<label class="flex items-start gap-3 p-3 bg-surface-cream hover:bg-surface-warm-tint transition-colors cursor-pointer select-none">
+<input checked="" class="mt-0.5 w-4 h-4 rounded-none accent-wine-deep cursor-pointer" id="chk-photo" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-label-lg text-charcoal-dark">Photographic Proof Verified</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Clear drainage path, no remaining blockages, structural integrity confirmed.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 bg-surface-cream hover:bg-surface-warm-tint transition-colors cursor-pointer select-none">
+<input checked="" class="mt-0.5 w-4 h-4 rounded-none accent-wine-deep cursor-pointer" id="chk-gps" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-label-lg text-charcoal-dark">GPS Location Match &lt; 5m</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Telemetry triangulated via cell tower and field tablet GPS coordinates.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 bg-surface-cream hover:bg-surface-warm-tint transition-colors cursor-pointer select-none">
+<input checked="" class="mt-0.5 w-4 h-4 rounded-none accent-wine-deep cursor-pointer" id="chk-citizen" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-label-lg text-charcoal-dark">Citizen Acknowledgment Logged</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Automated feedback pulse verified with affirmative 5/5 score.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 bg-surface-cream hover:bg-surface-warm-tint transition-colors cursor-pointer select-none">
+<input checked="" class="mt-0.5 w-4 h-4 rounded-none accent-wine-deep cursor-pointer" id="chk-materials" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-label-lg text-charcoal-dark">Material Reconciliation</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">1 Iron Grate &amp; 20kg asphalt deducted from Ward 08 depot store.</span>
+</div>
+</label>
+</div>
+<!-- Auditor Note Input -->
+<div class="flex flex-col gap-1.5 pt-2">
+<label class="font-headline-sm text-label-sm text-charcoal-dark uppercase tracking-wider" for="audit-notes">
+              Auditor Note (Mandatory for Ledger)
+            </label>
+<textarea class="w-full bg-surface-warm-tint text-charcoal-dark p-3 font-body-sm focus:outline-none focus:ring-2 focus:ring-rust-terracotta border-0 resize-none" id="audit-notes" placeholder="Resolution confirmed. High quality reinstatement of drain grate. Verified against monsoon readiness criteria." rows="3">Visual evidence inspects clean; drain clearance thorough with brand-new heavy grate correctly sealed into the asphalt base. Geotag and citizen rating congruent.</textarea>
+</div>
+<!-- Action Buttons Area -->
+<div class="flex flex-col gap-3 pt-4 border-t border-surface-variant">
+<!-- Primary Affirmative Action -->
+<button class="w-full bg-rust-terracotta hover:bg-rust-burnt text-on-primary py-3.5 px-6 font-headline-sm text-label-lg uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-[0.99]" id="btn-approve" type="button">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+              Approve Resolution &amp; Close Ticket
+            </button>
+<!-- Re-inspection / Dispute Action -->
+<button class="w-full bg-transparent hover:bg-surface-warm-tint text-wine-deep py-2.5 px-4 font-headline-sm text-label-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-colors border-2 border-wine-deep" id="btn-flag" type="button">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+              Flag for Re-inspection / Recut
+            </button>
+</div>
+<!-- Audit Metadata -->
+<div class="bg-surface-cream p-3 text-label-sm text-charcoal-body flex flex-col gap-1 font-body-sm">
+<div class="flex justify-between">
+<span>Auditor Officer:</span>
+<span class="font-headline-sm text-charcoal-dark">D. Deshmukh (Admin Ops 01)</span>
+</div>
+<div class="flex justify-between">
+<span>Verification Protocol:</span>
+<span class="font-headline-sm text-charcoal-dark">PMC-ST-2024-V3</span>
+</div>
+<div class="flex justify-between">
+<span>Immutable Ledger Stamp:</span>
+<span class="font-headline-sm text-wine-deep">SHA256: 4f8a...9c2e</span>
+</div>
+</div>
+</div>
+<!-- Field Worker Performance Snapshot Card -->
+<div class="bg-surface-container-lowest p-6 shadow-sm flex flex-col gap-4">
+<div class="flex items-center gap-2 pb-2 border-b border-surface-variant">
+<span class="material-symbols-outlined text-gold-ochre">engineering</span>
+<h4 class="font-headline-sm text-label-lg uppercase tracking-wider text-charcoal-dark">
+              Crew Unit Performance
+            </h4>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-wine-deep text-on-primary font-headline-sm text-headline-sm flex items-center justify-center">
+              B2
+            </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-label-lg text-charcoal-dark">Baner Tactical Unit B-2</span>
+<span class="font-body-sm text-label-sm text-charcoal-body">Ward 08 Emergency Response Team</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2 text-center">
+<div class="bg-surface-warm-tint p-2.5">
+<span class="font-headline-sm text-headline-sm text-wine-deep">98.2%</span>
+<span class="block font-headline-sm text-label-sm uppercase text-charcoal-body tracking-wider">SLA Adherence</span>
+</div>
+<div class="bg-surface-warm-tint p-2.5">
+<span class="font-headline-sm text-headline-sm text-rust-terracotta">142</span>
+<span class="block font-headline-sm text-label-sm uppercase text-charcoal-body tracking-wider">Closed Oct</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro-interaction script for Approval Feedback -->
+<script>
+    (function() {
+      const approveBtn = document.getElementById('btn-approve');
+      const flagBtn = document.getElementById('btn-flag');
+
+      if (approveBtn) {
+        approveBtn.addEventListener('click', function() {
+          const originalHTML = approveBtn.innerHTML;
+          approveBtn.disabled = true;
+          approveBtn.classList.remove('bg-rust-terracotta', 'hover:bg-rust-burnt');
+          approveBtn.classList.add('bg-wine-deep');
+          approveBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">sync</span> Submitting Sign-Off...';
+          
+          setTimeout(function() {
+            approveBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">done_all</span> Ticket #8812 Closed & Verified!';
+            approveBtn.classList.remove('bg-wine-deep');
+            approveBtn.classList.add('bg-gold-ochre', 'text-charcoal-dark');
+          }, 900);
+        });
+      }
+
+      if (flagBtn) {
+        flagBtn.addEventListener('click', function() {
+          const confirmed = confirm("Are you sure you want to flag Ticket #PMC-2024-8812 for field re-inspection?");
+          if (confirmed) {
+            flagBtn.textContent = "Re-inspection Ticket Dispatched!";
+            flagBtn.disabled = true;
+            flagBtn.classList.add('opacity-50');
+          }
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

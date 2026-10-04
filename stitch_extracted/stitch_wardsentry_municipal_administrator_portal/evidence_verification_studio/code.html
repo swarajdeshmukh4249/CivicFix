@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;700;800;900&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;font-family:'Noto Sans',sans-serif;}h1,h2,h3,h4,h5,h6,.font-headline{font-family:'Chivo',sans-serif;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.chamfer-tr{clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,0 100%);}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#4A1525",
+          "primary-container": "#541F2D",
+          "wine-deep": "#4A1525",
+          "wine-base": "#611E29",
+          "rust-terracotta": "#C74724",
+          "rust-burnt": "#BA3D1D",
+          "gold-bright": "#F2A900",
+          "gold-ochre": "#EAAA0F",
+          "surface-cream": "#FAF8F5",
+          "surface-warm-tint": "#F5F1EB",
+          "charcoal-dark": "#1B1B1B",
+          "charcoal-body": "#333333",
+          "surface": "#FAF8F5",
+          "surface-card": "#FFFFFF",
+          "surface-canvas": "#F5F1EB",
+          "surface-subtle": "#ECE6DE",
+          "surface-container": "#E8E2D8",
+          "border-subtle": "#E2DACF",
+          "border-strong": "#C5B8A8",
+          "status-critical": "#BA3D1D",
+          "status-warning": "#EAAA0F",
+          "status-verified": "#2D6A4F",
+          "status-standard": "#541F2D",
+          "on-primary": "#ffffff",
+          "on-surface": "#1B1B1B",
+          "text-primary": "#1B1B1B",
+          "text-secondary": "#4E423E",
+          "text-muted": "#7A6C66"
+        },
+        "fontFamily": {
+          "headline-xl": ["Chivo", "sans-serif"],
+          "headline-lg": ["Chivo", "sans-serif"],
+          "headline-md": ["Chivo", "sans-serif"],
+          "headline-sm": ["Chivo", "sans-serif"],
+          "label-lg": ["Chivo", "sans-serif"],
+          "label-md": ["Noto Sans", "sans-serif"],
+          "label-sm": ["Noto Sans", "sans-serif"],
+          "body-lg": ["Noto Sans", "sans-serif"],
+          "body-md": ["Noto Sans", "sans-serif"],
+          "body-sm": ["Noto Sans", "sans-serif"]
+        }
+      }
+    }
+  }
+</script></head><body class="bg-surface-canvas font-body-md text-charcoal-dark antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border-subtle shadow-xs"><div class="h-14 px-6 flex items-center justify-between gap-4 bg-white border-b border-border-subtle/80"><div class="flex items-center gap-4"><!-- BetterWork Geometric Diamond Logo + WardSentry Identity --><div class="flex items-center gap-2.5"><div class="relative w-7 h-7 flex items-center justify-center shrink-0"><div class="absolute w-3.5 h-3.5 bg-rust-terracotta rotate-45 -translate-x-1.5 -translate-y-1.5 rounded-xs"></div><div class="absolute w-3.5 h-3.5 bg-gold-bright rotate-45 translate-x-1.5 -translate-y-1.5 rounded-xs"></div><div class="absolute w-3.5 h-3.5 bg-wine-deep rotate-45 -translate-x-1.5 translate-y-1.5 rounded-xs"></div><div class="absolute w-3.5 h-3.5 bg-gold-ochre rotate-45 translate-x-1.5 translate-y-1.5 rounded-xs"></div></div><div class="flex items-baseline gap-1.5"><span class="font-headline font-black text-[20px] tracking-tight text-charcoal-dark">Ward<span class="text-rust-terracotta">Sentry</span></span><span class="text-[11px] font-bold uppercase tracking-wider text-wine-deep bg-surface-warm-tint px-2 py-0.5 rounded-sm border border-border-subtle">PMC Operations Admin</span></div></div><div class="h-4 w-[1px] bg-border-strong/40 hidden md:block"></div><div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-cream border border-border-subtle"><span class="w-2 h-2 rounded-full bg-status-verified animate-pulse"></span><span class="text-[11px] font-bold tracking-wider text-status-verified uppercase font-headline">Live Sync • PMC Grid</span></div></div><div class="hidden lg:flex items-center flex-1 max-w-lg mx-4 px-3 py-1.5 bg-surface-cream rounded border border-border-subtle shadow-xs"><span class="text-rust-terracotta text-[11px] font-bold mr-1.5">▶</span><span class="text-[11px] font-bold text-wine-deep uppercase tracking-wider mr-2 font-headline">Incident Feed:</span><span class="text-xs text-charcoal-body truncate">Ward 14: Water main pressure anomaly logged at Paud Road • Crew #04 Dispatched</span></div><div class="flex items-center gap-3"><div class="relative flex items-center"><label class="sr-only" for="ward-select">Active Ward Selection</label><select class="appearance-none bg-surface-cream text-charcoal-dark text-xs font-semibold pl-3 pr-7 py-1.5 rounded border border-border-strong/60 hover:border-rust-terracotta focus:outline-none focus:ring-1 focus:ring-rust-terracotta cursor-pointer transition-colors" id="ward-select"><option value="all">All Wards (1-41)</option><option value="14">Ward 14 - Kothrud</option><option value="21">Ward 21 - Shivajinagar</option><option value="08">Ward 08 - Aundh-Baner</option><option value="12">Ward 12 - Kasba Peth</option></select><span class="material-symbols-outlined pointer-events-none absolute right-1.5 text-text-muted text-[18px]">expand_more</span></div><div class="hidden sm:flex items-center bg-surface-cream border border-border-strong/60 rounded px-2.5 py-1 text-text-secondary"><span class="material-symbols-outlined text-[16px] mr-1.5 text-rust-terracotta">search</span><span class="text-xs text-charcoal-body mr-2">Spatial Query</span><kbd class="text-[10px] font-bold bg-white px-1.5 py-0.5 rounded text-charcoal-dark border border-border-strong/40">Ctrl+K</kbd></div><button aria-label="Notifications" class="relative p-1.5 text-charcoal-body hover:text-rust-terracotta rounded hover:bg-surface-warm-tint transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rust-terracotta"></span></button><!-- Authentic Better Work Signature Action Button --><button class="hidden sm:flex items-center gap-1 px-3.5 py-1.5 bg-rust-terracotta hover:bg-rust-burnt text-white font-headline text-xs font-bold uppercase tracking-wider rounded shadow-xs transition-colors"><span>Contact US</span><span class="text-[13px] font-black leading-none">›</span></button><div class="w-8 h-8 rounded-full bg-wine-deep flex items-center justify-center text-white font-bold text-xs"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></div><!-- Sub-Navigation Bar with Better Work Active Bar Style --><div class="h-11 px-6 bg-surface-cream flex items-center justify-between border-b border-border-subtle overflow-x-auto"><nav class="flex items-center gap-1"><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="command-center" href="#"><span class="text-gold-bright text-[10px]">▶</span> 1. Command Center (Spatial Map)</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="issues-workspace" href="#">2. Issues Workspace (List &amp; Spatial)</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="evidence-verification" href="#">3. Evidence Verification</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="workforce-deployment" href="#">4. Workforce &amp; Deployment</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="resolution-audit" href="#">5. Resolution Audit (Before/After)</a><a class="px-3 py-1.5 font-headline text-xs font-semibold text-text-secondary hover:text-wine-deep hover:bg-surface-warm-tint transition-colors whitespace-nowrap rounded" data-path="ward-analytics" href="#">6. Ward Analytics &amp; Boundary Status</a></nav><div class="hidden xl:flex items-center gap-2 border-l border-border-subtle pl-4"><span class="text-[10px] uppercase font-bold text-text-muted font-headline tracking-wider">Zone Coordinate:</span><span class="text-xs font-mono font-bold text-charcoal-dark">18.5204° N, 73.8567° E</span></div></div></header><aside class="fixed left-0 top-[100px] bottom-0 w-72 bg-surface-cream border-r border-border-subtle z-40 flex flex-col justify-between overflow-y-auto"><div class="p-4 flex flex-col gap-4"><div class="flex items-center justify-between pb-2 border-b border-border-subtle"><div class="flex items-center gap-1.5"><span class="text-rust-terracotta text-[11px] font-black">▶</span><span class="text-xs uppercase font-headline font-bold text-wine-deep tracking-wider">Spatial Telemetry</span></div><span class="text-[11px] font-bold text-gold-ochre bg-wine-deep px-2 py-0.5 rounded font-headline">ZONE-A ACTIVE</span></div><div class="flex flex-col gap-1.5"><span class="text-xs font-bold uppercase tracking-wider text-text-muted font-headline">Vector Layer Stack</span><div class="space-y-1"><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input checked="" class="accent-rust-terracotta rounded" type="checkbox"/> Ward Boundaries (PMC)</span><span class="text-[10px] font-mono text-text-muted">KML/GeoJSON</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input checked="" class="accent-rust-terracotta rounded" type="checkbox"/> Solid Waste Hotspots</span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rust-terracotta text-white font-headline">38 Hot</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input checked="" class="accent-rust-terracotta rounded" type="checkbox"/> Water Pipeline Corridors</span><span class="text-[11px] text-status-verified font-bold">Normal</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input class="accent-rust-terracotta rounded" type="checkbox"/> Road Works &amp; Encroachments</span><span class="text-[11px] text-gold-ochre font-bold">14 Pending</span></label><label class="flex items-center justify-between p-1.5 rounded hover:bg-surface-subtle cursor-pointer text-charcoal-dark text-xs"><span class="flex items-center gap-1.5"><input class="accent-rust-terracotta rounded" type="checkbox"/> PMC Sanitation Fleet (GPS)</span><span class="text-[11px] text-text-muted">92 Units</span></label></div></div><div class="flex flex-col gap-1.5 pt-2 border-t border-border-subtle"><span class="text-xs font-bold uppercase tracking-wider text-text-muted font-headline">Spatial Filters</span><div class="flex flex-wrap gap-1.5"><button class="px-2.5 py-1 rounded border border-border-strong text-xs font-bold font-headline bg-white text-charcoal-dark hover:bg-surface-subtle shadow-2xs" type="button">All Priority</button><button class="px-2.5 py-1 rounded border border-rust-terracotta text-xs font-bold font-headline bg-rust-terracotta text-white shadow-2xs" type="button">High / Critical (23)</button><button class="px-2.5 py-1 rounded border border-border-strong text-xs font-semibold text-text-secondary bg-white hover:bg-surface-subtle shadow-2xs" type="button">SLAs &lt; 4h</button></div></div></div><div class="p-3.5 border-t border-border-subtle bg-surface-subtle/70 flex flex-col gap-1"><div class="flex items-center justify-between"><div class="flex items-center gap-1"><span class="text-rust-terracotta text-[10px]">▶</span><span class="text-[11px] uppercase font-bold text-wine-deep font-headline">Central Dispatch Node</span></div><span class="text-[10px] font-bold text-status-verified bg-white px-1.5 py-0.5 rounded border border-border-subtle">OPERATIONAL</span></div><div class="text-[11px] text-text-secondary">PMC Municipal Data Center 02 • Latency: 18ms</div></div></aside><div class="pl-72"><main class="relative pt-[100px] w-full px-0 bg-surface-canvas min-h-screen"><div class="flex flex-col w-full">
+<!-- Active Tab Syncer Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('header nav a').forEach(el => {
+        if (el.getAttribute('data-path') === 'evidence-verification') {
+          el.className = 'px-3 py-1.5 font-headline text-xs font-bold text-wine-deep bg-surface-subtle border-b-2 border-rust-terracotta whitespace-nowrap rounded-t';
+        }
+      });
+    });
+  </script>
+<!-- Editorial Top Banner & Primary Metrics -->
+<section class="bg-surface-cream px-8 py-7 shadow-xs">
+<div class="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-end justify-between gap-6">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="inline-block w-2.5 h-2.5 bg-rust-terracotta rotate-45"></span>
+<span class="font-headline-sm text-headline-sm uppercase tracking-wider text-wine-deep font-bold">PMC Spatial Intake Engine</span>
+<span class="text-label-sm font-label-sm px-2 py-0.5 bg-gold-ochre text-charcoal-dark font-bold">STAGE 03 VERIFICATION</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-charcoal-dark tracking-tight">Evidence Triage &amp; AI Verification Hub</h1>
+<p class="font-body-sm text-body-sm text-charcoal-body max-w-2xl">
+          Multi-modal neural inspection analyzing citizen EXIF metadata, spatial telemetry, and surface-damage topology across Pune Municipal Corporation sectors.
+        </p>
+</div>
+<!-- Impact Triage Metrics -->
+<div class="grid grid-cols-3 gap-4 min-w-[500px]">
+<div class="bg-surface p-4 shadow-xs flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body">Pending Review</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-headline-xl text-headline-xl text-rust-terracotta leading-none">19</span>
+<span class="font-label-sm text-label-sm text-charcoal-body font-semibold">cases</span>
+</div>
+<div class="mt-2 w-full h-1 bg-surface-container overflow-hidden">
+<div class="h-full bg-rust-terracotta w-3/5"></div>
+</div>
+</div>
+<div class="bg-surface p-4 shadow-xs flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body">AI Confidence Avg</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-headline-xl text-headline-xl text-wine-deep leading-none">96.2<span class="text-headline-md font-headline-md">%</span></span>
+</div>
+<div class="mt-2 flex items-center gap-1.5 text-label-sm font-label-sm text-charcoal-body">
+<span class="material-symbols-outlined text-[14px] text-rust-terracotta">bolt</span>
+<span>Vision Core 4.1</span>
+</div>
+</div>
+<div class="bg-surface p-4 shadow-xs flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body">Auto-Routed Today</span>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="font-headline-xl text-headline-xl text-charcoal-dark leading-none">42</span>
+<span class="font-label-sm text-label-sm text-wine-deep font-semibold">to Wards</span>
+</div>
+<div class="mt-2 flex items-center gap-1 text-label-sm font-label-sm text-charcoal-body">
+<span class="w-1.5 h-1.5 rounded-full bg-gold-ochre"></span>
+<span>Avg dispatch 7.2m</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Evidence Verification Workspace -->
+<main class="max-w-7xl w-full mx-auto px-8 py-8">
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- LEFT SIDE: Triage Queue (approx 38% width -> 5 cols) -->
+<aside class="col-span-12 lg:col-span-5 flex flex-col gap-4">
+<!-- Queue Header with Filters -->
+<div class="flex items-center justify-between pb-3 bg-surface p-4 shadow-xs">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-charcoal-dark font-bold">Queue Backlog</span>
+<span class="px-2 py-0.5 bg-surface-container font-headline-sm text-label-md text-charcoal-dark font-bold">19 In Review</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 text-label-sm font-label-sm text-charcoal-dark bg-surface-container-high hover:bg-surface-container transition-colors uppercase tracking-wider">
+              Priority
+            </button>
+<button class="px-2.5 py-1 text-label-sm font-label-sm text-charcoal-body hover:text-charcoal-dark uppercase tracking-wider">
+              Recent
+            </button>
+</div>
+</div>
+<!-- Queue Cards Stack -->
+<div class="flex flex-col gap-3">
+<!-- Card 1: Selected / Active Card -->
+<article class="relative bg-surface p-4 shadow-md bg-gradient-to-r from-wine-deep/5 via-transparent to-transparent cursor-pointer">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-rust-terracotta"></div>
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-rust-terracotta font-bold tracking-wider">#PMC-2024-8841</span>
+<span class="px-1.5 py-0.5 bg-rust-terracotta text-on-primary font-label-sm text-[10px] uppercase font-bold tracking-wider">P1 Critical</span>
+</div>
+<span class="font-body-sm text-label-sm text-charcoal-body">14 mins ago</span>
+</div>
+<div class="flex gap-3.5 mt-3">
+<div class="relative w-24 h-20 shrink-0 bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up documentary photograph of a major city water main rupture on asphalt street in Pune India, turbulent geyser of muddy water gushing up through cracked roadway in warm early morning sunlight with civic warning barricades in background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1VwPWO7Seg5XRsep2umfUUzQL1inWYENl3EzsnsnpAHWdWQ5ZIl6Tksw1yhsjSIED3RhgPyBttDG72szeBvgXTf78sjn9iClUfksA1B9SDA4Um6q_hA12ozWpR_wUqkw6ctevd3LjNQ78_wviW9v8myOHZh_7BT2PBFqebsr9dy1FTZDBiKG40z_HrqD82p1V_bHL4NNx8g3IP_Tuo2dxG4WnfcozSzN5iywjtoVXIDoehV3Jg3mw"/>
+<div class="absolute bottom-0 inset-x-0 bg-charcoal-dark/70 px-1 py-0.5 text-center">
+<span class="text-[9px] font-mono text-on-primary uppercase font-semibold">HD EXIF</span>
+</div>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<h2 class="font-headline-sm text-body-md text-charcoal-dark font-bold truncate">Severe Water Main Rupture</h2>
+<p class="font-body-sm text-body-sm text-charcoal-body truncate mt-0.5">Paud Road, Ward 14 (Kothrud)</p>
+</div>
+<div class="flex items-center justify-between mt-2 pt-2 bg-surface-warm-tint/50 px-2 py-1">
+<span class="font-label-sm text-label-sm text-charcoal-body font-semibold">AI Match Score</span>
+<span class="font-headline-sm text-label-lg font-bold text-rust-terracotta">98.4% Confidence</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2: Queued Item -->
+<article class="bg-surface p-4 shadow-xs hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-charcoal-body font-bold tracking-wider">#PMC-2024-8839</span>
+<span class="px-1.5 py-0.5 bg-secondary-container text-on-secondary-container font-label-sm text-[10px] uppercase font-bold tracking-wider">P2 Elevated</span>
+</div>
+<span class="font-body-sm text-label-sm text-charcoal-body">32 mins ago</span>
+</div>
+<div class="flex gap-3.5 mt-3">
+<div class="relative w-24 h-20 shrink-0 bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Civic photo of illegal commercial encroachment on pedestrian footpath in Pune India with unauthorized steel shade stalls blocking pedestrian access under daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATUvN33zJqL2XGN9lkOt5NZ2viexLP0A30vd9p06hH1IuJBn5xA7E1zTlippstPyaFqXAAFSSvJu9kZIK0SC9Kq4z2qQPH4dHrh1SVXQK_C7-6NuT0QWzlem01EhlDGyyFY4u_kN_ULdx0CKEnR1vPBcRaKujkklh7I7nKs6iEfmLSev8c5ddldFbtkOq54k3P5Mo_9XZ_tv_jNVqrdPXDfa2LLWKON23UrCrai6iLeNUgamkVU---"/>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<h2 class="font-headline-sm text-body-md text-charcoal-dark font-bold truncate">Unauthorized Footpath Encroachment</h2>
+<p class="font-body-sm text-body-sm text-charcoal-body truncate mt-0.5">FC Road, Ward 21 (Shivajinagar)</p>
+</div>
+<div class="flex items-center justify-between mt-2 pt-2">
+<span class="font-label-sm text-label-sm text-charcoal-body font-semibold">AI Match Score</span>
+<span class="font-headline-sm text-label-lg font-bold text-wine-deep">94.1% Confidence</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3: Queued Item -->
+<article class="bg-surface p-4 shadow-xs hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-charcoal-body font-bold tracking-wider">#PMC-2024-8835</span>
+<span class="px-1.5 py-0.5 bg-surface-container text-charcoal-body font-label-sm text-[10px] uppercase font-bold tracking-wider">P3 Standard</span>
+</div>
+<span class="font-body-sm text-label-sm text-charcoal-body">1 hr ago</span>
+</div>
+<div class="flex gap-3.5 mt-3">
+<div class="relative w-24 h-20 shrink-0 bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Street pavement photograph of deep asphalt pothole with exposed gravel aggregate on suburban transit lane in warm afternoon lighting in Pune" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4ZCBH7-Xiq80Ve-NqMiedLjblY46CbTlBeh8436Dq9D3niqXTJcU0Wm5ruEeF5phvhvpNO1NKMYHgHrFWGMVj18caV5uVP0ozI2pNA0o_JVDbvkQpZ93lar0647EzzPydPwwsMWZownz2pql8q9Eujc6JWXr14KHEi59dqyRU24-2mL3jdopys_JZuJyRUfc4vEc5YKLWQnGWMunNZiv6seIleAWcB_f269dqJCADb3OtWr3sCxlX"/>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<h2 class="font-headline-sm text-body-md text-charcoal-dark font-bold truncate">Asphalt Cavity &amp; Subsidence</h2>
+<p class="font-body-sm text-body-sm text-charcoal-body truncate mt-0.5">DP Road, Ward 08 (Aundh-Baner)</p>
+</div>
+<div class="flex items-center justify-between mt-2 pt-2">
+<span class="font-label-sm text-label-sm text-charcoal-body font-semibold">AI Match Score</span>
+<span class="font-headline-sm text-label-lg font-bold text-wine-deep">91.8% Confidence</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4: Queued Item -->
+<article class="bg-surface p-4 shadow-xs hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-charcoal-body font-bold tracking-wider">#PMC-2024-8830</span>
+<span class="px-1.5 py-0.5 bg-rust-terracotta text-on-primary font-label-sm text-[10px] uppercase font-bold tracking-wider">P1 Critical</span>
+</div>
+<span class="font-body-sm text-label-sm text-charcoal-body">1.5 hrs ago</span>
+</div>
+<div class="flex gap-3.5 mt-3">
+<div class="relative w-24 h-20 shrink-0 bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Urban drainage canal overflowing with industrial waste debris during monsoon in Pune city residential zone authentic documentary photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfAsJ3i53sGCdXnZ7n3-gYNasSvxHTTpJZQmu43aDszdUZmZzpLKjcxR4DkaaoBTyfuHfCIeXWtxsvxaOVOSLVf4trKwa_Q0GdRR6U5kTRhYOXVf1bXapsB-A2xGyTDVAPruji6yGGhCbs7DB58b3CWV7M8VrIOwMdnheBmVtRQbXdWmIdd6OydRSb4FNqTDnSKGdWb43HRQmFsaSRgeLlNhiMsEPnjJ_nCU8BppY7I1hg1dEthMR2"/>
+</div>
+<div class="flex flex-col justify-between flex-1 min-w-0">
+<div>
+<h2 class="font-headline-sm text-body-md text-charcoal-dark font-bold truncate">Storm Conduit Blockage</h2>
+<p class="font-body-sm text-body-sm text-charcoal-body truncate mt-0.5">Kasba Peth, Ward 12</p>
+</div>
+<div class="flex items-center justify-between mt-2 pt-2">
+<span class="font-label-sm text-label-sm text-charcoal-body font-semibold">AI Match Score</span>
+<span class="font-headline-sm text-label-lg font-bold text-rust-terracotta">99.1% Confidence</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Telemetry Queue Meta Footer -->
+<div class="p-3 bg-surface-warm-tint flex items-center justify-between text-label-sm font-label-sm text-charcoal-body">
+<span>Triage Batch: #TR-994</span>
+<span class="text-wine-deep font-bold">15 Additional Reports Held</span>
+</div>
+</aside>
+<!-- RIGHT SIDE: Evidence Examination & Decision Studio (approx 62% width -> 7 cols) -->
+<section class="col-span-12 lg:col-span-7 flex flex-col gap-6">
+<!-- Case Dossier Header -->
+<div class="bg-surface p-6 shadow-sm flex flex-col gap-4">
+<div class="flex flex-wrap items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-3">
+<span class="font-headline-md text-headline-md text-charcoal-dark font-black tracking-tight">PMC-2024-8841</span>
+<span class="px-2.5 py-0.5 bg-rust-terracotta text-on-primary font-headline-sm text-label-sm font-bold uppercase tracking-wider">
+                  Critical Incident Review
+                </span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-wine-deep mt-1 font-bold">
+                Severe Water Main Rupture &amp; Structural Subsidence
+              </h2>
+</div>
+<!-- Verification Stage Indicator -->
+<div class="text-right">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body">Triage Stage</span>
+<div class="font-headline-sm text-label-lg text-charcoal-dark font-bold">L2 Spatial Verification</div>
+</div>
+</div>
+<!-- Citizen Credibility & Geofence Verification Metadata -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 bg-surface-warm-tint/60 p-3.5">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body block">Reported By</span>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-headline-sm text-body-sm font-bold text-charcoal-dark">Anand Deshmukh</span>
+<span class="px-1.5 py-0.2 bg-wine-deep text-on-primary text-[10px] font-bold">Trust 94/100</span>
+</div>
+<span class="text-label-sm font-label-sm text-charcoal-body">Verified Citizen ID • 18 verified reports</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body block">Spatial Geofence Check</span>
+<div class="flex items-center gap-1.5 mt-1 text-rust-burnt font-semibold text-body-sm font-body-sm">
+<span class="material-symbols-outlined text-[16px] text-rust-terracotta" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>EXIF GPS within 3.8m</span>
+</div>
+<span class="text-label-sm font-label-sm text-charcoal-body">Paud Rd Junction, Ward 14</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-body block">Capture Timestamp</span>
+<div class="font-headline-sm text-body-sm font-bold text-charcoal-dark mt-1">Today, 06:42:19 AM IST</div>
+<span class="text-label-sm font-label-sm text-charcoal-body">Reported via WhatsApp Bot</span>
+</div>
+</div>
+</div>
+<!-- Full Evidence Photo Viewer with Analytical Overlays -->
+<div class="bg-surface shadow-md p-6 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-rust-terracotta">photo_camera</span>
+<h3 class="font-headline-sm text-label-lg font-bold text-charcoal-dark uppercase tracking-wide">
+                Primary Citizen Photographic Evidence
+              </h3>
+</div>
+<!-- Zoom & Pan Inspection Controls -->
+<div class="flex items-center gap-1 bg-surface-container px-2 py-1">
+<button class="p-1 hover:text-rust-terracotta transition-colors text-charcoal-dark" title="Zoom In">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<button class="p-1 hover:text-rust-terracotta transition-colors text-charcoal-dark" title="Zoom Out">
+<span class="material-symbols-outlined text-[18px]">zoom_out</span>
+</button>
+<button class="p-1 hover:text-rust-terracotta transition-colors text-charcoal-dark" title="Full Screen Inspection">
+<span class="material-symbols-outlined text-[18px]">fullscreen</span>
+</button>
+<button class="p-1 hover:text-rust-terracotta transition-colors text-charcoal-dark" title="Toggle AI Segment Overlay">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">layers</span>
+</button>
+</div>
+</div>
+<!-- Main High-Resolution Photo Container -->
+<div class="relative w-full h-[400px] bg-charcoal-dark overflow-hidden group">
+<img class="w-full h-full object-cover" data-alt="High resolution dramatic evidence photograph of pressurized water ruptured pipeline spraying across broken asphalt road in Pune suburban district Paud road morning light with emergency orange cones visible" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBWvNfpgvhCvm49rWi3aUtZAoxfjughVrhzs4i1CAuaJ61QfOmfNZiALT3U8hc2eqLR8Q2l1IHoSnHLUSMfN9kcvEeA68UHohjIY9VOOSoe9J4B9nn5JDKvlabWziAaQgB9Rw8StuAYLRm0GiG84XoMrxOryzAAXJ_NSUogyH-hE8Uj1DkC02bHeFEHZkNT9GADnSLm7tqG3lArqiO3Zzb8jeFjuy2b2EU22DJ_AffNXGV2jGqEQyt"/>
+<!-- AI Bounding Box & Segmentation Graphic Layer -->
+<div class="absolute inset-0 pointer-events-none p-6">
+<!-- Bounding Box: Pipeline Anomaly -->
+<div class="absolute top-[32%] left-[24%] w-[48%] h-[42%] bg-rust-terracotta/15 flex flex-col justify-between p-2">
+<div class="flex items-center justify-between">
+<span class="bg-rust-terracotta text-on-primary text-[10px] font-mono px-1.5 py-0.5 font-bold uppercase tracking-wider">
+                    Target #1: Pressurized Breach [99.2%]
+                  </span>
+<span class="text-on-primary font-mono text-[10px] bg-charcoal-dark/70 px-1">Area: 14.8 m²</span>
+</div>
+<div class="flex items-center justify-end">
+<span class="text-gold-ochre font-mono text-[10px] bg-charcoal-dark/80 px-1 py-0.5">Asphalt Sub-base eroded</span>
+</div>
+</div>
+<!-- Top Left EXIF / Spatial HUD Overlay -->
+<div class="absolute top-4 left-4 bg-charcoal-dark/85 text-surface p-3 max-w-xs shadow-lg backdrop-blur-xs">
+<div class="font-headline-sm text-label-sm font-bold text-gold-ochre flex items-center gap-1.5 pb-1">
+<span class="w-2 h-2 rounded-full bg-status-verified"></span>
+<span>AUTHENTICATED HARDWARE EXIF</span>
+</div>
+<div class="space-y-0.5 font-mono text-[11px] text-surface-container mt-1">
+<div>Device: Samsung SM-A546E (50MP)</div>
+<div>Shutter: 1/640s • f/1.8 • ISO 125</div>
+<div>Focal: 24mm Eq • Orientation: 0° Normal</div>
+<div class="text-gold-ochre font-bold pt-1">GPS: 18.507421° N, 73.807718° E (±2.1m)</div>
+</div>
+</div>
+<!-- Bottom Right Mini Spatial Map Pinpoint -->
+<div class="absolute bottom-4 right-4 bg-surface p-2 shadow-lg w-52 flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-[11px] font-bold text-wine-deep">
+<span class="uppercase">PMC GIS Overlay</span>
+<span class="text-rust-terracotta">Ward 14</span>
+</div>
+<div class="w-full h-24 bg-surface-container-high bg-cover bg-center" data-location="Paud Road Kothrud Pune India" style=""></div>
+<span class="text-[10px] text-charcoal-body font-mono">Paud Rd Main Corridors #W-14</span>
+</div>
+</div>
+</div>
+<!-- Citizen Voice Transcript / Narrative Context -->
+<div class="bg-surface-warm-tint p-4">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-wine-deep">record_voice_over</span>
+<span class="font-headline-sm text-label-md font-bold text-wine-deep uppercase tracking-wider">
+                  Citizen Audio Transcript &amp; Report Context
+                </span>
+</div>
+<span class="text-label-sm font-label-sm text-charcoal-body">Audio duration: 18 sec • WhatsApp Voice Note</span>
+</div>
+<p class="font-body-md text-body-md text-charcoal-dark italic leading-relaxed">
+              “Water has been gushing out at very high pressure since 06:30 AM this morning. It has washed away the asphalt road foundation across two lanes, creating deep cavities. Motorbikes are skidding and morning school buses are stuck.”
+            </p>
+</div>
+</div>
+<!-- AI Multi-Modal Inspection Findings Accordion / Card -->
+<div class="bg-surface p-6 shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between pb-3 bg-surface-container-high/30 p-2">
+<div class="flex items-center gap-2.5">
+<div class="w-3 h-3 bg-gold-ochre rotate-45"></div>
+<h3 class="font-headline-sm text-headline-sm text-charcoal-dark font-bold">
+                Multi-Modal Neural Inspection Findings
+              </h3>
+</div>
+<span class="px-2 py-0.5 bg-rust-terracotta text-on-primary text-label-sm font-bold font-headline-sm uppercase">
+              Automated Severity: Critical (P1)
+            </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Finding 1 -->
+<div class="p-3.5 bg-surface-warm-tint">
+<span class="font-label-sm text-label-sm text-charcoal-body font-bold uppercase tracking-wider block">Breach Pattern</span>
+<div class="font-headline-sm text-body-lg text-charcoal-dark font-bold mt-1">Water Main Rupture</div>
+<p class="font-body-sm text-body-sm text-charcoal-body mt-1">
+                High volumetric plume detected matching 600mm PMC primary supply grid geometry.
+              </p>
+</div>
+<!-- Finding 2 -->
+<div class="p-3.5 bg-surface-warm-tint">
+<span class="font-label-sm text-label-sm text-charcoal-body font-bold uppercase tracking-wider block">Structural Consequence</span>
+<div class="font-headline-sm text-body-lg text-charcoal-dark font-bold mt-1">Sub-Base Cavity Risk</div>
+<p class="font-body-sm text-body-sm text-charcoal-body mt-1">
+                Asphalt degradation exceeding 14.8m² with immediate danger of secondary sinkhole formation.
+              </p>
+</div>
+<!-- Finding 3 -->
+<div class="p-3.5 bg-surface-warm-tint">
+<span class="font-label-sm text-label-sm text-charcoal-body font-bold uppercase tracking-wider block">Suggested Unit</span>
+<div class="font-headline-sm text-body-lg text-wine-deep font-bold mt-1">Tactical Water Crew #04</div>
+<p class="font-body-sm text-body-sm text-charcoal-body mt-1">
+                Equipped with emergency isolation valve key &amp; backhoe loader (8 mins transit distance).
+              </p>
+</div>
+</div>
+</div>
+<!-- DECISION ACTION BAR (Spacious, Uncluttered, Authoritative) -->
+<div class="bg-surface p-6 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<!-- Reject Button -->
+<button class="flex-1 sm:flex-none px-5 py-3 text-label-lg font-label-lg uppercase tracking-wider text-charcoal-body bg-surface-container hover:bg-surface-container-high transition-colors">
+              Reject / False Positive
+            </button>
+<!-- Request Additional Photo -->
+<button class="flex-1 sm:flex-none px-5 py-3 text-label-lg font-label-lg uppercase tracking-wider text-charcoal-dark bg-secondary-fixed hover:bg-gold-bright transition-colors">
+              Request Additional Photo
+            </button>
+</div>
+<!-- Primary Dispatch CTA -->
+<button class="w-full sm:w-auto px-7 py-3 bg-rust-terracotta hover:bg-rust-burnt text-on-primary font-headline-sm text-label-lg font-bold uppercase tracking-wider shadow-sm flex items-center justify-center gap-3 transition-colors">
+<span>Approve &amp; Dispatch Tactical Crew</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+</div></main></div></body></html>

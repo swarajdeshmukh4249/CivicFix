@@ -1,0 +1,240 @@
+/* ==========================================================================
+   CivicFix Sentinel: Warm Editorial Institutional Design System
+   Matches warm_editorial_institutional/DESIGN.md
+   ========================================================================== */
+
+:root {
+  --ws-wine-deep: #4A1525;
+  --ws-wine-base: #611E29;
+  --ws-rust-terracotta: #C74724;
+  --ws-rust-burnt: #BA3D1D;
+  --ws-gold-bright: #F2A900;
+  --ws-gold-ochre: #EAAA0F;
+  --ws-surface-cream: #FAF8F5;
+  --ws-surface-canvas: #F5F1EB;
+  --ws-surface-card: #FFFFFF;
+  --ws-surface-subtle: #ECE6DE;
+  --ws-surface-container: #E8E2D8;
+  --ws-border-subtle: #E2DACF;
+  --ws-border-strong: #C5B8A8;
+  --ws-charcoal-dark: #1B1B1B;
+  --ws-charcoal-body: #333333;
+  --ws-status-verified: #2D6A4F;
+  --ws-status-critical: #BA3D1D;
+  --ws-font-headline: 'Chivo', system-ui, -apple-system, sans-serif;
+  --ws-font-body: 'Noto Sans', system-ui, -apple-system, sans-serif;
+}
+
+.sentinel-root {
+  font-family: var(--ws-font-body);
+  color: var(--ws-charcoal-dark);
+  background-color: var(--ws-surface-canvas);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Institutional Headings */
+.sentinel-root h1,
+.sentinel-root h2,
+.sentinel-root h3,
+.sentinel-root h4,
+.sentinel-headline {
+  font-family: var(--ws-font-headline);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ws-charcoal-dark);
+}
+
+/* Chamfer cuts: 0px radius with angled corner notches */
+.chamfer-tr {
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+}
+
+.chamfer-br {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+}
+
+.chamfer-tl {
+  clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+}
+
+.chamfer-ribbon {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+/* Strict Zero Border Radius */
+.sentinel-root *,
+.sentinel-root *::before,
+.sentinel-root *::after {
+  border-radius: 0 !important;
+}
+
+/* Editorial Badge Tags */
+.badge-wine {
+  background-color: var(--ws-wine-deep);
+  color: #ffffff;
+  font-family: var(--ws-font-headline);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-ochre {
+  background-color: var(--ws-gold-ochre);
+  color: var(--ws-charcoal-dark);
+  font-family: var(--ws-font-headline);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-rust {
+  background-color: var(--ws-rust-terracotta);
+  color: #ffffff;
+  font-family: var(--ws-font-headline);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-verified {
+  background-color: #2D6A4F;
+  color: #ffffff;
+  font-family: var(--ws-font-headline);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-cream {
+  background-color: var(--ws-surface-subtle);
+  color: var(--ws-charcoal-body);
+  border: 1px solid var(--ws-border-subtle);
+  font-family: var(--ws-font-headline);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Institutional Editorial Buttons */
+.btn-editorial-wine {
+  background-color: var(--ws-wine-deep);
+  color: #ffffff;
+  font-family: var(--ws-font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border: 1px solid var(--ws-wine-deep);
+  border-bottom: 3px solid #330c18;
+  cursor: pointer;
+  transition: all 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-editorial-wine:hover {
+  background-color: var(--ws-rust-terracotta);
+  border-color: var(--ws-rust-terracotta);
+  border-bottom-color: var(--ws-rust-burnt);
+}
+
+.btn-editorial-ochre {
+  background-color: var(--ws-gold-ochre);
+  color: var(--ws-charcoal-dark);
+  font-family: var(--ws-font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border: 1px solid var(--ws-gold-bright);
+  border-bottom: 3px solid #b38209;
+  cursor: pointer;
+  transition: all 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-editorial-ochre:hover {
+  background-color: var(--ws-gold-bright);
+}
+
+.btn-editorial-outline {
+  background-color: #ffffff;
+  color: var(--ws-charcoal-dark);
+  font-family: var(--ws-font-headline);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border: 1px solid var(--ws-border-strong);
+  cursor: pointer;
+  transition: all 120ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-editorial-outline:hover {
+  background-color: var(--ws-surface-subtle);
+  border-color: var(--ws-wine-deep);
+  color: var(--ws-wine-deep);
+}
+
+/* Custom Scrollbars */
+.sentinel-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.sentinel-scroll::-webkit-scrollbar-track {
+  background: var(--ws-surface-cream);
+}
+.sentinel-scroll::-webkit-scrollbar-thumb {
+  background: var(--ws-border-strong);
+}
+.sentinel-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ws-rust-terracotta);
+}
+
+/* Reticle Target Pulse for Camera viewfinder */
+@keyframes reticlePulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+.reticle-anim {
+  animation: reticlePulse 2s infinite ease-in-out;
+}
