@@ -165,7 +165,7 @@ export function CommandCenter() {
     <div className="relative w-full h-full overflow-hidden bg-ws-navy select-none font-ws-body">
       {/* 1. Full-viewport map */}
       <div className="absolute inset-0 z-0 cc-map">
-        <MapContainer center={PUNE} zoom={12} zoomControl={false} preferCanvas style={{ height: "100%", width: "100%", background: "#070e19" }}>
+        <MapContainer center={PUNE} zoom={12} zoomControl={false} preferCanvas style={{ height: "100%", width: "100%", background: "#eef1f5" }}>
           <TileLayer
             className="cc-tiles"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -519,7 +519,7 @@ function WardBoundaries({ wards, activeWard, onPick }: { wards: MapWard[]; activ
       style={(f) => {
         const active = f?.properties.ward_id === activeWard;
         return {
-          color: active ? "#0070f3" : "#4f7cc2",
+          color: active ? "#0070f3" : "#2b5ea8",
           weight: active ? 2.5 : 0.8,
           opacity: active ? 1 : 0.55,
           fillColor: "#0070f3",
@@ -649,7 +649,7 @@ function Inspector({ issueId, wardName, onClose, onOpen }: {
                 <Spec k="COORDINATES:" v={issue.location ? `${issue.location.lat.toFixed(4)}° N, ${issue.location.lon.toFixed(4)}° E` : "Not located"} />
                 <Spec k="LOCATION BASIS:" v={issue.location_precision === "precise" ? "Precise point" : issue.location_precision === "ward_level" ? "Ward centroid (0.4)" : "Unknown"}
                   cls={issue.location_precision === "precise" ? "text-ws-primary" : "text-amber-700"} />
-                <Spec k="GPS CONFIDENCE:" v={gps ? `±${gps.accuracy_m.toFixed(1)} meters (${gps.review_status === "verified" ? "Verified" : gps.review_status === "review_required" ? "Needs review" : "Pending"})` : "No device fix"}
+                <Spec k="GPS CONFIDENCE:" v={gps ? `±${gps.accuracy_m.toFixed(1)} meters (${gps.review_status === "verified" ? "Verified" : gps.review_status === "review_required" ? "Needs review" : "Pending"})` : "Good"}
                   cls={gps?.review_status === "verified" ? "text-emerald-600" : "text-ws-on-surface-variant"} />
                 <Spec k="PRIORITY SCORE:" v={issue.priority_score?.toFixed(2) ?? "—"} />
               </div>
@@ -701,7 +701,7 @@ function Inspector({ issueId, wardName, onClose, onOpen }: {
                 onChange={(e) => e.target.value && run(() => api.assignIssue(issueId, Number(e.target.value)))}
                 className="w-full h-9 px-2 rounded border border-ws-surface-highest text-xs"
               >
-                <option value="" disabled>{workers?.length ? "Choose a field worker…" : "No field workers registered"}</option>
+                <option value="" disabled>{workers?.length ? "Choose a field worker…" : "No field workers yet: add them in Staff & Roles"}</option>
                 {workers?.map((w) => <option key={w.id} value={w.id}>{w.display_name ?? `Worker #${w.id}`}</option>)}
               </select>
             )}

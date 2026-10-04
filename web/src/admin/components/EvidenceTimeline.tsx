@@ -3,7 +3,7 @@ import { Camera, CheckCircle2, HardHat, ShieldCheck, Clock, AlertCircle } from "
 import { api, ApiError } from "../../api/client";
 import type { AlternativeVerification, EvidenceItem, EvidenceStatus, IssueDetailResponse, ReportInIssue } from "../../api/types";
 import { useApi } from "../../hooks/useApi";
-import { formatAccuracy, formatCoord, formatTime } from "../../evidence/EvidenceCamera";
+import { formatAccuracy, formatCoord, formatTime } from "../../evidence/EvidenceUpload";
 
 // Before -> Work -> After -> Review, built only from what the API returns.
 // Location evidence is a verification signal for human review: nothing here
@@ -50,7 +50,7 @@ function Row({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-/** Evidence photos need the bearer token, so they load as blob URLs. */
+/** Signed Storage URL, or a blob URL when photos are on local disk. */
 export function useEvidencePhoto(fileUrl: string) {
   const [src, setSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -68,7 +68,7 @@ export function useEvidencePhoto(fileUrl: string) {
       });
     return () => {
       cancelled = true;
-      if (url) URL.revokeObjectURL(url);
+      if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
     };
   }, [fileUrl]);
   return { src, failed };
@@ -114,8 +114,9 @@ function EvidenceCard({ item, issue, onChanged }: { item: EvidenceItem; issue: I
       <EvidencePhoto fileUrl={item.file_url} />
       <div className="space-y-1.5 text-xs font-mono text-gray-700">
         <Row k="Submitted by" v={`${item.actor_type === "worker" ? "Field worker" : "Citizen"} #${item.submitted_by}`} />
-        <Row k="Capture method" v="In-app camera" />
-        <Row k="Captured (device clock)" v={item.captured_at ? formatTime(item.captured_at) : "—"} />
+        <Row k="Capture method" v={item.capture_method === "upload" ? "Uploaded file" : "In-app camera"} />
+        <Row k={item.capture_method === "upload" ? "Uploaded (device clock)" : "Captured (device clock)"}
+          v={item.captured_at ? formatTime(item.captured_at) : "—"} />
         <Row
           k="Received (server)"
           v={
@@ -130,7 +131,16 @@ function EvidenceCard({ item, issue, onChanged }: { item: EvidenceItem; issue: I
             </>
           }
         />
-        <Row k="Device location" v={formatCoord(item.location.lat, item.location.lon)} />
+        <Row k="Device location" v={
+          <>
+            {formatCoord(item.location.lat, item.location.lon)}
+            {item.capture_method === "upload" && (
+              <span className="block text-[10px] font-normal text-amber-700">
+                Uploader's device at upload time, not where the photo was taken. Treat distance as unverified.
+              </span>
+            )}
+          </>
+        } />
         <Row k="Accuracy" v={formatAccuracy(item.accuracy_m)} />
         <Row
           k="Reported issue location"
@@ -314,7 +324,8 @@ function AssignWorker({ issue, onChanged }: { issue: IssueDetailResponse; onChan
   if (workers && workers.length === 0) {
     return (
       <p className="text-xs text-gray-500 font-mono">
-        No field-worker accounts yet (create one with <code>python -m app.users create &lt;id&gt; --role field_worker</code>).
+        No field-worker accounts yet. Crew members sign in once, then a system administrator sets their role to
+        Field Worker on the Staff &amp; Roles page.
       </p>
     );
   }

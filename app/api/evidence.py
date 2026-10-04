@@ -17,7 +17,7 @@ import os
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import httpx
 import psycopg
@@ -28,7 +28,9 @@ from app.api.schemas import (
     AlternativeVerification,
     AlternativeVerificationCompleteRequest,
     AlternativeVerificationCreateRequest,
+    CrewAssignment,
     EvidenceItem,
+    EvidenceUrlResponse,
     EvidenceReviewRequest,
     FieldWorker,
     GeoPoint,
@@ -48,25 +50,28 @@ EVIDENCE_DIR = Path("data/evidence")  # deliberately not mounted as static files
 MAX_EVIDENCE_BYTES = 8 * 1024 * 1024
 
 # Photo storage. With SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY set, photos go
-# to a PRIVATE Supabase Storage bucket (EVIDENCE_BUCKET, default "evidence"):
-# a hosted server's disk is wiped on redeploy. The service key stays on this
-# server; browsers only ever get photos through evidence_file's checks.
+# to a PRIVATE Supabase Storage bucket (EVIDENCE_BUCKET, default
+# "complaint-images"), keyed issues/<issue_id>/<uuid>.<ext>. The service key
+# stays on this server; a browser gets a photo only after evidence_url /
+# evidence_file check its access - as a short-lived signed URL or the bytes.
 # Unset (local dev, tests): EVIDENCE_DIR on disk.
+SIGNED_URL_SECONDS = 300
 
 
 def _bucket() -> Optional[tuple[str, dict]]:
     url, key = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
     if not url or not key:
         return None
-    bucket = os.environ.get("EVIDENCE_BUCKET", "evidence")
+    bucket = os.environ.get("EVIDENCE_BUCKET", "complaint-images")
     return f"{url.rstrip('/')}/storage/v1/object/{bucket}", {"Authorization": f"Bearer {key}", "apikey": key}
 
 
 def _store(file_key: str, body: bytes, mime_type: str) -> None:
     bucket = _bucket()
     if bucket is None:
-        EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
-        (EVIDENCE_DIR / file_key).write_bytes(body)
+        path = EVIDENCE_DIR / file_key
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(body)
         return
     base, headers = bucket
     resp = httpx.post(f"{base}/{file_key}", headers={**headers, "Content-Type": mime_type, "x-upsert": "false"},
@@ -82,6 +87,20 @@ def _load(file_key: str) -> bytes:
     resp = httpx.get(f"{base}/{file_key}", headers=headers, timeout=30)
     resp.raise_for_status()
     return resp.content
+
+
+def _signed_url(file_key: str) -> Optional[str]:
+    """A URL that serves this one object for SIGNED_URL_SECONDS, or None when
+    photos are on local disk (then only evidence_file can serve them)."""
+    bucket = _bucket()
+    if bucket is None:
+        return None
+    base, headers = bucket
+    sign_base = base.replace("/storage/v1/object/", "/storage/v1/object/sign/", 1)
+    resp = httpx.post(f"{sign_base}/{file_key}", headers=headers, json={"expiresIn": SIGNED_URL_SECONDS}, timeout=10)
+    resp.raise_for_status()
+    storage_root = base.split("/storage/v1/", 1)[0] + "/storage/v1"
+    return storage_root + resp.json()["signedURL"]
 
 
 def _discard(file_key: str) -> None:
@@ -233,6 +252,10 @@ def submit_evidence(
     captured_at: Optional[datetime] = Form(None),
     location_captured_at: Optional[datetime] = Form(None),
     report_id: Optional[int] = Form(None),
+    # 'upload': a file picked from disk; its location is the uploader's
+    # device at upload time. Defaults to 'camera' for packages queued offline
+    # by the old live-capture screen.
+    capture_method: Literal["camera", "upload"] = Form("camera"),
     db=Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
 ):
@@ -252,7 +275,17 @@ def submit_evidence(
         response.status_code = 200
         return _one_item(db, existing[0], citizen_view=not user.is_staff)
 
-    if user.role == "citizen":
+    # The reporter of a complaint attaches its photo. That is usually a
+    # citizen, but staff may file a complaint from their own account too;
+    # staff still can't attach photos to anyone else's report.
+    if user.role not in ("citizen", "field_worker") and report_id is not None:
+        with db.cursor() as cur:
+            cur.execute("SELECT 1 FROM reports WHERE id = %s AND reporter_user_id = %s", (report_id, user.id))
+            files_as_reporter = cur.fetchone() is not None
+    else:
+        files_as_reporter = user.role == "citizen"
+
+    if files_as_reporter:
         if report_id is None:
             raise HTTPException(status_code=400, detail="report_id is required for citizen evidence")
         with db.cursor() as cur:
@@ -297,7 +330,7 @@ def submit_evidence(
         raise HTTPException(status_code=400, detail="file is not a JPEG, PNG or WebP image")
     mime_type, ext = sniffed
 
-    file_key = f"{uuid.uuid4().hex}{ext}"
+    file_key = f"issues/{issue_id}/{uuid.uuid4().hex}{ext}"
     try:
         _store(file_key, body, mime_type)
     except (OSError, httpx.HTTPError):
@@ -307,10 +340,10 @@ def submit_evidence(
         with db.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO evidence (issue_id, report_id, submitted_by, actor_type, evidence_type, file_key,
+                INSERT INTO evidence (issue_id, report_id, submitted_by, actor_type, evidence_type, capture_method, file_key,
                                       mime_type, byte_size, sha256, geom, accuracy_m, captured_at,
                                       location_captured_at, distance_from_issue_m, client_submission_id, user_agent)
-                SELECT i.id, %(report_id)s, %(user_id)s, %(actor)s, %(etype)s, %(key)s, %(mime)s, %(size)s,
+                SELECT i.id, %(report_id)s, %(user_id)s, %(actor)s, %(etype)s, %(method)s, %(key)s, %(mime)s, %(size)s,
                        %(sha)s, p.pt, %(acc)s, %(cap)s, %(loc_cap)s,
                        ST_Distance(p.pt::geography, i.geom::geography), %(sid)s, %(ua)s
                 FROM issues i, (SELECT ST_SetSRID(ST_MakePoint(%(lon)s, %(lat)s), 4326) AS pt) p
@@ -319,7 +352,7 @@ def submit_evidence(
                 """,
                 {
                     "issue_id": issue_id, "report_id": report_id, "user_id": user.id, "actor": actor_type,
-                    "etype": evidence_type, "key": file_key, "mime": mime_type, "size": len(body),
+                    "etype": evidence_type, "method": capture_method, "key": file_key, "mime": mime_type, "size": len(body),
                     "sha": hashlib.sha256(body).hexdigest(), "lat": latitude, "lon": longitude,
                     "acc": accuracy_m, "cap": captured_at, "loc_cap": location_captured_at,
                     "sid": str(client_submission_id), "ua": (request.headers.get("user-agent") or "")[:300],
@@ -361,8 +394,8 @@ def evidence_queue(review_status: Optional[str] = Query(None, pattern="^(pending
         return [_item(r, citizen_view=False) for r in cur.fetchall()]
 
 
-@router.get("/api/evidence/{evidence_id}/file")
-def evidence_file(evidence_id: int, db=Depends(get_db), user: CurrentUser = Depends(get_current_user)):
+def _authorized_file(db, user: CurrentUser, evidence_id: int) -> tuple[str, str]:
+    """(file_key, mime_type) if this user may see this photo, else 404/403."""
     with db.cursor() as cur:
         cur.execute("SELECT issue_id, submitted_by, file_key, mime_type FROM evidence WHERE id = %s", (evidence_id,))
         row = cur.fetchone()
@@ -372,6 +405,25 @@ def evidence_file(evidence_id: int, db=Depends(get_db), user: CurrentUser = Depe
     only = _evidence_scope(user, db, issue_id)
     if only is not None and only != submitted_by:
         raise HTTPException(status_code=404, detail=f"evidence {evidence_id} not found")
+    return file_key, mime_type
+
+
+@router.get("/api/evidence/{evidence_id}/url", response_model=EvidenceUrlResponse)
+def evidence_url(evidence_id: int, db=Depends(get_db), user: CurrentUser = Depends(get_current_user)):
+    """Same access rule as evidence_file. With a Storage bucket, returns a
+    signed URL valid for SIGNED_URL_SECONDS; with local storage, url is null
+    and the client fetches evidence_file with its token instead."""
+    file_key, _ = _authorized_file(db, user, evidence_id)
+    try:
+        url = _signed_url(file_key)
+    except (httpx.HTTPError, KeyError, ValueError):
+        raise HTTPException(status_code=502, detail=f"couldn't sign a URL for evidence {evidence_id}")
+    return EvidenceUrlResponse(url=url, expires_in=SIGNED_URL_SECONDS if url else None)
+
+
+@router.get("/api/evidence/{evidence_id}/file")
+def evidence_file(evidence_id: int, db=Depends(get_db), user: CurrentUser = Depends(get_current_user)):
+    file_key, mime_type = _authorized_file(db, user, evidence_id)
     try:
         body = _load(file_key)
     except (OSError, httpx.HTTPError):
@@ -404,6 +456,35 @@ def review_evidence(evidence_id: int, payload: EvidenceReviewRequest, db=Depends
     return _one_item(db, evidence_id)
 
 
+@router.get("/api/me/assignments", response_model=list[CrewAssignment])
+def my_assignments(db=Depends(get_db), user: CurrentUser = Depends(get_current_user)):
+    """The crew worker's job list: issues assigned to them, open first. The
+    complaint text is the earliest report's, so they know what to fix."""
+    if user.role != "field_worker":
+        raise HTTPException(status_code=403, detail="field workers only")
+    with db.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT i.id AS issue_id, i.category::text AS category, i.status, i.ward_id, w.name AS ward_name,
+                   ST_Y(i.geom) AS lat, ST_X(i.geom) AS lon, i.first_reported, i.assigned_at,
+                   first.location_phrase, coalesce(first.translated_text, first.raw_text) AS complaint_text,
+                   EXISTS (SELECT 1 FROM evidence e WHERE e.issue_id = i.id AND e.evidence_type = 'resolution')
+                     AS resolution_submitted
+            FROM issues i
+            LEFT JOIN wards w ON w.id = i.ward_id
+            LEFT JOIN LATERAL (SELECT r.location_phrase, r.raw_text, r.translated_text FROM reports r
+                               WHERE r.issue_id = i.id ORDER BY r.reported_at, r.id LIMIT 1) first ON TRUE
+            WHERE i.assigned_worker_id = %s
+            ORDER BY (i.status = 'closed'), i.assigned_at DESC NULLS LAST, i.id DESC
+            """,
+            (user.id,),
+        )
+        rows = cur.fetchall()
+    return [CrewAssignment(**{k: v for k, v in r.items() if k not in ("lat", "lon")},
+                           location=GeoPoint(lat=r["lat"], lon=r["lon"]) if r["lat"] is not None else None)
+            for r in rows]
+
+
 @router.get("/api/field-workers", response_model=list[FieldWorker])
 def list_field_workers(db=Depends(get_db), user: CurrentUser = Depends(require_staff)):
     with db.cursor(row_factory=dict_row) as cur:
@@ -420,12 +501,17 @@ def assign_issue(issue_id: int, payload: IssueAssignRequest, db=Depends(get_db),
         worker = cur.fetchone()
         if worker is None or worker[0] != "field_worker" or not worker[1]:
             raise HTTPException(status_code=400, detail="assignee must be an active field worker")
+        cur.execute("SELECT assigned_worker_id, assigned_at FROM issues WHERE id = %s", (issue_id,))
+        current, current_at = cur.fetchone()
+    if current == payload.worker_user_id:  # already theirs: nothing to change or audit
+        return IssueAssignResponse(issue_id=issue_id, assigned_worker_id=current, assigned_at=current_at)
+    with db.cursor() as cur:
         cur.execute(
             "UPDATE issues SET assigned_worker_id = %s, assigned_at = now() WHERE id = %s RETURNING assigned_at",
             (payload.worker_user_id, issue_id),
         )
         assigned_at = cur.fetchone()[0]
-    audit(db, user, "issue.assign_worker", "issue", issue_id, {"worker_user_id": payload.worker_user_id})
+    audit(db, user, "issue.assign_worker", "issue", issue_id, {"worker_user_id": payload.worker_user_id, "previous_worker_user_id": current})
     db.commit()
     return IssueAssignResponse(issue_id=issue_id, assigned_worker_id=payload.worker_user_id, assigned_at=assigned_at)
 

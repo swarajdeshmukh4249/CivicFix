@@ -169,7 +169,7 @@ export interface EvidenceItem {
   submitted_by: number;
   actor_type: "citizen" | "worker";
   evidence_type: "initial_report" | "resolution";
-  capture_method: "camera";
+  capture_method: "camera" | "upload";
   file_url: string;
   mime_type: string;
   byte_size: number;
@@ -214,6 +214,21 @@ export interface MeResponse {
   departments: string[];
   ward_office_ids: number[];
   zone_ids: number[];
+}
+
+/** GET /api/me/assignments: an issue assigned to the signed-in crew worker. */
+export interface CrewAssignment {
+  issue_id: number;
+  category: string;
+  status: string;
+  ward_id: number | null;
+  ward_name: string | null;
+  location: { lat: number; lon: number } | null;
+  location_phrase: string | null;
+  complaint_text: string | null;
+  first_reported: string | null;
+  assigned_at: string | null;
+  resolution_submitted: boolean;
 }
 
 // --- RBAC administration (app/api/admin.py) ---------------------------------

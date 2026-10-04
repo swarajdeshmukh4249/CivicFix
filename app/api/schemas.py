@@ -198,7 +198,7 @@ class EvidenceItem(BaseModel):
     submitted_by: int
     actor_type: str  # "citizen" | "worker"
     evidence_type: str  # "initial_report" | "resolution"
-    capture_method: str  # "camera"
+    capture_method: str  # "camera" or "upload"
     file_url: str  # authorized endpoint, never a public path
     mime_type: str
     byte_size: int
@@ -219,6 +219,22 @@ class EvidenceItem(BaseModel):
 class EvidenceReviewRequest(BaseModel):
     review_status: Literal["verified", "review_required"]
     note: Optional[str] = None
+
+
+class CrewAssignment(BaseModel):
+    """GET /api/me/assignments: one issue assigned to the signed-in field
+    worker - enough to find the site and do the job."""
+    issue_id: int
+    category: str
+    status: str
+    ward_id: Optional[int]
+    ward_name: Optional[str]
+    location: Optional[GeoPoint]
+    location_phrase: Optional[str]
+    complaint_text: Optional[str]
+    first_reported: Optional[datetime]
+    assigned_at: Optional[datetime]
+    resolution_submitted: bool
 
 
 class FieldWorker(BaseModel):
@@ -447,6 +463,13 @@ class AuditEntry(BaseModel):
     target_type: str
     target_id: str
     details: dict[str, Any]
+
+
+class EvidenceUrlResponse(BaseModel):
+    """A short-lived signed URL for one evidence photo, or url=None when
+    photos are on local disk (fetch /api/evidence/{id}/file with a token)."""
+    url: Optional[str]
+    expires_in: Optional[int]
 
 
 class DashboardWardRow(BaseModel):
