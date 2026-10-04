@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>WardSentry Mobile</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700;800&amp;family=Noto+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#FAF8F5;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface": "#FAF8F5", "surface-warm-tint": "#F5F1EB", "on-primary": "#ffffff", "on-primary-fixed-variant": "#772f39", "background": "#FAF8F5", "wine-deep": "#4A1525", "rust-terracotta": "#C74724", "surface-tint": "#944650", "surface-container": "#f0eded", "secondary-fixed": "#ffdea7", "rust-burnt": "#BA3D1D", "inverse-surface": "#313030", "tertiary-fixed-dim": "#ffb5a1", "on-error-container": "#93000a", "on-surface": "#1b1b1b", "secondary-container": "#febb28", "inverse-on-surface": "#f3f0ef", "outline": "#867273", "primary-fixed-dim": "#ffb2b9", "surface-container-low": "#f6f3f2", "on-secondary-fixed": "#271900", "gold-ochre": "#EAAA0F", "on-tertiary-fixed-variant": "#881f00", "surface-variant": "#e5e2e1", "surface-container-highest": "#e5e2e1", "error-container": "#ffdad6", "secondary-fixed-dim": "#febb28", "on-secondary-container": "#6d4d00", "surface-container-lowest": "#ffffff", "secondary": "#7c5800", "tertiary-container": "#6a1600", "on-error": "#ffffff", "on-background": "#1b1b1b", "primary-fixed": "#ffdadc", "inverse-primary": "#ffb2b9", "surface-cream": "#FAF8F5", "tertiary": "#440b00", "on-primary-fixed": "#3e0310", "on-tertiary": "#ffffff", "outline-variant": "#d9c1c2", "on-tertiary-container": "#ff744f", "gold-bright": "#F2A900", "on-primary-container": "#e1848e", "surface-bright": "#fcf9f8", "on-surface-variant": "#544344", "wine-base": "#611E29", "charcoal-dark": "#1B1B1B", "error": "#ba1a1a", "charcoal-body": "#333333", "surface-container-high": "#eae7e7", "on-secondary-fixed-variant": "#5e4200", "primary": "#450815", "tertiary-fixed": "#ffdbd1", "on-secondary": "#ffffff", "surface-dim": "#dcd9d9", "on-tertiary-fixed": "#3c0800", "primary-container": "#611e29" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "1rem", "margin": "3rem", "margin-mobile": "1.25rem", "space-md": "1rem", "space-xl": "2.5rem", "gutter": "1.5rem", "space-sm": "0.5rem", "space-lg": "1.5rem" }, fontFamily: { "headline-sm": ["Chivo"], "headline-xl": ["Chivo"], "headline-lg": ["Chivo"], "label-lg": ["Chivo"], "headline-xl-mobile": ["Chivo"], "body-lg": ["Noto Sans"], "body-md": ["Noto Sans"], "label-md": ["Noto Sans"], "headline-md": ["Chivo"], "headline-lg-mobile": ["Chivo"], "body-sm": ["Noto Sans"], "label-sm": ["Noto Sans"] }, fontSize: { "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }], "headline-xl": ["48px", { lineHeight: "56px", fontWeight: "800" }], "headline-lg": ["36px", { lineHeight: "44px", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "20px", fontWeight: "700" }], "headline-xl-mobile": ["32px", { lineHeight: "40px", fontWeight: "800" }], "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }], "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", fontWeight: "600" }], "headline-md": ["28px", { lineHeight: "36px", fontWeight: "700" }], "headline-lg-mobile": ["26px", { lineHeight: "32px", fontWeight: "700" }], "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", fontWeight: "700" }] } } } };</script></head><body class="bg-surface font-body-md text-charcoal-body flex flex-col min-h-screen antialiased selection:bg-gold-ochre selection:text-charcoal-dark"><header class="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-gutter-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-9 h-9 bg-primary flex items-center justify-center shrink-0 [clip-path:polygon(0_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%)]"><span class="material-symbols-outlined text-gold-ochre text-[20px]">shield</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-label-lg text-label-lg tracking-tight text-primary uppercase truncate">WardSentry</span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium hidden xs:inline">MUNICIPAL</span></div><div class="flex items-center gap-1.5"><span class="inline-flex items-center px-1.5 py-0.5 bg-surface-warm-tint text-charcoal-dark font-label-sm text-label-sm tracking-wide uppercase truncate">Ward 14 (Kothrud)</span></div></div></div><div class="flex items-center gap-space-xs shrink-0"><div class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-warm-tint" title="Sync Status: Live"><span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span><span class="font-label-sm text-label-sm text-charcoal-dark uppercase tracking-wider hidden sm:inline">LIVE</span></div><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center text-charcoal-dark hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 bg-rust-terracotta rounded-full"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Progress & Context Ribbon -->
+<section class="bg-surface-warm-tint px-gutter-mobile py-space-sm flex flex-col gap-1.5 shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 min-w-0">
+<span class="inline-block w-2 h-2 bg-rust-terracotta shrink-0"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-dark font-bold truncate">Incident #PMC-2024-8812</span>
+</div>
+<span class="bg-wine-deep text-on-primary font-label-sm text-[10px] uppercase px-1.5 py-0.5 tracking-wider shrink-0 font-bold">Step 2 of 3</span>
+</div>
+<!-- Stepper Bars (Borders forbidden; use layered color blocks) -->
+<div class="w-full flex items-center gap-1">
+<div class="h-1 flex-1 bg-gold-ochre"></div>
+<div class="h-1 flex-1 bg-rust-terracotta relative overflow-hidden">
+<div class="absolute inset-0 bg-gold-bright/30 animate-pulse"></div>
+</div>
+<div class="h-1 flex-1 bg-surface-variant"></div>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-0.5">
+<span class="text-charcoal-dark font-semibold">Photo Verification &amp; Materials</span>
+<span class="text-gold-ochre font-bold">Next: Supervisor Sign-off</span>
+</div>
+</section>
+<!-- Incident Brief Strip -->
+<section class="px-gutter-mobile pt-space-sm pb-1 flex items-center justify-between bg-surface">
+<div class="flex flex-col min-w-0">
+<h1 class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Clogged Storm Drain (S-14)</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Mayur Colony Main Rd, Ward 14 Pune</p>
+</div>
+<div class="flex items-center gap-1 px-2 py-1 bg-surface-container-low shrink-0 text-charcoal-dark">
+<span class="material-symbols-outlined text-[16px] text-rust-terracotta">timelapse</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">SLA: 42m Left</span>
+</div>
+</section>
+<!-- Evidence Comparison Module: Before & After -->
+<section class="px-gutter-mobile py-space-sm flex flex-col gap-space-sm">
+<!-- Tab/Mode Indicator Pills -->
+<div class="flex items-center justify-between">
+<span class="font-label-lg text-label-lg uppercase tracking-wider text-primary">Evidence Comparison</span>
+<span class="bg-surface-warm-tint text-charcoal-body font-label-sm text-label-sm px-2 py-0.5 font-medium">Split Dual-Log</span>
+</div>
+<!-- Stacked Comparison Grid -->
+<div class="flex flex-col gap-3">
+<!-- 1. Citizen Evidence (Before) Card -->
+<div class="bg-surface-container-low p-space-sm flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="bg-wine-deep text-on-primary font-label-sm text-[10px] uppercase font-bold px-1.5 py-0.5">Before</span>
+<span class="font-label-sm text-label-sm text-charcoal-dark font-semibold">Citizen Report #CR-491</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">08:14 AM Today</span>
+</div>
+<div class="relative w-full h-36 bg-surface-variant overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Close-up field photo of a street storm drain choked with wet black silt, plastic trash bags, and autumn leaves during heavy drizzle in Pune India, shot in documentary editorial photojournalism style, muted warm earthly tones, gritty urban pavement texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArOiMj54MiQLXpESyrItof07KOLqqeif6px3NfV-_TH4jxkClZKO_3QS8f8cjwSDglPktNt5YohJM-wmCKiNdfwLnVvbit1euiCBxo4vLsSj6Hoixz_BK-xVhNrNQXUYGmussO_k74wUdFIATJ6Ju7fHzppB4YhDeMWS8ZvkhlsAZievuvAAuWmvo249jp9jCMTPV1gjVQAIvC86OpM4rLfdNOVo5KXdj0mlawOMZyFIRMBuh07Q53"/>
+<div class="absolute bottom-2 left-2 bg-charcoal-dark/85 backdrop-blur-sm text-surface px-2 py-1 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-gold-ochre">warning</span>
+<span class="font-label-sm text-label-sm tracking-wide uppercase">Severity: Severe Backflow</span>
+</div>
+<button aria-label="Inspect Full Image" class="absolute top-2 right-2 w-8 h-8 bg-surface/90 text-charcoal-dark flex items-center justify-center shadow-md active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+</div>
+</div>
+<!-- 2. Officer Capture Viewport (After) -->
+<div class="bg-surface-warm-tint p-space-sm flex flex-col gap-space-xs shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="bg-rust-terracotta text-on-primary font-label-sm text-[10px] uppercase font-bold px-1.5 py-0.5">Resolution</span>
+<span class="font-label-sm text-label-sm text-charcoal-dark font-semibold">Active Camera Viewport</span>
+</div>
+<!-- GPS Lock Indicator -->
+<div class="flex items-center gap-1 bg-surface px-1.5 py-0.5">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+<span class="font-label-sm text-[10px] text-charcoal-dark uppercase font-bold tracking-tight">GPS Lock Active</span>
+</div>
+</div>
+<!-- Camera Viewfinder Box -->
+<div class="relative w-full h-52 bg-charcoal-dark overflow-hidden flex flex-col justify-between p-2.5">
+<!-- Real-time camera viewfinder image stream mockup -->
+<img class="absolute inset-0 w-full h-full object-cover opacity-90" data-alt="First-person POV clear angle showing a freshly unclogged street concrete storm drain, fitted with a brand new iron grate, swept clean asphalt margins, warm natural morning sunlight casting soft geometric shadows, sharp high-resolution municipal inspection documentary photo." id="camera-preview-stream" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIia5bIIRLK9D1C0ika6iLxpa_6SbsStivsLO42UrNuoeu2LLxvLM7fJHBdDx3qODo-94PfNP9JroC_MUvl4lx1hVp8o3feqrE9JLod3X2nkForQYTVFZhqf6EvN-DytW1ouLVspaDmga0l27ot4Eyw3iDEjU_Yn0HFwZM0ETu3kcdNAW5Jcm8QlyIIcR-_mRCL-KMmu1LIIdYoJajaHK7mZL_6XYl7735UiMnO7IXZIwyjq_oNIVE"/>
+<!-- Viewfinder HUD Overlays -->
+<div class="relative z-10 flex items-center justify-between">
+<div class="bg-charcoal-dark/90 px-2 py-1 text-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-gold-bright text-[15px]">satellite_alt</span>
+<span class="font-label-sm text-[11px] font-semibold tracking-tight">18.5583° N, 73.7938° E</span>
+</div>
+<div class="bg-charcoal-dark/90 px-2 py-1 text-surface-warm-tint flex items-center gap-1 font-label-sm text-[11px]">
+<span class="material-symbols-outlined text-[13px] text-emerald-400">tune</span>
+<span>±2.4m</span>
+</div>
+</div>
+<!-- Viewfinder Target Reticle -->
+<div class="relative z-10 pointer-events-none self-center my-auto flex items-center justify-center">
+<div class="w-16 h-16 flex items-center justify-center relative">
+<div class="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-gold-bright"></div>
+<div class="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-gold-bright"></div>
+<div class="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-gold-bright"></div>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-gold-bright"></div>
+<span class="material-symbols-outlined text-gold-bright/60 text-[22px]">center_focus_strong</span>
+</div>
+</div>
+<!-- Viewport Bottom Status Strip & Snap Control -->
+<div class="relative z-10 flex items-center justify-between bg-charcoal-dark/80 px-2.5 py-1.5 backdrop-blur-xs">
+<div class="flex flex-col text-surface">
+<span class="font-label-sm text-[10px] text-gold-ochre uppercase font-bold tracking-wider">EXIF Auto-Stamp</span>
+<span class="font-label-sm text-[11px] font-medium" id="live-time-display">09:42:15 IST • PWD-FIELD-CAM</span>
+</div>
+<button aria-label="Capture Geotagged Photo" class="w-10 h-10 bg-gold-ochre hover:bg-gold-bright text-charcoal-dark flex items-center justify-center shadow-lg active:scale-90 transition-transform" id="shutter-btn" title="Retake / Capture Geotagged Photo" type="button">
+<span class="material-symbols-outlined text-[24px]">camera</span>
+</button>
+</div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 pt-1">
+<span class="material-symbols-outlined text-gold-ochre text-[14px]">verified</span>
+<span>Cryptographic ward hardware watermark will be baked upon submission.</span>
+</p>
+</div>
+</div>
+</section>
+<!-- Consumed Material & Field Work Log -->
+<section class="px-gutter-mobile py-space-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-lg text-label-lg uppercase tracking-wider text-primary">Materials Consumed</span>
+<span class="font-label-sm text-label-sm text-rust-terracotta font-semibold uppercase">Depot Batch #8</span>
+</div>
+<div class="bg-surface-container-low p-space-sm flex flex-col gap-space-sm shadow-sm">
+<!-- Quick Select Chips (Zero border, color-block selection) -->
+<div class="flex flex-wrap gap-1.5" id="materials-tag-group">
+<button class="material-toggle-chip bg-primary text-on-primary font-label-sm text-label-sm uppercase font-bold px-2.5 py-1.5 flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[15px]">check</span>
+<span>1x Standard Grate</span>
+</button>
+<button class="material-toggle-chip bg-surface-warm-tint text-charcoal-dark hover:bg-surface-variant font-label-sm text-label-sm uppercase font-bold px-2.5 py-1.5 flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+<span>20kg Cold Asphalt</span>
+</button>
+<button class="material-toggle-chip bg-surface-warm-tint text-charcoal-dark hover:bg-surface-variant font-label-sm text-label-sm uppercase font-bold px-2.5 py-1.5 flex items-center gap-1 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+<span>1x Silt Strainer Basket</span>
+</button>
+</div>
+<!-- Inline Quantity Input Row -->
+<div class="bg-surface p-2 flex items-center justify-between gap-2 shadow-inner">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-gold-ochre text-[18px]">inventory_2</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-charcoal-dark font-bold uppercase truncate">Direct Depot Deduction</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant truncate">Kothrud West Yard Depot #4</span>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button class="w-8 h-8 bg-surface-warm-tint hover:bg-surface-variant text-charcoal-dark flex items-center justify-center font-bold text-lg active:scale-90" id="qty-minus" type="button">-</button>
+<span class="font-headline-sm text-headline-sm text-primary px-2 min-w-[28px] text-center" id="qty-display">1</span>
+<button class="w-8 h-8 bg-surface-warm-tint hover:bg-surface-variant text-charcoal-dark flex items-center justify-center font-bold text-lg active:scale-90" id="qty-plus" type="button">+</button>
+</div>
+</div>
+<!-- Quick Remarks / Field Memo -->
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm uppercase text-charcoal-dark font-semibold" for="field-notes">Field Crew Note (Optional)</label>
+<div class="relative bg-surface p-2">
+<input class="w-full bg-transparent font-body-sm text-body-sm text-charcoal-dark focus:outline-none placeholder:text-on-surface-variant" id="field-notes" placeholder="e.g. Cleared 14kg silt, fitted heavy gauge latch." type="text" value="Full debris extraction complete, newly leveled grate seat."/>
+</div>
+</div>
+</div>
+</section>
+<!-- Officer Confirmation & Action Block -->
+<section class="px-gutter-mobile pt-space-xs pb-space-lg flex flex-col gap-space-sm">
+<!-- Verification Checkbox Toggle -->
+<label class="flex items-start gap-2.5 bg-surface-warm-tint p-space-sm select-none cursor-pointer">
+<input checked="" class="mt-1 w-4 h-4 accent-rust-terracotta cursor-pointer shrink-0" id="exif-confirm-toggle" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-charcoal-body leading-tight">
+        I certify that water discharge flow has been tested and debris hauled off-site as per Ward Quality Standard #WQ-104.
+      </span>
+</label>
+<!-- Interactive Primary Submission CTA -->
+<button class="w-full h-14 bg-rust-terracotta hover:bg-rust-burnt text-on-primary flex items-center justify-center gap-2 active:translate-y-0.5 transition-all shadow-md group [clip-path:polygon(0_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%)]" id="submit-resolution-cta" type="button">
+<span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">verified_user</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wider font-bold">Confirm Resolution &amp; Submit Geotag</span>
+</button>
+<!-- Secondary Crew Escalation Action -->
+<button class="w-full h-12 bg-surface-container-high hover:bg-surface-variant text-wine-deep flex items-center justify-center gap-1.5 active:bg-surface-dim transition-all" id="escalate-cta" type="button">
+<span class="material-symbols-outlined text-[20px] text-rust-terracotta">emergency_home</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wide font-bold">Report Incomplete / Request Crew Re-dispatch</span>
+</button>
+</section>
+<!-- Interactive Feedback Toast / Dialog Container (Hidden by default) -->
+<div class="hidden fixed bottom-20 inset-x-4 z-50 bg-wine-deep text-on-primary p-space-sm shadow-xl flex items-center justify-between animate-fade-in [clip-path:polygon(0_0,100%_0,100%_calc(100%-6px),calc(100%-6px)_100%,0_100%)]" id="status-toast">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-gold-ochre text-[20px]">task_alt</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm uppercase font-bold truncate">Verification Uploaded</span>
+<span class="font-body-sm text-[12px] text-primary-fixed truncate">Cryptographic hash attached to PMC-8812</span>
+</div>
+</div>
+<span class="bg-gold-ochre text-charcoal-dark font-label-sm text-[10px] uppercase font-bold px-2 py-0.5">Step 3/3 Next</span>
+</div>
+</div>
+<script>
+  (() => {
+    // Dynamic Time Stamp
+    const timeDisplay = document.getElementById('live-time-display');
+    if (timeDisplay) {
+      const now = new Date();
+      timeDisplay.textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST • PWD-FIELD-CAM';
+    }
+
+    // Material Tag Toggle Interactions
+    const chips = document.querySelectorAll('.material-toggle-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const icon = chip.querySelector('.material-symbols-outlined');
+        const isSelected = chip.classList.contains('bg-primary');
+        if (isSelected) {
+          chip.classList.remove('bg-primary', 'text-on-primary');
+          chip.classList.add('bg-surface-warm-tint', 'text-charcoal-dark');
+          if (icon) icon.textContent = 'add';
+        } else {
+          chip.classList.remove('bg-surface-warm-tint', 'text-charcoal-dark');
+          chip.classList.add('bg-primary', 'text-on-primary');
+          if (icon) icon.textContent = 'check';
+        }
+      });
+    });
+
+    // Material Quantity Counter
+    let count = 1;
+    const qtyDisplay = document.getElementById('qty-display');
+    const plusBtn = document.getElementById('qty-plus');
+    const minusBtn = document.getElementById('qty-minus');
+
+    if (plusBtn && qtyDisplay && minusBtn) {
+      plusBtn.addEventListener('click', () => {
+        count++;
+        qtyDisplay.textContent = count;
+      });
+      minusBtn.addEventListener('click', () => {
+        if (count > 0) {
+          count--;
+          qtyDisplay.textContent = count;
+        }
+      });
+    }
+
+    // Shutter Trigger Mock
+    const shutter = document.getElementById('shutter-btn');
+    const cameraStream = document.getElementById('camera-preview-stream');
+    if (shutter && cameraStream) {
+      shutter.addEventListener('click', () => {
+        cameraStream.classList.add('brightness-150');
+        setTimeout(() => {
+          cameraStream.classList.remove('brightness-150');
+        }, 150);
+      });
+    }
+
+    // Submission Toast Interaction
+    const submitBtn = document.getElementById('submit-resolution-cta');
+    const toast = document.getElementById('status-toast');
+    if (submitBtn && toast) {
+      submitBtn.addEventListener('click', () => {
+        toast.classList.remove('hidden');
+        submitBtn.classList.add('opacity-75');
+        submitBtn.innerHTML = `
+          <span class="material-symbols-outlined animate-spin text-[20px]">sync</span>
+          <span class="font-label-lg text-label-lg uppercase tracking-wider font-bold">Anchoring Geotag...</span>
+        `;
+        setTimeout(() => {
+          submitBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[22px]">done_all</span>
+            <span class="font-label-lg text-label-lg uppercase tracking-wider font-bold">Logged to Ward Ledger</span>
+          `;
+          submitBtn.classList.remove('bg-rust-terracotta');
+          submitBtn.classList.add('bg-wine-deep');
+        }, 1200);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.05)]" data-active-classes="text-primary font-bold bg-surface-warm-tint"><div class="flex items-stretch justify-around h-16 px-space-xs"><a class="flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary transition-all select-none" data-path="spatial-ward-map" href="#"><span class="material-symbols-outlined text-[22px] leading-none mb-1">map</span><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Map</span></a><a class="flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary transition-all relative select-none" data-path="incident-queue" href="#"><div class="relative leading-none mb-1"><span class="material-symbols-outlined text-[22px]">format_list_bulleted</span><span class="absolute -top-1 -right-3.5 px-1 py-0.2 bg-rust-terracotta text-on-primary font-label-sm text-[10px] leading-tight font-bold rounded-none">14</span></div><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Incidents</span></a><a aria-current="page" class="flex flex-col items-center justify-center flex-1 h-full py-1 transition-all select-none text-primary font-bold bg-surface-warm-tint" data-path="field-verification" href="#"><span class="material-symbols-outlined text-[22px] leading-none mb-1">photo_camera</span><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Verify</span></a><a class="flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary transition-all select-none" data-path="depot-profile" href="#"><span class="material-symbols-outlined text-[22px] leading-none mb-1">badge</span><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Depot</span></a></div></nav></body></html>

@@ -1,3 +1,5 @@
+import { StaffGate } from './components/StaffGate';
+import { SentinelApp } from './sentinel/SentinelApp';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AdminLayout } from "./AdminLayout";
 import { CommandCenter } from "./pages/CommandCenter";
@@ -31,6 +33,7 @@ function Portal({ children }: { children: React.ReactNode }) {
 export function AdminApp() {
   return (
     <StaffGate>
+      <SentinelApp />
     <Portal>
     <BrowserRouter>
       <Routes>
@@ -60,4 +63,5 @@ export function AdminApp() {
     </StaffGate>
   );
 }
+
 export default AdminApp;

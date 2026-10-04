@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CivicFix Sentinel — Municipal Administrator Portal</title>
+  <meta name="description" content="Others manage complaints. We connect complaints to the public work already funded to prevent them."/>
+  
+  <!-- Google Fonts: Chivo + Noto Sans + Material Symbols (Warm Editorial Institutional) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;600;700;800;900&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CDN with custom Warm Editorial Institutional palette -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "wine-deep": "#4A1525",
+            "wine-base": "#611E29",
+            "rust-terracotta": "#C74724",
+            "rust-burnt": "#BA3D1D",
+            "gold-bright": "#F2A900",
+            "gold-ochre": "#EAAA0F",
+            "surface-cream": "#FAF8F5",
+            "surface-canvas": "#F5F1EB",
+            "surface-card": "#FFFFFF",
+            "surface-subtle": "#ECE6DE",
+            "surface-container": "#E8E2D8",
+            "border-subtle": "#E2DACF",
+            "border-strong": "#C5B8A8",
+            "charcoal-dark": "#1B1B1B",
+            "charcoal-body": "#333333",
+            "status-verified": "#2D6A4F",
+            "status-critical": "#BA3D1D"
+          },
+          fontFamily: {
+            headline: ["Chivo", "sans-serif"],
+            body: ["Noto Sans", "sans-serif"]
+          },
+          borderRadius: {
+            none: "0px",
+            DEFAULT: "0px",
+            sm: "0px",
+            md: "0px",
+            lg: "0px",
+            xl: "0px",
+            full: "0px"
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * { border-radius: 0px !important; }
+    body { font-family: 'Noto Sans', sans-serif; background-color: #FAF8F5; color: #1B1B1B; margin: 0; padding: 0; }
+    h1, h2, h3, h4, .font-headline { font-family: 'Chivo', sans-serif; }
+    .chamfer-tr { clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%); }
+    .chamfer-ribbon { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+    .reticle-pulse { animation: reticleAnim 2s infinite ease-in-out; }
+    @keyframes reticleAnim {
+      0% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.08); opacity: 0.6; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF8F5; }
+    ::-webkit-scrollbar-thumb { background: #C5B8A8; }
+    ::-webkit-scrollbar-thumb:hover { background: #C74724; }
+  </style>
+</head>
+<body class="bg-surface-cream text-charcoal-dark min-h-screen flex flex-col antialiased selection:bg-gold-ochre selection:text-charcoal-dark">
+
+  <!-- TOP IDENTITY & TELEMETRY BAR -->
+  <header class="sticky top-0 z-50 bg-white border-b border-border-subtle shadow-sm select-none">
+    <div class="h-14 px-6 flex items-center justify-between gap-4 bg-white border-b border-border-subtle/80">
+      <div class="flex items-center gap-4">
+        <!-- Geometric Diamond Logo + Identity -->
+        <div class="flex items-center gap-3">
+          <div class="relative w-7 h-7 flex items-center justify-center shrink-0">
+            <div class="absolute w-3.5 h-3.5 bg-rust-terracotta rotate-45 -translate-x-1.5 -translate-y-1.5"></div>
+            <div class="absolute w-3.5 h-3.5 bg-gold-bright rotate-45 translate-x-1.5 -translate-y-1.5"></div>
+            <div class="absolute w-3.5 h-3.5 bg-wine-deep rotate-45 -translate-x-1.5 translate-y-1.5"></div>
+            <div class="absolute w-3.5 h-3.5 bg-gold-ochre rotate-45 translate-x-1.5 translate-y-1.5"></div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline font-black text-[20px] tracking-tight text-charcoal-dark">
+              CivicFix <span class="text-rust-terracotta">Sentinel</span>
+            </span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-wine-deep bg-surface-canvas px-2 py-0.5 border border-border-subtle">
+              PMC Operations & Vigilance
+            </span>
+          </div>
+        </div>
+
+        <div class="h-4 w-[1px] bg-border-strong/50 hidden md:block"></div>
+
+        <!-- Live Sync Status -->
+        <div class="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 bg-surface-cream border border-border-subtle">
+          <span class="w-2 h-2 bg-status-verified animate-pulse"></span>
+          <span class="text-[11px] font-bold tracking-wider text-status-verified uppercase font-headline">
+            Live PMC Grid Sync • 18ms
+          </span>
+        </div>
+
+        <!-- Core USP Banner -->
+        <div class="hidden xl:flex items-center gap-2 px-3 py-1 bg-surface-canvas border-l-2 border-rust-terracotta text-[11px]">
+          <span class="font-headline font-bold text-wine-deep uppercase tracking-wide">Core USP:</span>
+          <span class="text-charcoal-body italic">
+            "Connecting citizen grievances to the public works already funded to prevent them."
+          </span>
+        </div>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Prabhag Switcher -->
+        <div class="flex items-center gap-1.5">
+          <label for="ward-select" class="text-[11px] font-bold text-[#544344] uppercase font-headline hidden sm:inline">
+            Active Ward:
+          </label>
+          <select id="ward-select" onchange="filterByWard(this.value)" class="bg-surface-cream text-charcoal-dark text-xs font-semibold px-2.5 py-1.5 border border-border-strong focus:outline-none focus:border-rust-terracotta cursor-pointer">
+            <option value="14">Ward 14 (Kothrud - Bavdhan)</option>
+            <option value="21">Ward 21 (Shivajinagar - FC Rd)</option>
+            <option value="8">Ward 08 (Aundh - Baner)</option>
+            <option value="all">All PMC Prabhags (1-41)</option>
+          </select>
+        </div>
+
+        <!-- Recurrence Defect Pill -->
+        <div onclick="switchTab('reviewer-console')" class="flex items-center gap-1.5 px-2.5 py-1 bg-[#BA1A1A] text-white font-headline text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-rust-burnt transition-colors" title="Post-Completion Recurrences Detected">
+          <span class="material-symbols-outlined text-[15px]">warning</span>
+          <span id="header-defect-count">3 Post-Work Defects</span>
+        </div>
+
+        <!-- Officer Profile -->
+        <div class="flex items-center gap-2 pl-2 border-l border-border-subtle">
+          <div class="w-8 h-8 bg-wine-deep flex items-center justify-center text-white font-bold text-xs">
+            <span class="material-symbols-outlined text-[18px]">badge</span>
+          </div>
+          <div class="hidden sm:flex flex-col text-left">
+            <span class="text-[11px] font-bold text-charcoal-dark leading-none font-headline">A. Kulkarni</span>
+            <span class="text-[10px] text-[#544344]">Assistant Commissioner</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN PILLARS NAVIGATION BAR -->
+    <nav class="h-12 px-6 bg-surface-cream flex items-center justify-between border-b border-border-subtle overflow-x-auto">
+      <div class="flex items-center gap-2">
+        <button id="nav-btn-ward" onclick="switchTab('ward-dashboard')" class="px-4 py-2 font-headline text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-2 bg-wine-deep text-white shadow-xs">
+          <span class="material-symbols-outlined text-[16px]">map</span>
+          <span>1. Ward Officer Dashboard</span>
+          <span class="px-1.5 py-0.2 text-[10px] font-bold bg-rust-terracotta text-white">5 Issues</span>
+        </button>
+
+        <button id="nav-btn-dispatch" onclick="switchTab('field-dispatch')" class="px-4 py-2 font-headline text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-2 text-charcoal-body hover:text-wine-deep hover:bg-surface-subtle">
+          <span class="material-symbols-outlined text-[16px]">local_shipping</span>
+          <span>2. Field Dispatch & Verification</span>
+          <span class="px-1.5 py-0.2 text-[10px] font-bold bg-gold-ochre text-charcoal-dark">3 Squads</span>
+        </button>
+
+        <button id="nav-btn-vigilance" onclick="switchTab('reviewer-console')" class="px-4 py-2 font-headline text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-2 text-charcoal-body hover:text-wine-deep hover:bg-surface-subtle">
+          <span class="material-symbols-outlined text-[16px]">policy</span>
+          <span>3. Reviewer / Vigilance Console</span>
+          <span class="px-1.5 py-0.2 text-[10px] font-bold bg-status-critical text-white animate-pulse">Post-Work Audit</span>
+        </button>
+      </div>
+
+      <div class="hidden lg:flex items-center gap-4 text-xs font-mono text-[#544344]">
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[14px] text-rust-terracotta">my_location</span>
+          <span>Ward 14 Grid: 18.5089° N, 73.8052° E</span>
+        </div>
+        <div class="bg-white px-2 py-0.5 border border-border-strong text-[11px] font-sans font-semibold">
+          Keys: <kbd class="font-mono font-bold bg-surface-subtle px-1">1</kbd> Map <kbd class="font-mono font-bold bg-surface-subtle px-1">2</kbd> Dispatch <kbd class="font-mono font-bold bg-surface-subtle px-1">3</kbd> Vigilance
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 w-full p-6">
+
+    <!-- ========================================================================= -->
+    <!-- PILLAR 1: WARD OFFICER DASHBOARD (Spatial Map + Incident Queue) -->
+    <!-- ========================================================================= -->
+    <div id="view-ward-dashboard" class="flex flex-col gap-6 max-w-7xl mx-auto">
+      <!-- Top Metrics Strip -->
+      <section class="bg-white border border-border-subtle p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-2.5 h-2.5 bg-rust-terracotta rotate-45"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-wine-deep font-headline">
+              Ward 14 (Kothrud) • Operations Center
+            </span>
+            <span class="text-[10px] font-bold bg-surface-cream text-[#544344] px-2 py-0.5 border border-border-subtle uppercase font-headline">
+              Shift 02 • Active Duty
+            </span>
+          </div>
+          <h1 class="text-2xl font-black font-headline text-charcoal-dark tracking-tight">
+            Municipal Ward Officer Dashboard
+          </h1>
+          <p class="text-xs text-[#544344] mt-1 max-w-2xl">
+            Real-time civic intelligence aggregating disparate citizen complaints into cohesive civic issues,
+            calculating explainable priority formulas, and linking infrastructure failures to public tenders.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-[340px]">
+          <div class="bg-surface-cream border border-border-subtle p-3 flex flex-col justify-between">
+            <span class="text-[10px] font-bold text-[#544344] uppercase font-headline">Clustered Issues</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="font-headline text-2xl font-black text-wine-deep">5</span>
+              <span class="text-[10px] text-[#544344]">from 43 raw</span>
+            </div>
+            <span class="text-[10px] text-status-verified font-semibold mt-1">1 problem, not 50</span>
+          </div>
+
+          <div class="bg-surface-cream border border-border-subtle p-3 flex flex-col justify-between">
+            <span class="text-[10px] font-bold text-[#BA1A1A] uppercase font-headline">Critical P1s</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="font-headline text-2xl font-black text-[#BA1A1A]">2</span>
+              <span class="text-[10px] text-[#544344]">squad needed</span>
+            </div>
+            <span class="text-[10px] text-[#BA1A1A] font-semibold mt-1">SLA &lt; 3h target</span>
+          </div>
+
+          <div class="bg-surface-cream border border-border-subtle p-3 flex flex-col justify-between">
+            <span class="text-[10px] font-bold text-rust-terracotta uppercase font-headline">Post-Work Defects</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="font-headline text-2xl font-black text-rust-terracotta">3</span>
+              <span class="text-[10px] text-[#544344]">tenders flagged</span>
+            </div>
+            <span class="text-[10px] text-rust-terracotta font-semibold mt-1">DLP Active</span>
+          </div>
+
+          <div class="bg-surface-cream border border-border-subtle p-3 flex flex-col justify-between">
+            <span class="text-[10px] font-bold text-gold-ochre uppercase font-headline">Visibility Gaps</span>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="font-headline text-2xl font-black text-gold-ochre">1</span>
+              <span class="text-[10px] text-[#544344]">quiet ward</span>
+            </div>
+            <span class="text-[10px] text-charcoal-body font-semibold mt-1">Auto-Patrol Alert</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- CIVIC VISIBILITY GAP BANNER -->
+      <section class="bg-white border-2 border-gold-ochre p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 bg-gold-ochre flex items-center justify-center text-charcoal-dark shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[24px]">radar</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-headline font-bold text-xs uppercase text-charcoal-dark tracking-wide">
+                Civic Visibility Gap Detected • Sector 14-D (Bavdhan Lowline Basti)
+              </span>
+              <span class="text-[10px] font-bold bg-[#FEBB28] text-charcoal-dark px-1.5 py-0.2 uppercase font-headline">
+                Proactive Action Required
+              </span>
+            </div>
+            <p class="text-xs text-charcoal-body mt-1 leading-relaxed max-w-3xl">
+              Low citizen reporting volume (only 1 report logged due to digital divide) contrasts with critical IoT silt reading (91/100 decay index).
+              The system recommends immediate <strong>Proactive Field Verification Patrol</strong> rather than awaiting citizen escalation.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0 self-end md:self-center">
+          <button onclick="openPriorityModal('CF-1070')" class="px-3 py-1.5 bg-surface-cream border border-border-strong text-xs font-headline font-bold uppercase hover:bg-surface-subtle">
+            Inspect Telemetry
+          </button>
+          <button onclick="deployProactivePatrol('CF-1070')" class="px-4 py-1.5 bg-gold-ochre hover:bg-gold-bright text-charcoal-dark text-xs font-headline font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
+            <span class="material-symbols-outlined text-[16px]">local_police</span>
+            <span>Deploy Verification Patrol</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SPATIAL MAP (LEFT) + CLUSTERED QUEUE (RIGHT) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Spatial Ward Map -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <div class="bg-white border border-border-subtle p-4 shadow-xs">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-rust-terracotta text-[18px]">share_location</span>
+                <h2 class="text-sm font-bold font-headline text-charcoal-dark uppercase tracking-wide">
+                  Spatial Ward Infrastructure & Telemetry Map
+                </h2>
+              </div>
+              <span class="text-[11px] text-[#544344]">Click any pin to inspect issue</span>
+            </div>
+
+            <!-- SVG Vector Map Canvas -->
+            <div class="relative w-full h-[480px] bg-surface-canvas border border-border-subtle overflow-hidden select-none">
+              <svg id="ward-svg-map" class="w-full h-full" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="svg-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+                    <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#FAF8F5" stroke-width="1.5" />
+                  </pattern>
+                  <radialGradient id="svg-glow" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85" />
+                    <stop offset="100%" stop-color="#EFECE6" stop-opacity="0.95" />
+                  </radialGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#svg-glow)" />
+                <rect width="100%" height="100%" fill="url(#svg-grid)" />
+
+                <!-- Ward 14 Boundary Polygon -->
+                <path d="M 60 50 L 730 30 L 760 380 L 680 480 L 160 500 L 40 360 Z" fill="#611E29" fill-opacity="0.04" stroke="#611E29" stroke-width="2.5" stroke-dasharray="8 5" />
+                <path d="M 220 80 L 460 270 L 730 300" stroke="#EAAA0F" stroke-width="1.5" stroke-dasharray="3 4" stroke-opacity="0.4" />
+                <path d="M 240 420 L 450 390 L 680 480" stroke="#EAAA0F" stroke-width="1.5" stroke-dasharray="3 4" stroke-opacity="0.4" />
+
+                <!-- Arterial Road: Paud Road Corridor 4 -->
+                <path d="M 20 220 Q 280 260 480 210 T 780 280" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" />
+                <path d="M 20 220 Q 280 260 480 210 T 780 280" stroke="#E2DACF" stroke-width="10" stroke-linecap="round" />
+                <text fill="#867273" font-family="Noto Sans" font-size="11" font-weight="700" letter-spacing="3" x="120" y="210">
+                  PAUD ROAD ARTERIAL (CORRIDOR 4)
+                </text>
+
+                <!-- Karve Road Corridor -->
+                <path d="M 400 30 L 430 490" stroke="#FFFFFF" stroke-width="14" />
+                <path d="M 400 30 L 430 490" stroke="#E2DACF" stroke-width="8" />
+
+                <!-- Placename Labels -->
+                <g opacity="0.8">
+                  <rect x="110" y="90" width="110" height="22" fill="#FAF8F5" stroke="#C5B8A8" />
+                  <text x="120" y="105" fill="#4A1525" font-family="Chivo" font-size="10" font-weight="700">SECTOR 14-A</text>
+                  <rect x="520" y="110" width="120" height="22" fill="#FAF8F5" stroke="#C5B8A8" />
+                  <text x="530" y="125" fill="#4A1525" font-family="Chivo" font-size="10" font-weight="700">IDEAL COLONY</text>
+                  <rect x="110" y="420" width="140" height="22" fill="#FAF8F5" stroke="#C5B8A8" />
+                  <text x="120" y="435" fill="#4A1525" font-family="Chivo" font-size="10" font-weight="700">SECTOR 14-D (BASTER)</text>
+                </g>
+
+                <!-- Interactive Clustered Pins rendered by JS -->
+                <g id="map-pins-container"></g>
+              </svg>
+
+              <!-- Map Legend Overlay -->
+              <div class="absolute bottom-2 left-2 right-2 bg-white/95 backdrop-blur-xs p-2.5 border border-border-subtle flex flex-wrap items-center justify-between text-[11px] font-headline">
+                <div class="flex items-center gap-4 flex-wrap">
+                  <span class="flex items-center gap-1"><span class="w-3 h-3 bg-[#BA1A1A]"></span> P1 Critical</span>
+                  <span class="flex items-center gap-1"><span class="w-3 h-3 bg-wine-deep"></span> Standard Cluster</span>
+                  <span class="flex items-center gap-1"><span class="w-3 h-3 bg-gold-ochre"></span> Visibility Gap</span>
+                  <span class="flex items-center gap-1"><span class="text-gold-bright font-bold">▲</span> Linked Tender (DLP)</span>
+                </div>
+                <span class="text-[#544344]">Click pin to select & triage</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Issue Inspector Dock -->
+          <div id="selected-issue-dock" class="bg-white border-2 border-wine-deep p-4 shadow-xs flex flex-col gap-3">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+        <!-- Clustered Incident Feed (1 Problem, Not 50 Tickets) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="bg-white border border-border-subtle p-4 shadow-xs flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-wine-deep text-[18px]">format_list_bulleted</span>
+                <h2 class="text-sm font-bold font-headline text-charcoal-dark uppercase tracking-wide">
+                  Aggregated Civic Issues Feed
+                </h2>
+              </div>
+              <span class="text-[11px] font-headline font-bold text-rust-terracotta uppercase">
+                1 Problem, Not 50
+              </span>
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-2.5 text-[#867273] text-[18px]">search</span>
+              <input id="search-input" oninput="handleSearch(this.value)" type="text" placeholder="Search ticket #, landmark, road..." class="w-full pl-9 pr-3 py-2 bg-surface-cream border border-border-strong text-xs text-charcoal-dark focus:outline-none focus:border-wine-deep"/>
+            </div>
+
+            <!-- Quick Filter Chips -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+              <button onclick="setFilter('all')" class="chip-filter active px-2.5 py-1 text-[11px] font-headline font-bold uppercase shrink-0 bg-wine-deep text-white">All (5)</button>
+              <button onclick="setFilter('p1')" class="chip-filter px-2.5 py-1 text-[11px] font-headline font-bold uppercase shrink-0 bg-surface-cream text-[#BA1A1A] border border-border-subtle">Critical P1</button>
+              <button onclick="setFilter('recurrence')" class="chip-filter px-2.5 py-1 text-[11px] font-headline font-bold uppercase shrink-0 bg-surface-cream text-rust-terracotta border border-border-subtle">Post-Work Defect</button>
+              <button onclick="setFilter('gap')" class="chip-filter px-2.5 py-1 text-[11px] font-headline font-bold uppercase shrink-0 bg-surface-cream text-charcoal-dark border border-border-subtle">Visibility Gap</button>
+            </div>
+
+            <!-- Issues List -->
+            <div id="issues-list-container" class="space-y-3 max-h-[600px] overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PILLAR 2: FIELD DISPATCH & VERIFICATION -->
+    <!-- ========================================================================= -->
+    <div id="view-field-dispatch" class="hidden flex-col gap-6 max-w-7xl mx-auto">
+      <section class="bg-white border border-border-subtle p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 bg-wine-deep"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-wine-deep font-headline">
+              Pillar 2 • Municipal Field Operations & Governance
+            </span>
+            <span class="bg-surface-cream text-[#544344] text-[10px] font-bold px-2 py-0.5 border border-border-subtle font-headline uppercase">
+              Confirm-Before-Dispatch Protocol
+            </span>
+          </div>
+          <h1 class="text-2xl font-black font-headline text-charcoal-dark tracking-tight">
+            Field Dispatch & Verification Hub
+          </h1>
+          <p class="text-xs text-[#544344] mt-0.5">
+            Strict human-in-the-loop governance gating municipal squad truck rollout, GPS telemetry lock,
+            and materials verification before dispatching field crews.
+          </p>
+        </div>
+
+        <div class="bg-surface-cream border border-border-subtle p-3 flex flex-col gap-1 min-w-[280px]">
+          <div class="flex items-center justify-between text-[11px] font-bold font-headline uppercase">
+            <span class="text-wine-deep">Step 2 of 3</span>
+            <span class="text-rust-terracotta">Photo & Materials Verification</span>
+          </div>
+          <div class="w-full flex items-center gap-1 mt-1">
+            <div class="h-1.5 flex-1 bg-gold-ochre"></div>
+            <div class="h-1.5 flex-1 bg-rust-terracotta"></div>
+            <div class="h-1.5 flex-1 bg-border-subtle"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Governance Gate & Fleet Selector -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+          <div class="bg-white border-2 border-rust-terracotta p-5 shadow-xs flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+              <span class="font-headline font-black text-sm uppercase text-wine-deep tracking-wide flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-rust-terracotta text-[18px]">verified_user</span>
+                <span>Confirm-Before-Dispatch Authorization</span>
+              </span>
+              <span class="text-[10px] font-bold bg-surface-cream px-2 py-0.5 border border-border-subtle uppercase font-headline">Gate Lock</span>
+            </div>
+
+            <div class="text-xs text-[#544344] leading-relaxed bg-surface-cream p-3 border border-border-subtle">
+              To prevent wasteful fuel burns and duplicate truck dispatches, human officer must confirm that
+              evidence cluster <strong id="dispatch-target-id">#CF-1042</strong> has valid spatial telemetry before authorising squad departure.
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label for="dispatch-squad-select" class="text-[11px] font-bold text-[#544344] uppercase font-headline">Select Municipal Squad Unit:</label>
+              <select id="dispatch-squad-select" onchange="handleSquadChange(this.value)" class="bg-surface-cream border border-border-strong text-xs font-semibold p-2 focus:outline-none focus:border-wine-deep cursor-pointer">
+                <option value="squad-alpha-4">Squad Alpha-4 (Rapid Water & Hydraulics) • ETA 12m (Available)</option>
+                <option value="squad-unit-b2">Unit B-2 (Civil Works & Road Surface) • ETA 24m (On Site)</option>
+                <option value="squad-rr-07">Rapid Response Squad #07 (Drainage & Silt) • ETA 18m (Available)</option>
+              </select>
+            </div>
+
+            <div id="dispatch-squad-specs" class="bg-surface-canvas p-3 text-xs flex flex-col gap-1.5"></div>
+
+            <div id="dispatch-action-box"></div>
+          </div>
+        </div>
+
+        <!-- Right: Camera Viewfinder Stream & Materials Checklist -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+          <div class="bg-white border border-border-subtle p-5 shadow-xs flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-border-subtle pb-2">
+              <span class="font-headline font-bold text-xs uppercase text-wine-deep tracking-wider flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px]">compare</span>
+                <span>Field Evidence Comparison & Capture Viewport</span>
+              </span>
+              <span class="text-[11px] font-mono text-[#544344]">Dual-Stream Sync</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Citizen Before -->
+              <div class="bg-surface-cream border border-border-subtle p-3 flex flex-col gap-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-headline font-bold text-[10px] bg-wine-deep text-white px-2 py-0.5 uppercase">1. Citizen Evidence (Before)</span>
+                  <span class="text-[11px] text-[#544344]">07:18 AM Today</span>
+                </div>
+                <div class="relative w-full h-48 bg-black overflow-hidden flex items-center justify-center">
+                  <img id="dispatch-before-img" src="" alt="Citizen grievance evidence" class="w-full h-full object-cover"/>
+                  <div class="absolute bottom-2 left-2 bg-black/80 text-white text-[10px] font-mono px-2 py-1">ORIGIN REPORT</div>
+                </div>
+                <p id="dispatch-before-quote" class="text-[11px] text-[#544344] italic"></p>
+              </div>
+
+              <!-- Viewfinder After -->
+              <div class="bg-surface-cream border border-rust-terracotta p-3 flex flex-col gap-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-headline font-bold text-[10px] bg-rust-terracotta text-white px-2 py-0.5 uppercase">2. Resolution Viewport (After)</span>
+                  <div class="flex items-center gap-1 bg-white px-1.5 py-0.5 border border-border-subtle">
+                    <span class="w-2 h-2 bg-status-verified animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-status-verified font-headline uppercase">GPS Lock Active</span>
+                  </div>
+                </div>
+
+                <div class="relative w-full h-48 bg-charcoal-dark overflow-hidden flex flex-col justify-between p-2">
+                  <img id="dispatch-after-img" src="" alt="Viewfinder resolution proof" class="absolute inset-0 w-full h-full object-cover opacity-90"/>
+                  <div class="relative z-10 flex items-center justify-between text-[10px] text-white font-mono bg-black/75 px-2 py-0.5">
+                    <span id="dispatch-coords-hud">18.5089° N, 73.8052° E</span>
+                    <span class="text-status-verified font-bold">Accuracy: ±1.8m</span>
+                  </div>
+                  <!-- Reticle -->
+                  <div class="relative z-10 pointer-events-none self-center my-auto flex items-center justify-center">
+                    <div class="w-14 h-14 relative reticle-pulse">
+                      <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-gold-bright"></div>
+                      <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-gold-bright"></div>
+                      <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-gold-bright"></div>
+                      <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-gold-bright"></div>
+                      <div class="absolute inset-0 flex items-center justify-center text-gold-bright text-[10px] font-mono">+</div>
+                    </div>
+                  </div>
+                  <div class="relative z-10 flex items-center justify-between text-[10px] text-white font-mono bg-black/75 px-2 py-0.5">
+                    <span>Optical Parallax: LOCKED</span>
+                    <span class="text-gold-bright">Confidence: 99.4%</span>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-status-verified font-semibold flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[14px]">verified</span>
+                  <span>Dual GeoTag match verified against citizen origin coordinate.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Materials Checklist -->
+            <div class="bg-surface-cream border border-border-subtle p-4 flex flex-col gap-2 mt-2">
+              <span class="font-headline font-bold text-xs uppercase text-wine-deep tracking-wider">
+                Materials & Replacement Checklist Verification
+              </span>
+              <div id="materials-checklist-box" class="space-y-1.5 mt-1"></div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-border-subtle">
+              <span class="text-xs text-[#544344]">Send verified evidence to the Reviewer Console for final sign-off.</span>
+              <button onclick="switchTab('reviewer-console')" class="px-5 py-2.5 bg-wine-deep hover:bg-rust-terracotta text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-colors">
+                <span>Advance to Reviewer Console</span>
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PILLAR 3: REVIEWER / VIGILANCE CONSOLE (Work -> Outcome Check) -->
+    <!-- ========================================================================= -->
+    <div id="view-reviewer-console" class="hidden flex-col gap-6 max-w-7xl mx-auto">
+      <section class="bg-white border border-border-subtle p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="w-2.5 h-2.5 bg-status-critical"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-wine-deep font-headline">
+              Pillar 3 • Municipal Vigilance & Quality Assurance
+            </span>
+            <span class="text-[10px] font-bold bg-surface-cream text-[#544344] px-2 py-0.5 border border-border-subtle uppercase font-headline">
+              Stage 03 Verification
+            </span>
+          </div>
+          <h1 class="text-2xl font-black font-headline text-charcoal-dark tracking-tight">
+            Reviewer & Vigilance Console
+          </h1>
+          <p class="text-xs text-[#544344] mt-1 max-w-2xl">
+            Independent institutional review performing multi-modal photographic before/after audits,
+            verifying dual GeoTag locks, and connecting complaint clusters directly to public works tenders and contractor liability.
+          </p>
+        </div>
+
+        <div id="vigilance-toast" class="hidden bg-[#D1E7DD] border border-[#A3CFBB] text-[#0F5132] p-3 text-xs font-bold font-headline flex items-center gap-2 shadow-sm">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          <span id="vigilance-toast-text"></span>
+        </div>
+      </section>
+
+      <!-- Active Case Header Context -->
+      <div id="vigilance-case-header" class="bg-white border border-border-subtle p-6 shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-6"></div>
+
+      <!-- WORK -> OUTCOME CHECK (THE KILLER FEATURE) -->
+      <section id="vigilance-work-section" class="p-6 border-2 shadow-xs transition-all bg-[#FFF8F7] border-status-critical">
+        <div class="flex items-center justify-between border-b border-border-subtle pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-status-critical text-[22px]">account_tree</span>
+            <h3 class="text-base font-black font-headline text-charcoal-dark uppercase tracking-wide">
+              Work → Outcome Verification (The Killer Feature)
+            </h3>
+          </div>
+          <button onclick="openEvidenceModal(selectedIssueId)" class="px-3 py-1 bg-wine-deep text-white text-xs font-bold font-headline uppercase hover:bg-rust-terracotta flex items-center gap-1">
+            <span>Expand Evidence Chain</span>
+            <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+          </button>
+        </div>
+
+        <!-- Post-Completion Recurrence Alert -->
+        <div id="vigilance-recurrence-banner" class="bg-[#FFDAD6] border-l-4 border-status-critical p-4 text-[#93000A] flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-[24px] text-status-critical shrink-0 mt-0.5">warning</span>
+            <div>
+              <div class="font-headline font-black text-sm uppercase">
+                ⚠️ Post-Completion Recurrence — Verification Recommended
+              </div>
+              <p id="vigilance-recurrence-msg" class="text-xs text-[#544344] mt-0.5"></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="triggerContractorDefectNotice(selectedIssueId)" class="px-4 py-2 bg-status-critical hover:bg-rust-burnt text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+              <span class="material-symbols-outlined text-[16px]">gavel</span>
+              <span>Flag Contractor Defect Notice</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Connected Tender & Contractor Matrix -->
+        <div id="vigilance-work-matrix" class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white border border-border-subtle p-4 text-xs"></div>
+      </section>
+
+      <!-- DUAL BEFORE/AFTER SPLIT SLIDER STUDIO -->
+      <section class="bg-white border border-border-subtle p-6 shadow-xs flex flex-col gap-6">
+        <div class="flex items-center justify-between border-b border-border-subtle pb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-wine-deep text-[20px]">photo_camera_front</span>
+            <h3 class="text-sm font-bold font-headline text-charcoal-dark uppercase tracking-wide">
+              Dual Before-and-After Forensic Resolution Audit
+            </h3>
+          </div>
+          <span class="text-xs text-[#544344]">Drag slider or hover to compare repair quality</span>
+        </div>
+
+        <!-- Split Slider Container -->
+        <div class="relative w-full h-[400px] bg-black overflow-hidden select-none border border-border-subtle">
+          <!-- After Image -->
+          <img id="slider-after-img" src="" alt="After proof" class="absolute inset-0 w-full h-full object-cover"/>
+          <div class="absolute top-4 right-4 bg-black/80 text-white px-3 py-1 font-headline text-xs font-bold uppercase tracking-wider z-10">
+            ✓ Squad Resolution (After)
+          </div>
+
+          <!-- Clipped Before Image -->
+          <div id="slider-before-wrap" class="absolute inset-0 overflow-hidden" style="width: 50%;">
+            <img id="slider-before-img" src="" alt="Before proof" class="absolute inset-0 w-full h-full object-cover max-w-none" style="width: 100%; min-width: 100%;"/>
+            <div class="absolute top-4 left-4 bg-status-critical text-white px-3 py-1 font-headline text-xs font-bold uppercase tracking-wider z-10">
+              Citizen Grievance (Before)
+            </div>
+          </div>
+
+          <!-- Divider Handle -->
+          <div id="slider-divider" class="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20 flex items-center justify-center shadow-lg" style="left: 50%;">
+            <div class="w-8 h-8 bg-white border border-wine-deep text-wine-deep flex items-center justify-center font-bold text-xs shadow-md">
+              ↔
+            </div>
+          </div>
+
+          <!-- Range Input Slider -->
+          <input type="range" min="0" max="100" value="50" oninput="updateSplitSlider(this.value)" class="absolute inset-0 opacity-0 cursor-ew-resize z-30 w-full h-full" aria-label="Before and after split slider"/>
+
+          <!-- Dual GPS Overlay -->
+          <div class="absolute bottom-4 left-4 z-20 bg-black/80 backdrop-blur-xs text-white px-3 py-1.5 text-xs font-mono flex items-center gap-3">
+            <span id="slider-gps-coords">Coordinates: 18.5089° N, 73.8052° E</span>
+            <span class="text-status-verified font-bold">Dual-Lock: 99.4%</span>
+            <span class="text-gold-bright">Parallax: PASSED</span>
+          </div>
+        </div>
+
+        <!-- Human-in-the-Loop Sign-off Form -->
+        <div class="bg-surface-cream border border-border-subtle p-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <span class="font-headline font-bold text-xs uppercase text-charcoal-dark tracking-wider">
+              Chief Vigilance Officer Final Sign-off & Legal Closure
+            </span>
+            <span class="text-[11px] text-[#544344]">Mandatory digital verification prior to citizen closure SMS</span>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="vigilance-comments" class="text-[11px] font-bold text-[#544344] uppercase font-headline">
+              Official Quality Review Comments & Material Compliance:
+            </label>
+            <textarea id="vigilance-comments" rows="2" class="bg-white border border-border-strong p-2.5 text-xs text-charcoal-dark focus:outline-none focus:border-wine-deep">Dual geotag coordinates match origin point within 1.8m. Physical repair certified to PMC engineering standards.</textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
+            <button onclick="handleResolutionAction('Rejected')" class="px-4 py-2 bg-white border border-border-strong text-xs font-headline font-bold uppercase text-status-critical hover:bg-[#FFDAD6]">
+              Reject (Inadequate Repair)
+            </button>
+            <button onclick="handleResolutionAction('Flagged Defect')" class="px-4 py-2 bg-[#FFDAD6] border border-status-critical text-xs font-headline font-bold uppercase text-status-critical hover:bg-status-critical hover:text-white transition-colors">
+              Withhold Contractor Deposit
+            </button>
+            <button onclick="handleResolutionAction('Approved')" class="px-6 py-2 bg-status-verified hover:bg-[#204E3A] text-white text-xs font-headline font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xs transition-colors">
+              <span class="material-symbols-outlined text-[16px]">verified</span>
+              <span>Approve & Mark Case Legally Resolved</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODALS: CLUSTER DETAIL, PRIORITY FORMULA, EVIDENCE CHAIN -->
+  <!-- ========================================================================= -->
+  <div id="modal-container" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="modal-content" class="bg-surface-cream border border-border-subtle shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-border-subtle py-4 px-6 text-xs text-[#544344] mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="font-headline font-black text-sm text-wine-deep">CivicFix Sentinel</span>
+        <span>• Pune Municipal Corporation Operational Intelligence Platform</span>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] font-mono">
+        <span>Secure Node: PMC-GRID-NODE-02</span>
+        <span>Telemetry Latency: 18ms</span>
+        <span class="text-status-verified font-bold">ALL SENSORS ONLINE</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CORE MUNICIPAL INTELLIGENCE SCRIPT -->
+  <script>
+    // Authentic photo assets from Stitch references
+    const PHOTO_WATER = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZh1ARAP6h6eNC5oMDaTa9xAZzfh-tB3jQtY-ICKMcdObn7FjB3U90Pno6h6VQ-HEmjCFzuvr9uLBfb1McrdeMjVxSmWAZjiMfN9vhDLsqBca3YZj5_F_4YPYIzixT30StWnZILH6SGPuiJT6WefiQQIgI2hDKxcXhooXxIYD0TJb6pXLcqwsi8atjoV9bf4BxeTs2LKJJbq8OgeeZu4l9EoegNGNdjSJxjk3pEnLaRi4qhmkMEXY1';
+    const PHOTO_POTHOLE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyJbjYf__QxBSq_MxvHU87mtEC5UTPZfV9GDENWKtYnidwE5Gr6pp13xt7MG1yHWnCvWjIqrEdK-FZgYM2Xq601o0GiUcLgwbM1Oqcx3F1Vtw5j0sejIE25L1kp6OACKkxgHONDUvY0I6t2FtiGSqVdTubBRWKNBJmlBlEpYd2bykpkPMQm-BW2LDFn65lHx2dbn8wZTrMTMaFKS_IvjfvqPrDBk7SxxBTtZsczu2wmL5uNySOTsgL';
+    const PHOTO_DRAIN_BEFORE = 'https://lh3.googleusercontent.com/aida-public/AB6AXuArOiMj54MiQLXpESyrItof07KOLqqeif6px3NfV-_TH4jxkClZKO_3QS8f8cjwSDglPktNt5YohJM-wmCKiNdfwLnVvbit1euiCBxo4vLsSj6Hoixz_BK-xVhNrNQXUYGmussO_k74wUdFIATJ6Ju7fHzppB4YhDeMWS8ZvkhlsAZievuvAAuWmvo249jp9jCMTPV1gjVQAIvC86OpM4rLfdNOVo5KXdj0mlawOMZyFIRMBuh07Q53';
+    const PHOTO_DRAIN_AFTER = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAIia5bIIRLK9D1C0ika6iLxpa_6SbsStivsLO42UrNuoeu2LLxvLM7fJHBdDx3qODo-94PfNP9JroC_MUvl4lx1hVp8o3feqrE9JLod3X2nkForQYTVFZhqf6EvN-DytW1ouLVspaDmga0l27ot4Eyw3iDEjU_Yn0HFwZM0ETu3kcdNAW5Jcm8QlyIIcR-_mRCL-KMmu1LIIdYoJajaHK7mZL_6XYl7735UiMnO7IXZIwyjq_oNIVE';
+
+    // State
+    let currentTab = 'ward-dashboard';
+    let selectedIssueId = 'CF-1042';
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const issues = [
+      {
+        id: 'CF-1042',
+        pmcTicketNumber: 'PMC-2024-8841',
+        title: 'High-Pressure Water Main Rupture & Curb Flooding',
+        category: 'water_supply',
+        categoryLabel: 'Water Mains / Burst Conduit',
+        wardId: 14,
+        wardName: 'Ward 14 (Kothrud)',
+        sector: 'Sector 14-A',
+        landmark: 'Paud Road, near Kinara Hotel',
+        coordinates: [18.5089, 73.8052],
+        mapCx: 280, mapCy: 240,
+        clusteredReportsCount: 14,
+        clusterRadiusMeters: 85,
+        priority: {
+          score: 92,
+          tier: 'P1 Critical',
+          slaHours: 2.75,
+          factors: {
+            recurrence: { points: 25, label: 'Recurrence Factor', reason: '3rd pressurized joint failure on conduit in 60 days' },
+            safetyRisk: { points: 24, label: 'Safety / Subsurface Undermining', reason: 'High-pressure wash undermining sub-base under transit lane' },
+            majorRoad: { points: 23, label: 'Arterial Corridor Classification', reason: 'Paud Road Corridor 4 (High-density public bus route)' },
+            publicExposure: { points: 20, label: 'Public Exposure & Grievance', reason: 'Impacts 18,000+ direct residents & morning peak commute' }
+          }
+        },
+        isVisibilityGap: false,
+        linkedWork: {
+          scheme: 'AMRUT 2.0 / PMC Smart City',
+          projectName: '24x7 Water Supply Distribution Pipeline Upgradation (Package 4A - Paud Corridor)',
+          tenderNumber: 'PMC/WTR/2023/88',
+          contractorName: 'Navnirman Infra & Hydro Ltd',
+          sanctionedBudget: '₹1.42 Crores',
+          completedDate: '18 Nov 2023',
+          warrantyEndDate: '17 Nov 2025',
+          contractorContact: 'Er. R. Singhania (+91 99210 44102)',
+          defectPenaltyClauses: 'Clause 14.2: Contractor strictly liable for 100% emergency repair costs and ₹50,000/day civil penalty for pressurized distribution bursts occurring within 24-month DLP.'
+        },
+        isPostCompletionRecurrence: true,
+        recurrenceLatencyDays: 78,
+        dispatched: false,
+        assignedSquad: 'Squad Alpha-4 (Rapid Water & Hydraulics)',
+        beforePhoto: PHOTO_WATER,
+        afterPhoto: PHOTO_DRAIN_AFTER,
+        materials: [
+          { item: '600mm High-Pressure Ductile Iron Pipe Sleeve', qty: '1 Unit', checked: true },
+          { item: 'Cold Rubber Flange Joint Gasket (EPDM)', qty: '2 Sets', checked: true },
+          { item: 'Asphalt Trench Cold Mix (40kg bags)', qty: '6 Bags', checked: false }
+        ]
+      },
+      {
+        id: 'CF-1039',
+        pmcTicketNumber: 'PMC-2024-8839',
+        title: 'Exposed Deep Trench Pothole on Flyover Curved Ramp',
+        category: 'pothole_road',
+        categoryLabel: 'Road Works / Deep Trench',
+        wardId: 14,
+        wardName: 'Ward 14 (Kothrud)',
+        sector: 'Sector 14-B',
+        landmark: 'Paud Phata Flyover Incline Ramp',
+        coordinates: [18.5132, 73.8214],
+        mapCx: 460, mapCy: 210,
+        clusteredReportsCount: 8,
+        clusterRadiusMeters: 40,
+        priority: {
+          score: 87,
+          tier: 'P1 Critical',
+          slaHours: 3.15,
+          factors: {
+            recurrence: { points: 25, label: 'Recurrence Factor', reason: 'Previous patch failed prematurely under heavy bus axle loads' },
+            safetyRisk: { points: 20, label: 'Safety Risk', reason: 'High risk of two-wheeler skid on curved grade incline' },
+            majorRoad: { points: 18, label: 'Major Road', reason: 'Main bypass linking Western bypass to city center' },
+            publicExposure: { points: 14, label: 'Public Exposure', reason: '22,000+ daily vehicular trips on this flyover slipway' }
+          }
+        },
+        isVisibilityGap: false,
+        linkedWork: {
+          scheme: 'MPLADS / PMC PWD Road Repair',
+          projectName: 'Paud Phata Flyover Asphalt Resurfacing & Mastic Wearing Coat',
+          tenderNumber: 'PMC/PWD/2023/118',
+          contractorName: 'Shree Sai Infratech Ltd',
+          sanctionedBudget: '₹48.50 Lakhs',
+          completedDate: '12 Dec 2023',
+          warrantyEndDate: '11 Dec 2024',
+          contractorContact: 'Mr. Vivek Patil (+91 98900 12891)',
+          defectPenaltyClauses: 'Clause 9.4: Contractor warrants bituminous compaction against raveling and pothole formation for 12 months. Defects shall be rectified within 48h at contractor cost.'
+        },
+        isPostCompletionRecurrence: true,
+        recurrenceLatencyDays: 65,
+        dispatched: false,
+        assignedSquad: 'Unit B-2 (Civil Works & Road Surface)',
+        beforePhoto: PHOTO_POTHOLE,
+        afterPhoto: PHOTO_DRAIN_AFTER,
+        materials: [
+          { item: 'Hot Premix Bituminous Mastic (grade VG-30)', qty: '80 kg', checked: false },
+          { item: 'Bitumen Tack Coat Emulsion', qty: '10 Liters', checked: true },
+          { item: 'High-visibility Hazard Cones', qty: '4 Nos', checked: true }
+        ]
+      },
+      {
+        id: 'CF-1055',
+        pmcTicketNumber: 'PMC-2024-8812',
+        title: 'Underground Storm Drain Clearance & Grate Re-seating',
+        category: 'drainage_sewage',
+        categoryLabel: 'Drainage / Storm Sewer',
+        wardId: 8,
+        wardName: 'Ward 08 (Aundh-Baner)',
+        sector: 'Baner Corridor',
+        landmark: 'Mayur Colony Main Road, near D-Mart Lane',
+        coordinates: [18.5583, 73.7938],
+        mapCx: 620, mapCy: 160,
+        clusteredReportsCount: 5,
+        clusterRadiusMeters: 30,
+        priority: {
+          score: 74,
+          tier: 'P2 Urgent',
+          slaHours: 4.0,
+          factors: {
+            recurrence: { points: 18, label: 'Recurrence Factor', reason: 'Seasonal silt buildup before monsoon' },
+            safetyRisk: { points: 22, label: 'Safety Risk', reason: 'Backflow flooding onto pedestrian walkway' },
+            majorRoad: { points: 16, label: 'Major Road', reason: 'Secondary municipal connector road' },
+            publicExposure: { points: 18, label: 'Public Exposure', reason: 'Commercial shopfronts affected' }
+          }
+        },
+        isVisibilityGap: false,
+        linkedWork: null,
+        isPostCompletionRecurrence: false,
+        dispatched: true,
+        assignedSquad: 'Unit B-2 (Civil Works & Road Surface)',
+        beforePhoto: PHOTO_DRAIN_BEFORE,
+        afterPhoto: PHOTO_DRAIN_AFTER,
+        materials: [
+          { item: '600mm Heavy-Duty Concrete Cast Iron Grate', qty: '1 Unit', checked: true },
+          { item: 'Hydraulic De-silting Extraction Scoop', qty: '1 Unit', checked: true },
+          { item: 'Bio-enzymatic Drain Clearer Concentrate', qty: '5 Liters', checked: true }
+        ]
+      },
+      {
+        id: 'CF-1070',
+        pmcTicketNumber: 'PMC-2024-8890',
+        title: 'Civic Visibility Gap: Stormwater Siltation & Broken Kerb',
+        category: 'drainage_sewage',
+        categoryLabel: 'Infrastructure Deficit (Low Complaint Volume vs High Need)',
+        wardId: 14,
+        wardName: 'Ward 14 (Kothrud)',
+        sector: 'Sector 14-D (Bavdhan Lowline Basti)',
+        landmark: 'Bavdhan Lowline Drainage Channel culvert',
+        coordinates: [18.5011, 73.7845],
+        mapCx: 190, mapCy: 410,
+        clusteredReportsCount: 1,
+        clusterRadiusMeters: 120,
+        priority: {
+          score: 79,
+          tier: 'P2 Urgent',
+          slaHours: 6.0,
+          factors: {
+            recurrence: { points: 15, label: 'Recurrence Factor', reason: 'Historical pre-monsoon chronic inundation zone' },
+            safetyRisk: { points: 26, label: 'Safety Risk', reason: 'High vector disease vulnerability (Malaria cluster zone)' },
+            majorRoad: { points: 18, label: 'Culvert Impact', reason: 'Single access road for 3,400 settlement residents' },
+            publicExposure: { points: 20, label: 'Vulnerability Index', reason: 'Low smartphone reporting density vs extreme physical decay' }
+          }
+        },
+        isVisibilityGap: true,
+        linkedWork: null,
+        isPostCompletionRecurrence: false,
+        dispatched: false,
+        assignedSquad: 'Rapid Response Squad #07 (Drainage & Silt)',
+        beforePhoto: PHOTO_DRAIN_BEFORE,
+        afterPhoto: PHOTO_DRAIN_AFTER,
+        materials: [
+          { item: 'Silt Vacuum Truck Extraction Kit', qty: '1 Unit', checked: false },
+          { item: 'Pre-cast Concrete Kerbstone replacement', qty: '8 Units', checked: false }
+        ]
+      },
+      {
+        id: 'CF-1028',
+        pmcTicketNumber: 'PMC-2024-8798',
+        title: 'High-Mast Streetlight Junction Relay Burnout',
+        category: 'streetlight',
+        categoryLabel: 'Streetlight & Electrical Grid',
+        wardId: 21,
+        wardName: 'Ward 21 (Shivajinagar)',
+        sector: 'FC Road Junction',
+        landmark: 'Fergusson College Road & Goodluck Cafe Chowk',
+        coordinates: [18.5204, 73.8421],
+        mapCx: 560, mapCy: 360,
+        clusteredReportsCount: 6,
+        clusterRadiusMeters: 60,
+        priority: {
+          score: 68,
+          tier: 'P2 Urgent',
+          slaHours: 5.0,
+          factors: {
+            recurrence: { points: 14, label: 'Recurrence', reason: 'Repeated voltage surge trips' },
+            safetyRisk: { points: 22, label: 'Night Pedestrian Safety', reason: 'High footfall student district with multiple blind pedestrian crossings' },
+            majorRoad: { points: 18, label: 'FC Road Arterial', reason: 'Major central Pune high street' },
+            publicExposure: { points: 14, label: 'Public Exposure', reason: 'Busy commercial eatery hub' }
+          }
+        },
+        isVisibilityGap: false,
+        linkedWork: {
+          scheme: 'Municipal Ward Fund',
+          projectName: 'Shivajinagar High-Mast LED Conversion & Smart Junction Lighting',
+          tenderNumber: 'PMC/ELEC/2023/45',
+          contractorName: 'Prabhat Electricals & Power Systems',
+          sanctionedBudget: '₹22.40 Lakhs',
+          completedDate: '30 Jul 2023',
+          warrantyEndDate: '29 Jul 2026',
+          contractorContact: 'Mr. S. Kulkarni (+91 98224 88190)',
+          defectPenaltyClauses: 'Clause 6.1: 3-Year comprehensive warranty on LED drivers and contactor relays.'
+        },
+        isPostCompletionRecurrence: true,
+        recurrenceLatencyDays: 230,
+        dispatched: false,
+        assignedSquad: 'Rapid Response Squad #07 (Drainage & Silt)',
+        beforePhoto: PHOTO_POTHOLE,
+        afterPhoto: PHOTO_DRAIN_AFTER,
+        materials: [
+          { item: '63A 4-Pole Contactor Switch Unit', qty: '1 Unit', checked: false },
+          { item: '10kA Surge Protection Device (SPD)', qty: '1 Unit', checked: true }
+        ]
+      }
+    ];
+
+    // Navigation Switcher
+    function switchTab(tabId) {
+      currentTab = tabId;
+      ['ward-dashboard', 'field-dispatch', 'reviewer-console'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        document.getElementById(`view-${t}`).classList.remove('flex');
+      });
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      document.getElementById(`view-${tabId}`).classList.add('flex');
+
+      // Update Nav Buttons
+      ['ward', 'dispatch', 'vigilance'].forEach(n => {
+        const btn = document.getElementById(`nav-btn-${n}`);
+        btn.classList.remove('bg-wine-deep', 'text-white', 'shadow-xs');
+        btn.classList.add('text-charcoal-body');
+      });
+      if (tabId === 'ward-dashboard') {
+        const b = document.getElementById('nav-btn-ward');
+        b.classList.add('bg-wine-deep', 'text-white', 'shadow-xs');
+        b.classList.remove('text-charcoal-body');
+      } else if (tabId === 'field-dispatch') {
+        const b = document.getElementById('nav-btn-dispatch');
+        b.classList.add('bg-wine-deep', 'text-white', 'shadow-xs');
+        b.classList.remove('text-charcoal-body');
+        renderDispatchView();
+      } else if (tabId === 'reviewer-console') {
+        const b = document.getElementById('nav-btn-vigilance');
+        b.classList.add('bg-wine-deep', 'text-white', 'shadow-xs');
+        b.classList.remove('text-charcoal-body');
+        renderVigilanceView();
+      }
+    }
+
+    // Select Issue
+    function selectIssue(id) {
+      selectedIssueId = id;
+      renderMapPins();
+      renderSelectedDock();
+      renderIssuesList();
+      if (currentTab === 'field-dispatch') renderDispatchView();
+      if (currentTab === 'reviewer-console') renderVigilanceView();
+    }
+
+    // Render Map Pins
+    function renderMapPins() {
+      const container = document.getElementById('map-pins-container');
+      container.innerHTML = '';
+
+      issues.forEach(iss => {
+        const isSel = iss.id === selectedIssueId;
+        const isP1 = iss.priority.tier === 'P1 Critical';
+        const isGap = iss.isVisibilityGap;
+        const color = isP1 ? '#BA1A1A' : isGap ? '#EAAA0F' : '#4A1525';
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'cursor-pointer transition-transform hover:scale-110');
+        g.onclick = () => selectIssue(iss.id);
+
+        // Clustered circle
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', iss.mapCx);
+        circle.setAttribute('cy', iss.mapCy);
+        circle.setAttribute('r', isSel ? 36 : 24);
+        circle.setAttribute('fill', color);
+        circle.setAttribute('fill-opacity', isSel ? '0.25' : '0.12');
+        circle.setAttribute('stroke', color);
+        circle.setAttribute('stroke-width', isSel ? '2' : '1');
+        circle.setAttribute('stroke-dasharray', isSel ? '4 2' : 'none');
+        g.appendChild(circle);
+
+        // Pin Box
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', iss.mapCx - 16);
+        rect.setAttribute('y', iss.mapCy - 24);
+        rect.setAttribute('width', 32);
+        rect.setAttribute('height', 24);
+        rect.setAttribute('fill', color);
+        rect.setAttribute('stroke', '#FFFFFF');
+        rect.setAttribute('stroke-width', '2');
+        g.appendChild(rect);
+
+        // Count Text
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', iss.mapCx);
+        text.setAttribute('y', iss.mapCy - 8);
+        text.setAttribute('fill', isGap ? '#1B1B1B' : '#FFFFFF');
+        text.setAttribute('font-family', 'Chivo');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('font-weight', '800');
+        text.setAttribute('text-anchor', 'middle');
+        text.textContent = iss.clusteredReportsCount;
+        g.appendChild(text);
+
+        // Label Tag
+        const tagRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        tagRect.setAttribute('x', iss.mapCx - 40);
+        tagRect.setAttribute('y', iss.mapCy + 4);
+        tagRect.setAttribute('width', 80);
+        tagRect.setAttribute('height', 16);
+        tagRect.setAttribute('fill', '#FFFFFF');
+        tagRect.setAttribute('stroke', isSel ? '#C74724' : '#C5B8A8');
+        tagRect.setAttribute('stroke-width', isSel ? '2' : '1');
+        g.appendChild(tagRect);
+
+        const tagText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        tagText.setAttribute('x', iss.mapCx);
+        tagText.setAttribute('y', iss.mapCy + 16);
+        tagText.setAttribute('fill', '#1B1B1B');
+        tagText.setAttribute('font-family', 'Chivo');
+        tagText.setAttribute('font-size', '9');
+        tagText.setAttribute('font-weight', '700');
+        tagText.setAttribute('text-anchor', 'middle');
+        tagText.textContent = `${iss.id} • ${iss.priority.score}/100`;
+        g.appendChild(tagText);
+
+        container.appendChild(g);
+      });
+    }
+
+    // Render Selected Dock
+    function renderSelectedDock() {
+      const iss = issues.find(i => i.id === selectedIssueId) || issues[0];
+      const dock = document.getElementById('selected-issue-dock');
+      const isP1 = iss.priority.tier === 'P1 Critical';
+
+      dock.innerHTML = `
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="font-headline font-bold text-xs bg-wine-deep text-white px-2 py-0.5 uppercase tracking-wider">
+              ${iss.id}
+            </span>
+            <span class="text-xs font-bold text-[#544344] font-mono">${iss.pmcTicketNumber}</span>
+            <span class="px-2 py-0.5 text-[11px] font-bold uppercase font-headline ${isP1 ? 'bg-[#BA1A1A] text-white' : 'bg-gold-ochre text-charcoal-dark'}">
+              ${iss.priority.tier} (${iss.priority.score}/100)
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="openPriorityModal('${iss.id}')" class="px-2.5 py-1 bg-surface-cream border border-border-strong text-[11px] font-headline font-bold uppercase hover:bg-surface-subtle">
+              Formula Breakdown
+            </button>
+            <button onclick="openClusterModal('${iss.id}')" class="px-2.5 py-1 bg-surface-cream border border-border-strong text-[11px] font-headline font-bold uppercase hover:bg-surface-subtle">
+              ${iss.clusteredReportsCount} Reports Grouped
+            </button>
+            ${iss.linkedWork ? `
+              <button onclick="openEvidenceModal('${iss.id}')" class="px-2.5 py-1 bg-wine-deep text-white text-[11px] font-headline font-bold uppercase hover:bg-rust-terracotta">
+                Evidence Chain
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <h3 class="font-headline font-bold text-base text-charcoal-dark">${iss.title}</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-[#544344] bg-surface-cream p-2 border border-border-subtle">
+          <div><span class="font-semibold block text-charcoal-dark">📍 Landmark:</span><span class="truncate block">${iss.landmark}</span></div>
+          <div><span class="font-semibold block text-charcoal-dark">⏱ Target SLA:</span><span>${iss.priority.slaHours} hours response</span></div>
+          <div><span class="font-semibold block text-charcoal-dark">🛠 Assigned Squad:</span><span class="truncate block">${iss.assignedSquad}</span></div>
+        </div>
+      `;
+    }
+
+    // Render Issues List Feed
+    function renderIssuesList() {
+      const container = document.getElementById('issues-list-container');
+      container.innerHTML = '';
+
+      const filtered = issues.filter(iss => {
+        if (currentFilter === 'p1' && iss.priority.tier !== 'P1 Critical') return false;
+        if (currentFilter === 'recurrence' && !iss.isPostCompletionRecurrence) return false;
+        if (currentFilter === 'gap' && !iss.isVisibilityGap) return false;
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const match = iss.id.toLowerCase().includes(q) || iss.title.toLowerCase().includes(q) || iss.landmark.toLowerCase().includes(q);
+          if (!match) return false;
+        }
+        return true;
+      });
+
+      filtered.forEach(iss => {
+        const isSel = iss.id === selectedIssueId;
+        const isP1 = iss.priority.tier === 'P1 Critical';
+
+        const article = document.createElement('article');
+        article.className = `p-4 border transition-all cursor-pointer relative ${isSel ? 'border-wine-deep bg-[#FFFDFB] shadow-sm' : 'border-border-subtle bg-white hover:border-border-strong'}`;
+        article.onclick = () => selectIssue(iss.id);
+
+        article.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-headline font-bold text-[11px] bg-wine-deep text-white px-2 py-0.5 uppercase tracking-wider">#${iss.id}</span>
+              <span class="font-headline font-bold text-[11px] px-2 py-0.5 uppercase tracking-wider ${isP1 ? 'bg-[#BA1A1A] text-white' : 'bg-gold-ochre text-charcoal-dark'}">
+                ${iss.priority.tier} • ${iss.priority.score}/100
+              </span>
+            </div>
+            <span class="text-[11px] font-bold text-rust-terracotta font-headline flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">timer</span>
+              <span>SLA ${iss.priority.slaHours}h</span>
+            </span>
+          </div>
+
+          <h3 class="font-headline font-bold text-sm text-charcoal-dark leading-tight">${iss.title}</h3>
+          <p class="text-xs text-[#544344] mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px] text-rust-terracotta">pin_drop</span>
+            <span class="truncate">${iss.landmark}</span>
+          </p>
+
+          <div class="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-border-subtle">
+            <span class="font-headline font-bold text-wine-deep bg-surface-canvas px-2 py-0.5 border border-border-subtle text-xs">
+              ${iss.clusteredReportsCount} citizen reports aggregated
+            </span>
+            ${iss.isPostCompletionRecurrence ? `
+              <span class="text-[10px] font-bold font-headline text-[#BA1A1A] bg-[#FFDAD6] px-1.5 py-0.5 uppercase">
+                ⚠️ Post-Work Defect
+              </span>
+            ` : ''}
+          </div>
+
+          <div class="flex items-center justify-between mt-3 pt-2 border-t border-border-subtle/60 text-xs">
+            <button onclick="event.stopPropagation(); openClusterModal('${iss.id}')" class="text-wine-deep hover:text-rust-terracotta font-headline font-bold uppercase text-[11px]">
+              Cluster Detail ›
+            </button>
+            <button onclick="event.stopPropagation(); openPriorityModal('${iss.id}')" class="text-[#544344] hover:text-charcoal-dark font-headline font-bold uppercase text-[11px]">
+              Explain Priority
+            </button>
+            <button onclick="event.stopPropagation(); selectIssue('${iss.id}'); switchTab('field-dispatch');" class="bg-wine-deep hover:bg-rust-terracotta text-white px-2 py-1 font-headline font-bold uppercase text-[10px]">
+              Dispatch
+            </button>
+          </div>
+        `;
+        container.appendChild(article);
+      });
+    }
+
+    // Filters & Search
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.chip-filter').forEach(c => {
+        c.className = 'chip-filter px-2.5 py-1 text-[11px] font-headline font-bold uppercase shrink-0 bg-surface-cream text-[#544344] border border-border-subtle';
+      });
+      event.target.className = 'chip-filter active px-2.5 py-1 text-[11px] font-headline font-bold uppercase shrink-0 bg-wine-deep text-white';
+      renderIssuesList();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val;
+      renderIssuesList();
+    }
+
+    function filterByWard(ward) {
+      // In this demo Ward 14 has the majority of incidents
+      renderIssuesList();
+    }
+
+    // Deploy Proactive Patrol Action
+    function deployProactivePatrol(id) {
+      const iss = issues.find(i => i.id === id);
+      if (iss) {
+        iss.dispatched = true;
+        alert(`PROACTIVE PATROL DISPATCHED:\nSquad Unit deployed to ${iss.sector} under the Civic Visibility Gap proactive protocol.`);
+        renderIssuesList();
+        renderSelectedDock();
+      }
+    }
+
+    // Render Field Dispatch View
+    function renderDispatchView() {
+      const iss = issues.find(i => i.id === selectedIssueId) || issues[0];
+      document.getElementById('dispatch-target-id').textContent = `#${iss.id}`;
+      document.getElementById('dispatch-before-img').src = iss.beforePhoto;
+      document.getElementById('dispatch-after-img').src = iss.afterPhoto;
+      document.getElementById('dispatch-before-quote').textContent = `"${iss.title} at ${iss.landmark}."`;
+      document.getElementById('dispatch-coords-hud').textContent = `${iss.coordinates[0].toFixed(4)}° N, ${iss.coordinates[1].toFixed(4)}° E`;
+
+      // Squad specs
+      const specBox = document.getElementById('dispatch-squad-specs');
+      specBox.innerHTML = `
+        <div class="flex justify-between"><span class="text-[#544344]">Assigned Fleet:</span><span class="font-bold">${iss.assignedSquad}</span></div>
+        <div class="flex justify-between"><span class="text-[#544344]">Vehicle Plate:</span><span class="font-mono">MH-12-PMC-4401 (E-Utility)</span></div>
+        <div class="flex justify-between"><span class="text-[#544344]">Lead Officer:</span><span class="font-semibold text-wine-deep">Inspector S. Shinde (PMC-408)</span></div>
+      `;
+
+      // Dispatch action button
+      const actBox = document.getElementById('dispatch-action-box');
+      if (iss.dispatched) {
+        actBox.innerHTML = `
+          <div class="bg-[#D1E7DD] border border-[#A3CFBB] text-[#0F5132] p-3 text-xs font-bold font-headline flex items-center justify-between">
+            <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">local_shipping</span><span>DISPATCH AUTHORIZED & ROLLING</span></div>
+            <span class="text-[10px] uppercase font-mono">By A. Kulkarni</span>
+          </div>
+        `;
+      } else {
+        actBox.innerHTML = `
+          <button onclick="confirmSquadDispatch('${iss.id}')" class="w-full py-3 bg-wine-deep hover:bg-rust-terracotta text-white font-headline text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition-colors">
+            <span class="material-symbols-outlined text-[18px]">verified</span>
+            <span>Confirm Telemetry & Dispatch Squad Now</span>
+          </button>
+        `;
+      }
+
+      // Materials checklist
+      const matBox = document.getElementById('materials-checklist-box');
+      matBox.innerHTML = '';
+      iss.materials.forEach((m, idx) => {
+        const lbl = document.createElement('label');
+        lbl.className = 'flex items-center justify-between p-2 bg-white border border-border-subtle cursor-pointer hover:bg-surface-canvas transition-colors';
+        lbl.innerHTML = `
+          <div class="flex items-center gap-2">
+            <input type="checkbox" ${m.checked ? 'checked' : ''} onchange="toggleMat(${idx})" class="w-4 h-4 accent-wine-deep"/>
+            <span class="text-xs font-semibold text-charcoal-dark">${m.item}</span>
+          </div>
+          <span class="text-[11px] font-mono font-bold text-wine-deep bg-surface-canvas px-2 py-0.5">${m.qty}</span>
+        `;
+        matBox.appendChild(lbl);
+      });
+    }
+
+    function confirmSquadDispatch(id) {
+      const iss = issues.find(i => i.id === id);
+      if (iss) {
+        iss.dispatched = true;
+        renderDispatchView();
+        renderIssuesList();
+      }
+    }
+
+    function toggleMat(idx) {
+      const iss = issues.find(i => i.id === selectedIssueId);
+      if (iss && iss.materials[idx]) {
+        iss.materials[idx].checked = !iss.materials[idx].checked;
+      }
+    }
+
+    // Render Vigilance View
+    function renderVigilanceView() {
+      const iss = issues.find(i => i.id === selectedIssueId) || issues[0];
+      const work = iss.linkedWork;
+
+      // Header Context
+      const hdr = document.getElementById('vigilance-case-header');
+      hdr.innerHTML = `
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="bg-wine-deep text-white font-headline text-xs uppercase px-2.5 py-1 tracking-wider font-bold">CASE #${iss.pmcTicketNumber}</span>
+            <span class="font-headline text-xs uppercase px-2.5 py-1 tracking-wider font-bold bg-gold-ochre text-charcoal-dark">Pending Vigilance Sign-off</span>
+            <span class="text-[#544344] text-xs flex items-center gap-1 bg-surface-cream border border-border-subtle px-2.5 py-0.5">
+              <span class="material-symbols-outlined text-[15px] text-rust-terracotta">location_on</span>
+              <span>${iss.wardName} • ${iss.landmark}</span>
+            </span>
+          </div>
+          <h2 class="text-xl font-black font-headline text-charcoal-dark">${iss.title}</h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-4 bg-surface-cream border border-border-subtle p-3 px-5 shadow-xs">
+          <div class="flex flex-col pr-4 border-r border-border-subtle">
+            <span class="text-[10px] font-bold text-[#544344] uppercase font-headline">Deployment Crew</span>
+            <span class="font-headline font-bold text-sm text-wine-deep">${iss.assignedSquad.split('(')[0]}</span>
+            <span class="text-[10px] text-[#544344]">Lead: S. Shinde</span>
+          </div>
+          <div class="flex flex-col pr-4 border-r border-border-subtle">
+            <span class="text-[10px] font-bold text-[#544344] uppercase font-headline">Turnaround SLA</span>
+            <div class="flex items-baseline gap-1"><span class="font-headline font-bold text-sm">${iss.priority.slaHours}h Target</span><span class="text-status-verified text-[10px] font-bold uppercase font-headline">Met</span></div>
+            <span class="text-[10px] text-[#544344]">Logged Today 07:18</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-[10px] font-bold text-[#544344] uppercase font-headline">Dual GeoTag Lock</span>
+            <span class="font-headline font-black text-sm text-status-verified">99.4% Confidence</span>
+            <span class="text-[10px] text-[#544344]">Parallax Passed</span>
+          </div>
+        </div>
+      `;
+
+      // Work section
+      const workSec = document.getElementById('vigilance-work-section');
+      if (work) {
+        workSec.classList.remove('hidden');
+        document.getElementById('vigilance-recurrence-msg').innerHTML = `
+          Grievance recurred <strong class="text-status-critical">${iss.recurrenceLatencyDays} days</strong> after the project completion date.
+          This failure is strictly within the contractor's <strong>Defect Liability Period (DLP)</strong>.
+        `;
+
+        document.getElementById('vigilance-work-matrix').innerHTML = `
+          <div>
+            <span class="text-[#544344] font-bold uppercase font-headline block text-[10px]">Public Works Scheme</span>
+            <span class="font-headline font-bold text-wine-deep text-sm block mt-0.5">${work.scheme}</span>
+            <span class="text-[11px] text-[#544344] truncate block mt-0.5">${work.projectName}</span>
+          </div>
+          <div>
+            <span class="text-[#544344] font-bold uppercase font-headline block text-[10px]">Tender Number & Budget</span>
+            <span class="font-mono font-bold text-charcoal-dark text-sm block mt-0.5">${work.tenderNumber}</span>
+            <span class="text-[11px] text-status-verified font-bold block mt-0.5">${work.sanctionedBudget} Sanctioned</span>
+          </div>
+          <div>
+            <span class="text-[#544344] font-bold uppercase font-headline block text-[10px]">Contractor Agency</span>
+            <span class="font-bold text-charcoal-dark text-sm block mt-0.5">${work.contractorName}</span>
+            <span class="text-[11px] text-[#544344] block mt-0.5">${work.contractorContact}</span>
+          </div>
+          <div>
+            <span class="text-[#544344] font-bold uppercase font-headline block text-[10px]">Warranty & DLP Liability</span>
+            <span class="font-bold text-status-critical text-sm block mt-0.5">Active to ${work.warrantyEndDate}</span>
+            <span class="text-[11px] text-[#544344] block mt-0.5">Completed: ${work.completedDate}</span>
+          </div>
+        `;
+      } else {
+        workSec.classList.add('hidden');
+      }
+
+      // Slider images
+      document.getElementById('slider-before-img').src = iss.beforePhoto;
+      document.getElementById('slider-after-img').src = iss.afterPhoto;
+      document.getElementById('slider-gps-coords').textContent = `Coordinates: ${iss.coordinates[0].toFixed(4)}° N, ${iss.coordinates[1].toFixed(4)}° E`;
+    }
+
+    function updateSplitSlider(val) {
+      document.getElementById('slider-before-wrap').style.width = `${val}%`;
+      document.getElementById('slider-divider').style.left = `${val}%`;
+    }
+
+    function triggerContractorDefectNotice(id) {
+      const iss = issues.find(i => i.id === id);
+      showVigilanceToast(`LEGAL DEFECT NOTICE ISSUED: Retention fee frozen for ${iss?.linkedWork?.contractorName ?? 'contractor'}.`);
+    }
+
+    function handleResolutionAction(status) {
+      const comments = document.getElementById('vigilance-comments').value;
+      if (status === 'Approved') {
+        showVigilanceToast('Resolution legally approved & certified. Citizen SMS sent.');
+      } else if (status === 'Flagged Defect') {
+        showVigilanceToast('Contractor Defect Notice formally filed with Municipal Audit.');
+      } else {
+        showVigilanceToast('Resolution rejected. Re-inspection dispatched.');
+      }
+    }
+
+    function showVigilanceToast(msg) {
+      const t = document.getElementById('vigilance-toast');
+      document.getElementById('vigilance-toast-text').textContent = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 4000);
+    }
+
+    // MODAL DIALOGS
+    function closeModal() {
+      document.getElementById('modal-container').classList.add('hidden');
+    }
+
+    function openClusterModal(id) {
+      const iss = issues.find(i => i.id === id);
+      const mc = document.getElementById('modal-content');
+      mc.innerHTML = `
+        <div class="bg-wine-deep text-white p-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-gold-ochre text-[26px]">hub</span>
+            <div>
+              <div class="text-[11px] font-bold text-gold-ochre uppercase font-headline tracking-widest">
+                1 Problem, Not 50 Tickets • Spatial & Semantic Clustering
+              </div>
+              <h2 class="text-lg font-black font-headline text-white">Issue ${iss.id} Aggregation Breakdown</h2>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center hover:bg-white/20 text-white">✕</button>
+        </div>
+
+        <div class="p-6 flex flex-col gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-white border border-border-strong p-3">
+              <span class="text-[10px] font-bold uppercase text-[#544344] font-headline block">Aggregated Reports</span>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span class="font-headline text-2xl font-black text-wine-deep">${iss.clusteredReportsCount}</span>
+                <span class="text-xs text-[#544344]">citizen complaints</span>
+              </div>
+              <span class="text-[10px] text-status-verified font-semibold mt-1 block">✓ Clustered into 1 actionable ticket</span>
+            </div>
+            <div class="bg-white border border-border-strong p-3">
+              <span class="text-[10px] font-bold uppercase text-[#544344] font-headline block">Cluster Geo-Radius</span>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span class="font-headline text-2xl font-black text-rust-terracotta">${iss.clusterRadiusMeters}</span>
+                <span class="text-xs text-[#544344]">meters</span>
+              </div>
+              <span class="text-[10px] text-[#544344] mt-1 block">${iss.landmark}</span>
+            </div>
+            <div class="bg-white border border-border-strong p-3">
+              <span class="text-[10px] font-bold uppercase text-[#544344] font-headline block">Governance Approval</span>
+              <div class="mt-1"><span class="inline-block px-2 py-0.5 text-xs font-bold font-headline uppercase bg-[#D1E7DD] text-[#0F5132]">✓ Officer Confirmed</span></div>
+              <span class="text-[10px] text-[#544344] mt-1 block">A. Kulkarni</span>
+            </div>
+          </div>
+
+          <div class="bg-surface-canvas p-3 border-l-4 border-gold-ochre text-xs text-charcoal-body">
+            <strong class="text-charcoal-dark font-headline uppercase">De-duplication Intelligence:</strong>
+            Multiple citizen complaints across WhatsApp, the PMC Citizen App, and IVR helpline were logged within
+            an ${iss.clusterRadiusMeters}-meter radius. The system merged these duplicates to prevent separate
+            departmental dispatches for what is physically a single infrastructure failure.
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-4 border-t border-border-subtle">
+            <button onclick="closeModal()" class="px-4 py-2 bg-wine-deep text-white text-xs font-bold font-headline uppercase hover:bg-rust-terracotta">
+              Confirm & Return to Dashboard
+            </button>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-container').classList.remove('hidden');
+    }
+
+    function openPriorityModal(id) {
+      const iss = issues.find(i => i.id === id);
+      const f = iss.priority.factors;
+      const mc = document.getElementById('modal-content');
+
+      mc.innerHTML = `
+        <div class="bg-wine-deep text-white p-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-gold-bright text-[26px]">calculate</span>
+            <div>
+              <div class="text-[11px] font-bold text-gold-bright uppercase font-headline tracking-widest">
+                Explainable Priority • Mathematical Formulation
+              </div>
+              <h2 class="text-lg font-black font-headline text-white">Priority Score Breakdown: ${iss.id}</h2>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center hover:bg-white/20 text-white">✕</button>
+        </div>
+
+        <div class="p-6 flex flex-col gap-5">
+          <div class="bg-white border border-border-strong p-4 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold uppercase text-[#544344] font-headline block">Total Triage Score</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span class="font-headline text-4xl font-black text-rust-terracotta">${iss.priority.score}</span>
+                <span class="text-sm font-bold text-[#544344]">/ 100</span>
+                <span class="px-2 py-0.5 font-headline text-xs font-bold uppercase ml-2 bg-[#BA1A1A] text-white">${iss.priority.tier}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] font-bold uppercase text-[#544344] font-headline block">Target SLA</span>
+              <span class="font-headline text-xl font-bold text-wine-deep">${iss.priority.slaHours} Hours</span>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            ${Object.keys(f).map(k => `
+              <div class="bg-white border border-border-subtle p-3 flex justify-between items-center">
+                <div>
+                  <span class="font-headline font-bold text-xs uppercase">${f[k].label}</span>
+                  <p class="text-[11px] text-[#544344]">${f[k].reason}</p>
+                </div>
+                <span class="font-headline font-bold text-sm text-wine-deep bg-surface-canvas px-2.5 py-1">+${f[k].points} / 25</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t border-border-subtle">
+            <button onclick="closeModal()" class="px-4 py-2 bg-wine-deep text-white text-xs font-bold font-headline uppercase hover:bg-rust-terracotta">
+              Acknowledge Formula
+            </button>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-container').classList.remove('hidden');
+    }
+
+    function openEvidenceModal(id) {
+      const iss = issues.find(i => i.id === id);
+      const w = iss.linkedWork;
+      const mc = document.getElementById('modal-content');
+
+      mc.innerHTML = `
+        <div class="bg-wine-deep text-white p-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-gold-bright text-[26px]">account_tree</span>
+            <div>
+              <div class="text-[11px] font-bold text-gold-bright uppercase font-headline tracking-widest">
+                The Killer Feature • Accountability Linkage
+              </div>
+              <h2 class="text-lg font-black font-headline text-white">Work → Outcome Evidence Chain</h2>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center hover:bg-white/20 text-white">✕</button>
+        </div>
+
+        <div class="p-6 flex flex-col gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
+            <div class="bg-white border p-3">
+              <span class="text-[10px] font-bold uppercase font-headline text-wine-deep">1. Complaint</span>
+              <div class="font-bold text-xs mt-1">${iss.id}</div>
+              <div class="text-[10px] text-[#544344]">${iss.clusteredReportsCount} merged</div>
+            </div>
+            <div class="bg-white border p-3">
+              <span class="text-[10px] font-bold uppercase font-headline text-wine-deep">2. Prabhag</span>
+              <div class="font-bold text-xs mt-1">${iss.wardName}</div>
+              <div class="text-[10px] text-[#544344]">${iss.sector}</div>
+            </div>
+            <div class="bg-white border-2 border-rust-terracotta p-3 bg-[#FFFBF7]">
+              <span class="text-[10px] font-bold uppercase font-headline text-rust-terracotta">3. Scheme</span>
+              <div class="font-bold text-xs mt-1">${w ? w.scheme : 'N/A'}</div>
+              <div class="text-[10px] text-rust-terracotta font-bold">${w ? w.sanctionedBudget : ''}</div>
+            </div>
+            <div class="bg-white border p-3">
+              <span class="text-[10px] font-bold uppercase font-headline text-wine-deep">4. Tender</span>
+              <div class="font-bold text-xs font-mono mt-1">${w ? w.tenderNumber : ''}</div>
+              <div class="text-[10px] text-[#544344]">PMC e-Tender</div>
+            </div>
+            <div class="bg-white border p-3">
+              <span class="text-[10px] font-bold uppercase font-headline text-status-critical">5. Contractor</span>
+              <div class="font-bold text-xs mt-1">${w ? w.contractorName : ''}</div>
+              <div class="text-[10px] text-status-critical font-bold">DLP Liable</div>
+            </div>
+          </div>
+
+          <div class="bg-surface-canvas p-4 border border-border-strong text-xs flex flex-col gap-2">
+            <span class="font-headline font-bold text-xs text-wine-deep uppercase">Contractor Warranty Clause:</span>
+            <p class="italic text-charcoal-body">"${w ? w.defectPenaltyClauses : ''}"</p>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t border-border-subtle">
+            <button onclick="closeModal()" class="px-4 py-2 bg-wine-deep text-white text-xs font-bold font-headline uppercase hover:bg-rust-terracotta">
+              Close Evidence Chain
+            </button>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-container').classList.remove('hidden');
+    }
+
+    // Keyboard Hotkeys (1, 2, 3)
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === '1') switchTab('ward-dashboard');
+      if (e.key === '2') switchTab('field-dispatch');
+      if (e.key === '3') switchTab('reviewer-console');
+    });
+
+    // Initialize View
+    renderMapPins();
+    renderSelectedDock();
+    renderIssuesList();
+    renderDispatchView();
+    renderVigilanceView();
+  </script>
+</body>
+</html>

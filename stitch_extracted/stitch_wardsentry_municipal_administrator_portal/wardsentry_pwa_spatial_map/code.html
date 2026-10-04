@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><title>WardSentry Mobile</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700;800&amp;family=Noto+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#FAF8F5;}body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface": "#FAF8F5", "surface-warm-tint": "#F5F1EB", "on-primary": "#ffffff", "on-primary-fixed-variant": "#772f39", "background": "#FAF8F5", "wine-deep": "#4A1525", "rust-terracotta": "#C74724", "surface-tint": "#944650", "surface-container": "#f0eded", "secondary-fixed": "#ffdea7", "rust-burnt": "#BA3D1D", "inverse-surface": "#313030", "tertiary-fixed-dim": "#ffb5a1", "on-error-container": "#93000a", "on-surface": "#1b1b1b", "secondary-container": "#febb28", "inverse-on-surface": "#f3f0ef", "outline": "#867273", "primary-fixed-dim": "#ffb2b9", "surface-container-low": "#f6f3f2", "on-secondary-fixed": "#271900", "gold-ochre": "#EAAA0F", "on-tertiary-fixed-variant": "#881f00", "surface-variant": "#e5e2e1", "surface-container-highest": "#e5e2e1", "error-container": "#ffdad6", "secondary-fixed-dim": "#febb28", "on-secondary-container": "#6d4d00", "surface-container-lowest": "#ffffff", "secondary": "#7c5800", "tertiary-container": "#6a1600", "on-error": "#ffffff", "on-background": "#1b1b1b", "primary-fixed": "#ffdadc", "inverse-primary": "#ffb2b9", "surface-cream": "#FAF8F5", "tertiary": "#440b00", "on-primary-fixed": "#3e0310", "on-tertiary": "#ffffff", "outline-variant": "#d9c1c2", "on-tertiary-container": "#ff744f", "gold-bright": "#F2A900", "on-primary-container": "#e1848e", "surface-bright": "#fcf9f8", "on-surface-variant": "#544344", "wine-base": "#611E29", "charcoal-dark": "#1B1B1B", "error": "#ba1a1a", "charcoal-body": "#333333", "surface-container-high": "#eae7e7", "on-secondary-fixed-variant": "#5e4200", "primary": "#450815", "tertiary-fixed": "#ffdbd1", "on-secondary": "#ffffff", "surface-dim": "#dcd9d9", "on-tertiary-fixed": "#3c0800", "primary-container": "#611e29" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "gutter-mobile": "1rem", "margin": "3rem", "margin-mobile": "1.25rem", "space-md": "1rem", "space-xl": "2.5rem", "gutter": "1.5rem", "space-sm": "0.5rem", "space-lg": "1.5rem" }, fontFamily: { "headline-sm": ["Chivo"], "headline-xl": ["Chivo"], "headline-lg": ["Chivo"], "label-lg": ["Chivo"], "headline-xl-mobile": ["Chivo"], "body-lg": ["Noto Sans"], "body-md": ["Noto Sans"], "label-md": ["Noto Sans"], "headline-md": ["Chivo"], "headline-lg-mobile": ["Chivo"], "body-sm": ["Noto Sans"], "label-sm": ["Noto Sans"] }, fontSize: { "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }], "headline-xl": ["48px", { lineHeight: "56px", fontWeight: "800" }], "headline-lg": ["36px", { lineHeight: "44px", fontWeight: "700" }], "label-lg": ["14px", { lineHeight: "20px", fontWeight: "700" }], "headline-xl-mobile": ["32px", { lineHeight: "40px", fontWeight: "800" }], "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }], "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", fontWeight: "600" }], "headline-md": ["28px", { lineHeight: "36px", fontWeight: "700" }], "headline-lg-mobile": ["26px", { lineHeight: "32px", fontWeight: "700" }], "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", fontWeight: "700" }] } } } };</script></head><body class="bg-surface font-body-md text-charcoal-body flex flex-col min-h-screen antialiased selection:bg-gold-ochre selection:text-charcoal-dark"><header class="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-gutter-mobile flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-9 h-9 bg-primary flex items-center justify-center shrink-0 [clip-path:polygon(0_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%)]"><span class="material-symbols-outlined text-gold-ochre text-[20px]">shield</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-label-lg text-label-lg tracking-tight text-primary uppercase truncate">WardSentry</span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium hidden xs:inline">MUNICIPAL</span></div><div class="flex items-center gap-1.5"><span class="inline-flex items-center px-1.5 py-0.5 bg-surface-warm-tint text-charcoal-dark font-label-sm text-label-sm tracking-wide uppercase truncate">Ward 14 (Kothrud)</span></div></div></div><div class="flex items-center gap-space-xs shrink-0"><div class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-warm-tint" title="Sync Status: Live"><span class="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span><span class="font-label-sm text-label-sm text-charcoal-dark uppercase tracking-wider hidden sm:inline">LIVE</span></div><button aria-label="Notifications" class="relative w-11 h-11 flex items-center justify-center text-charcoal-dark hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 bg-rust-terracotta rounded-full"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full relative">
+<!-- Top Spatial Controls Bar -->
+<div class="px-gutter-mobile pt-3 pb-2 flex flex-col gap-2 z-20">
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-2.5 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">search</span>
+<input class="w-full bg-transparent font-body-sm text-body-sm text-charcoal-dark placeholder:text-outline focus:outline-none" placeholder="Search ward sectors, incident ID, or landmark..." type="text"/>
+<button aria-label="Filters" class="w-8 h-8 flex items-center justify-center bg-surface-warm-tint text-primary hover:bg-gold-ochre/20 transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+<!-- Quick Filter Pills -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+<button class="filter-pill active shrink-0 px-3 py-1.5 bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-wide flex items-center gap-1.5 transition-all" type="button">
+<span>All Active</span>
+<span class="bg-primary-container text-on-primary px-1.5 py-0.2 text-[10px] font-bold">14</span>
+</button>
+<button class="filter-pill shrink-0 px-3 py-1.5 bg-surface-container-lowest text-charcoal-dark font-label-sm text-label-sm uppercase tracking-wide flex items-center gap-1.5 transition-all hover:bg-surface-warm-tint" type="button">
+<span class="w-2 h-2 bg-rust-terracotta"></span>
+<span>P1 Critical</span>
+<span class="bg-rust-terracotta/15 text-rust-terracotta px-1.5 py-0.2 text-[10px] font-bold">3</span>
+</button>
+<button class="filter-pill shrink-0 px-3 py-1.5 bg-surface-container-lowest text-charcoal-dark font-label-sm text-label-sm uppercase tracking-wide flex items-center gap-1.5 transition-all hover:bg-surface-warm-tint" type="button">
+<span class="material-symbols-outlined text-[14px] text-gold-ochre">assignment_ind</span>
+<span>My Assigned</span>
+<span class="bg-gold-ochre/20 text-charcoal-dark px-1.5 py-0.2 text-[10px] font-bold">5</span>
+</button>
+<button class="filter-pill shrink-0 px-3 py-1.5 bg-surface-container-lowest text-charcoal-dark font-label-sm text-label-sm uppercase tracking-wide flex items-center gap-1.5 transition-all hover:bg-surface-warm-tint" type="button">
+<span>SLA &lt; 3h</span>
+<span class="bg-surface-container text-charcoal-body px-1.5 py-0.2 text-[10px] font-bold">2</span>
+</button>
+</div>
+</div>
+<!-- Interactive Map Canvas Container (60% approximate mobile viewport height) -->
+<div class="relative w-full h-[58vh] bg-surface-warm-tint overflow-hidden select-none">
+<!-- SVG Vector Map Canvas: Ward Boundaries, Roads & Infrastructure Grid -->
+<svg class="absolute inset-0 w-full h-full" fill="none" preserveaspectratio="xMidYMid slice" viewbox="0 0 420 540" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="32" id="grid" patternunits="userSpaceOnUse" width="32">
+<path d="M 32 0 L 0 0 0 32" fill="none" stroke="#FAF8F5" stroke-width="1.2"></path>
+</pattern>
+<radialgradient cx="50%" cy="45%" id="wardGlow" r="60%">
+<stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.75"></stop>
+<stop offset="100%" stop-color="#F5F1EB" stop-opacity="0.9"></stop>
+</radialgradient>
+</defs>
+<!-- Ward Terrain Fill -->
+<rect fill="url(#wardGlow)" height="100%" width="100%"></rect>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+<!-- Ward Boundary 14 (Polygon with Chamfered Editorial Edge) -->
+<path d="M 28 42 L 390 18 L 405 280 L 370 495 L 85 520 L 15 360 Z" fill="#611E29" fill-opacity="0.04" stroke="#611E29" stroke-dasharray="6 4" stroke-width="2.5"></path>
+<!-- Sector Internal Borders -->
+<path d="M 120 70 L 260 210 L 390 240" stroke="#EAAA0F" stroke-dasharray="2 3" stroke-opacity="0.35" stroke-width="1.5"></path>
+<path d="M 140 330 L 250 310 L 370 495" stroke="#EAAA0F" stroke-dasharray="2 3" stroke-opacity="0.35" stroke-width="1.5"></path>
+<!-- Major Arterial Roads -->
+<path d="M -20 180 Q 150 210 240 160 T 440 230" stroke="#FFFFFF" stroke-linecap="round" stroke-width="14"></path>
+<path d="M -20 180 Q 150 210 240 160 T 440 230" stroke="#e5e2e1" stroke-linecap="round" stroke-width="9"></path>
+<!-- Paud Road Label Path -->
+<path d="M 30 185 Q 160 210 240 165" fill="none" id="paudRoad"></path>
+<text fill="#867273" font-family="Noto Sans" font-size="9" font-weight="700" letter-spacing="2">
+<textpath href="#paudRoad" startoffset="18%">PAUD ROAD (CORRIDOR 4)</textpath>
+</text>
+<path d="M 215 10 L 210 530" stroke="#FFFFFF" stroke-width="10"></path>
+<path d="M 215 10 L 210 530" stroke="#e5e2e1" stroke-width="6"></path>
+<!-- Canal / Drainage Network Line -->
+<path d="M 35 480 Q 180 430 320 460 T 430 380" stroke="#4A1525" stroke-linecap="square" stroke-opacity="0.25" stroke-width="3"></path>
+<!-- Sector Markers -->
+<g opacity="0.65">
+<rect fill="#FAF8F5" height="20" width="76" x="52" y="90"></rect>
+<text fill="#450815" font-family="Chivo" font-size="10" font-weight="700" letter-spacing="1" x="60" y="104">SECTOR 14-A</text>
+<rect fill="#FAF8F5" height="20" width="76" x="290" y="110"></rect>
+<text fill="#450815" font-family="Chivo" font-size="10" font-weight="700" letter-spacing="1" x="298" y="124">IDEAL COLONY</text>
+<rect fill="#FAF8F5" height="20" width="80" x="80" y="440"></rect>
+<text fill="#450815" font-family="Chivo" font-size="10" font-weight="700" letter-spacing="1" x="88" y="454">GUJARAT COLONY</text>
+</g>
+</svg>
+<!-- Map UI Controls Overlay (Right Rail) -->
+<div class="absolute right-3 top-3 flex flex-col gap-2 z-10">
+<button aria-label="Recenter GPS" class="w-10 h-10 bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center hover:bg-surface-warm-tint active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px]">my_location</span>
+</button>
+<button aria-label="Layers" class="w-10 h-10 bg-surface-container-lowest text-charcoal-dark shadow-sm flex items-center justify-center hover:bg-surface-warm-tint" type="button">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</button>
+<div class="flex flex-col bg-surface-container-lowest shadow-sm">
+<button aria-label="Zoom in" class="w-10 h-9 flex items-center justify-center text-charcoal-dark hover:bg-surface-warm-tint font-bold text-lg" type="button">+</button>
+<div class="w-6 h-px bg-surface-container mx-auto"></div>
+<button aria-label="Zoom out" class="w-10 h-9 flex items-center justify-center text-charcoal-dark hover:bg-surface-warm-tint font-bold text-lg" type="button">−</button>
+</div>
+</div>
+<!-- Ward Boundary Status Tag (Top Left Floating) -->
+<div class="absolute left-3 top-3 bg-surface-container-lowest/95 backdrop-blur-sm px-2.5 py-1.5 shadow-sm flex items-center gap-2">
+<span class="w-2 h-2 bg-gold-ochre"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-charcoal-dark font-bold">Grid K-14 • 8.4 km²</span>
+</div>
+<!-- GPS User Location Marker (Field Officer) -->
+<div class="absolute top-[52%] left-[42%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+<div class="relative flex items-center justify-center">
+<span class="absolute w-12 h-12 rounded-full bg-gold-ochre/25 animate-ping"></span>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-gold-ochre text-[18px]">navigation</span>
+</div>
+</div>
+<div class="bg-primary text-on-primary px-1.5 py-0.5 mt-1 font-label-sm text-[9px] uppercase tracking-wider font-bold whitespace-nowrap text-center">
+        You (En Route)
+      </div>
+</div>
+<!-- Incident Pin 1: Selected P1 Water Main Rupture (With Rich Terracotta Ripple) -->
+<button aria-label="Incident PMC-8841" class="incident-pin absolute top-[36%] left-[64%] -translate-x-1/2 -translate-y-1/2 z-30 group cursor-pointer focus:outline-none" id="pin-8841" type="button">
+<div class="relative flex items-center justify-center">
+<!-- Ripple effect layers -->
+<span class="absolute w-14 h-14 bg-rust-terracotta/30 animate-ping"></span>
+<span class="absolute w-10 h-10 bg-rust-terracotta/40"></span>
+<!-- Sharp Cut Pin Head -->
+<div class="relative w-9 h-9 bg-rust-terracotta flex items-center justify-center shadow-md [clip-path:polygon(0_0,100%_0,100%_calc(100%-6px),calc(100%-6px)_100%,0_100%)]">
+<span class="material-symbols-outlined text-on-primary text-[20px]">water_drop</span>
+</div>
+</div>
+<div class="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-charcoal-dark text-on-primary px-1.5 py-0.2 text-[9px] font-bold uppercase whitespace-nowrap shadow-sm">
+        P1 #8841
+      </div>
+</button>
+<!-- Incident Pin 2: P2 Streetlight Pole Hazard (Gold Ochre) -->
+<button aria-label="Incident PMC-8829" class="incident-pin absolute top-[22%] left-[28%] -translate-x-1/2 -translate-y-1/2 z-20 group cursor-pointer focus:outline-none" type="button">
+<div class="relative flex items-center justify-center">
+<div class="w-7 h-7 bg-gold-ochre flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-charcoal-dark text-[16px]">bolt</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest text-charcoal-dark px-1 py-0.2 mt-0.5 text-[8px] font-bold uppercase shadow-sm">
+        P2 #8829
+      </div>
+</button>
+<!-- Incident Pin 3: P3 Solid Waste Dump (Deep Wine) -->
+<button aria-label="Incident PMC-8812" class="incident-pin absolute top-[68%] left-[78%] -translate-x-1/2 -translate-y-1/2 z-20 group cursor-pointer focus:outline-none" type="button">
+<div class="relative flex items-center justify-center">
+<div class="w-7 h-7 bg-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-gold-ochre text-[16px]">delete</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest text-charcoal-dark px-1 py-0.2 mt-0.5 text-[8px] font-bold uppercase shadow-sm">
+        P3 #8812
+      </div>
+</button>
+<!-- Incident Pin 4: P2 Pothole Cluster -->
+<button aria-label="Incident PMC-8804" class="incident-pin absolute top-[74%] left-[22%] -translate-x-1/2 -translate-y-1/2 z-20 group cursor-pointer focus:outline-none" type="button">
+<div class="relative flex items-center justify-center">
+<div class="w-7 h-7 bg-gold-ochre flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-charcoal-dark text-[16px]">warning</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest text-charcoal-dark px-1 py-0.2 mt-0.5 text-[8px] font-bold uppercase shadow-sm">
+        P2 #8804
+      </div>
+</button>
+</div>
+<!-- Bottom Floating Collapsible Incident Snapshot Card -->
+<div class="w-full px-gutter-mobile -mt-4 z-30 pb-4">
+<div class="bg-surface-container-lowest shadow-md transition-all duration-300" id="snapshot-card">
+<!-- Top Colored Accent Stripe (Terracotta for P1 Critical) -->
+<div class="h-1.5 w-full bg-rust-terracotta"></div>
+<div class="p-4 flex flex-col gap-3">
+<!-- Header Row: ID, Badges & Collapse Toggle -->
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 mb-1 flex-wrap">
+<span class="font-headline-sm text-[15px] font-bold text-primary tracking-tight">#PMC-8841</span>
+<!-- Terracotta Severity Badge -->
+<span class="px-2 py-0.5 bg-rust-terracotta text-on-primary font-label-sm text-[11px] font-bold uppercase tracking-wider">
+                P1 CRITICAL
+              </span>
+<span class="px-2 py-0.5 bg-surface-warm-tint text-charcoal-dark font-label-sm text-[11px] font-semibold uppercase">
+                Water Supply
+              </span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-charcoal-dark truncate">
+              Severe Water Main Rupture
+            </h2>
+</div>
+<button aria-label="Expand or minimize card" class="w-8 h-8 flex items-center justify-center text-charcoal-body hover:bg-surface-warm-tint transition-colors shrink-0" id="toggle-details" type="button">
+<span class="material-symbols-outlined text-[22px]" id="toggle-icon">keyboard_arrow_down</span>
+</button>
+</div>
+<!-- Distance & SLA Highlight Strip -->
+<div class="grid grid-cols-2 gap-2 bg-surface-warm-tint p-2.5">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-gold-ochre text-[16px]">near_me</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-[10px] uppercase text-outline font-bold">Proximity</span>
+<span class="font-label-lg text-label-lg text-charcoal-dark truncate">Paud Rd • 350m</span>
+</div>
+</div>
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 bg-rust-terracotta flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary text-[16px]">timer</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-[10px] uppercase text-outline font-bold">SLA Remaining</span>
+<span class="font-label-lg text-label-lg text-rust-terracotta truncate">2h 45m left</span>
+</div>
+</div>
+</div>
+<!-- Collapsible Extended Section -->
+<div class="flex flex-col gap-3 pt-1" id="details-section">
+<!-- Location context & reporter statement -->
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-outline text-[18px] shrink-0 mt-0.5">location_on</span>
+<div class="flex flex-col text-body-sm font-body-sm text-charcoal-body">
+<span class="font-bold text-charcoal-dark">Opposite Ideal Colony Gate #2, Kothrud</span>
+<span class="text-on-surface-variant text-[13px]">12-inch pressure conduit leaking onto carriageway. High flood risk to shops.</span>
+</div>
+</div>
+<!-- Live Telemetry / Verification status -->
+<div class="flex items-center justify-between text-label-sm font-label-sm px-2 py-1.5 bg-surface-container-low">
+<span class="text-on-surface-variant uppercase tracking-wider">Assigned Crew: Depot 4 (J. Shinde + 3)</span>
+<span class="text-rust-burnt font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-rust-burnt animate-pulse"></span> Escalated
+            </span>
+</div>
+<!-- Direct Touch Action Buttons -->
+<div class="grid grid-cols-2 gap-2.5 pt-1">
+<!-- Navigate Button (Solid Terracotta #C24D2C) -->
+<button class="w-full py-3 px-3 bg-rust-terracotta text-on-primary font-label-lg text-label-lg uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm hover:bg-rust-burnt active:translate-y-0.5 transition-all [clip-path:polygon(0_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%)]" type="button">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+<span>Navigate</span>
+</button>
+<!-- Open Dossier Button (Solid Terracotta / Burgundy Accent) -->
+<button class="w-full py-3 px-3 bg-wine-base text-on-primary font-label-lg text-label-lg uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm hover:bg-wine-deep active:translate-y-0.5 transition-all [clip-path:polygon(0_0,100%_0,100%_calc(100%-8px),calc(100%-8px)_100%,0_100%)]" type="button">
+<span class="material-symbols-outlined text-gold-ochre text-[18px]">folder_open</span>
+<span>Open Dossier</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function () {
+    const toggleBtn = document.getElementById('toggle-details');
+    const toggleIcon = document.getElementById('toggle-icon');
+    const detailsSection = document.getElementById('details-section');
+
+    if (toggleBtn && detailsSection && toggleIcon) {
+      let expanded = true;
+      toggleBtn.addEventListener('click', function () {
+        expanded = !expanded;
+        if (expanded) {
+          detailsSection.classList.remove('hidden');
+          toggleIcon.textContent = 'keyboard_arrow_down';
+        } else {
+          detailsSection.classList.add('hidden');
+          toggleIcon.textContent = 'keyboard_arrow_up';
+        }
+      });
+    }
+
+    // Interactive Pill active state toggle
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach((pill) => {
+      pill.addEventListener('click', function () {
+        pills.forEach((p) => {
+          p.classList.remove('bg-primary', 'text-on-primary');
+          p.classList.add('bg-surface-container-lowest', 'text-charcoal-dark');
+        });
+        this.classList.remove('bg-surface-container-lowest', 'text-charcoal-dark');
+        this.classList.add('bg-primary', 'text-on-primary');
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.05)]" data-active-classes="text-primary font-bold bg-surface-warm-tint"><div class="flex items-stretch justify-around h-16 px-space-xs"><a aria-current="page" class="flex flex-col items-center justify-center flex-1 h-full py-1 transition-all select-none text-primary font-bold bg-surface-warm-tint" data-path="spatial-ward-map" href="#"><span class="material-symbols-outlined text-[22px] leading-none mb-1">map</span><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Map</span></a><a class="flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary transition-all relative select-none" data-path="incident-queue" href="#"><div class="relative leading-none mb-1"><span class="material-symbols-outlined text-[22px]">format_list_bulleted</span><span class="absolute -top-1 -right-3.5 px-1 py-0.2 bg-rust-terracotta text-on-primary font-label-sm text-[10px] leading-tight font-bold rounded-none">14</span></div><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Incidents</span></a><a class="flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary transition-all select-none" data-path="field-verification" href="#"><span class="material-symbols-outlined text-[22px] leading-none mb-1">photo_camera</span><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Verify</span></a><a class="flex flex-col items-center justify-center flex-1 h-full py-1 text-on-surface-variant hover:text-primary transition-all select-none" data-path="depot-profile" href="#"><span class="material-symbols-outlined text-[22px] leading-none mb-1">badge</span><span class="font-label-sm text-label-sm uppercase tracking-wider leading-none">Depot</span></a></div></nav></body></html>
